@@ -1,35 +1,34 @@
-#ifndef UART_Communication_h
-#define UART_Communication_h
+/**
+ * @file       uart_communication.h
+ * @copyright  Copyright (C) 2020 ThuanLe. All rights reserved.
+ * @license    This project is released under the ThuanLe License.
+ * @version    1.0.0
+ * @date       2020-08-01
+ * @author     ThuanLe
+ * @brief      Uart communication
+ * @note       None
+ * @example    None
+ */
 
-String data_software = "";
-boolean stringComplete = false;
+/* Define to prevent recursive inclusion ------------------------------ */
+#ifndef __UART_COMMUNICATION_H
+#define __UART_COMMUNICATION_H
 
-void Recive_Data()
-{
-  while (Serial2.available()) // gửi data từ C# qua
-  {
-    char data = (char)Serial2.read();
-    data_software += data;
-    if (data == '\n')
-    {
-      stringComplete = true;
-    }
-    if (stringComplete)
-    {
-      stringComplete = false;
-      Serial.println("RUNNING");
-      Execute_String(data_software);
-      if (Appl_SystemState_xdu8 == FINISH_LETTER_STATE)
-      {
-        // Do nothing
-      }
-      else
-      {
-        Serial2.println(1);
-      }
-      data_software = "";
-    }
-  }
-}
+/* Includes ----------------------------------------------------------- */
+#include "Arduino.h"
 
-#endif
+/* Public defines ----------------------------------------------------- */
+
+/* Public enumerate/structure ----------------------------------------- */
+
+/* Public macros ------------------------------------------------------ */
+
+/* Public variables --------------------------------------------------- */
+extern String data_software;
+
+/* Public function definition ----------------------------------------- */
+void receive_data();
+
+#endif // __UART_COMMUNICATION_H
+
+/* End of file -------------------------------------------------------- */

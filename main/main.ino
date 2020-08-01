@@ -1,13 +1,14 @@
-
-
 #include <avr/wdt.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
 
-#include "Stepper_Control.h"
-#include "Execute_Data.h"
-#include "UART_Communication.h"
+#include "stepper_control.h"
+#include "execute_data.h"
+#include "uart_communication.h"
 #include "main.h"
+#include "damos_ram.h"
+#include "board_define.h"
+#include "bsp.h"
 
 //-------------------STEPPER_MOVE (11)--------------//
 /*
@@ -41,11 +42,7 @@ void setup()
   Serial2.begin(115200);
   Serial3.begin(115200);
 
-  STEPPER_MOVE.setEnablePin(STEPPER_MOVE_ENA_PIN);
-  STEPPER_MOVE.setMaxSpeed(100000);
-
-  STEPPER_CUT.setEnablePin(STEPPER_CUT_ENA_PIN);
-  STEPPER_CUT.setMaxSpeed(100000);
+  stepper_setup();
 
   attachInterrupt(2, Pause_Push, FALLING);    // Pin 21 Push go to LOW
   attachInterrupt(3, Emergency_Push, RISING); // Pin 20 Push go to HIGH
@@ -81,6 +78,7 @@ void InitVariables()
   Appl_CutterBackwardTrigger_xdu = false;
   Appl_Forward_Trigger_xdu = false;
 }
+
 void loop()
 {
   switch (Appl_SystemState_xdu8)
@@ -93,7 +91,7 @@ void loop()
     Serial.println("--------------SystemState moved to RECIEVE_STATE--------------");
     break;
   case RECIEVE_AND_RUNNING_STATE:
-    Recive_Data();
+    receive_data();
     if (Emergency_Check() == true)
     {
       Appl_SystemState_xdu8 = EMERGENCY_STATE;
@@ -206,7 +204,6 @@ void Pause_Push()
     {
       if (Appl_StartRunning_xdu == true and Appl_ButtonStopPress_xdu == false)
       {
-        digitalWrite(OP14, HIGH);
         Pause();
         Appl_ButtonPausePress_xdu = true;
         Appl_ButtonPausePress_1_xdu = true;
@@ -255,6 +252,7 @@ void Start_Push()
     }
   }
 }
+
 bool Emergency_Check()
 {
   if (digitalRead(BUTTON_EMERGENCY_PIN) == 1)
