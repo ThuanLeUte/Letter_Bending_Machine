@@ -33,9 +33,9 @@ static boolean string_complete = false;
 /* Function definitions ----------------------------------------------- */
 void receive_data()
 {
-  while (Serial2.available()) // gửi data từ C# qua
+  while (Serial.available()) // gửi data từ C# qua
   {
-    char data = (char)Serial2.read();
+    char data = (char)Serial.read();
     data_software += data;
 
     if (data == '\n')
@@ -46,7 +46,7 @@ void receive_data()
     if (string_complete)
     {
       string_complete = false;
-      Serial.println("RUNNING");
+      Serial3.println("RUNNING");
       Execute_String(data_software);
       if (Appl_SystemState_xdu8 == FINISH_LETTER_STATE)
       {
@@ -54,7 +54,7 @@ void receive_data()
       }
       else
       {
-        Serial2.println(1);
+        Serial.println(1);
       }
 
       data_software = "";

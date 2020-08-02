@@ -79,10 +79,10 @@ void Home_Move_B()
     }
   }
   STEPPER_MOVE.stop();
-  Serial.println(STEPPER_MOVE.currentPosition());
+  Serial3.println(STEPPER_MOVE.currentPosition());
   STEPPER_MOVE.setCurrentPosition(0);
   Serial.print("Số lỗ: ");
-  Serial.println(NumHoles_AlreadyRun_xdu32);
+  Serial3.println(NumHoles_AlreadyRun_xdu32);
   NumHoles_AlreadyRun_xdu32 = 0;
 }
 
@@ -104,15 +104,15 @@ void Forward_Move(unsigned long Step_Remain)
         Flag_Pre = 0;
         Appl_NumHolesFromAToB_xdu8++;
         Serial.print("NumHolesFromAToB_xdu8 forward: ");
-        Serial.println(Appl_NumHolesFromAToB_xdu8);
+        Serial3.println(Appl_NumHolesFromAToB_xdu8);
       }
     }
   }
   STEPPER_MOVE.stop();
   STEPPER_MOVE.setCurrentPosition(0);
   Serial.print("Step_Remain: ");
-  Serial.println(Step_Remain);
-  Serial.println(STEPPER_MOVE.currentPosition());
+  Serial3.println(Step_Remain);
+  Serial3.println(STEPPER_MOVE.currentPosition());
 }
 
 void Forward_Move_First()
@@ -139,11 +139,11 @@ void Forward_Move_First()
             NumHole_Internal++;
             Flag_Pre = 0;
             Serial.print("First Holes : ");
-            Serial.println(NumHole_Internal);
+            Serial3.println(NumHole_Internal);
           }
           else
           {
-            Serial.println("Loi cam bien");
+            Serial3.println("Loi cam bien");
           }
         }
       }
@@ -176,7 +176,7 @@ void Forward_Move_1Step()
           NumHole_Internal++;
           Flag_Pre = 0;
           Serial.print("First Holes : ");
-          Serial.println(NumHole_Internal);
+          Serial3.println(NumHole_Internal);
         }
       }
     }
@@ -250,9 +250,9 @@ int Forward_Move_Holes(int Holes)
             NumHole_Internal++;
             Appl_NumHolesFromAToB_xdu8++;
             //Serial.print("NumHolesFromAToB_xdu8: ");
-            //Serial.println(Appl_NumHolesFromAToB_xdu8);
+            //Serial3.println(Appl_NumHolesFromAToB_xdu8);
             //Serial.print("Step_Remain: ");
-            //Serial.println(STEPPER_MOVE.currentPosition());
+            //Serial3.println(STEPPER_MOVE.currentPosition());
             Appl_LastPulse_xdu8 = STEPPER_MOVE.currentPosition();
             Flag_Pre = 0;
           }
@@ -269,7 +269,7 @@ int Forward_Move_Holes(int Holes)
             }
             else
             {
-              Serial.println("Loi cam bien");
+              Serial3.println("Loi cam bien");
             }
           }
         }
@@ -283,7 +283,7 @@ int Forward_Move_Holes(int Holes)
         Appl_LengthToAlarm_A_fdu32 = abs(STEPPER_MOVE.currentPosition()) * 0.011090301;
         Appl_NoMaterialFirstCallCapture_xdu = 1;
         Serial.print("Length: ");
-        Serial.println(Appl_LengthToAlarm_A_fdu32);
+        Serial3.println(Appl_LengthToAlarm_A_fdu32);
       }
       if (Appl_NoMaterial_xdu == false and Appl_NoMaterialFirstCallCapture_xdu == 1)
       {
@@ -292,11 +292,11 @@ int Forward_Move_Holes(int Holes)
         if (Appl_LengthToAlarm_fdu32 >= 100 or Appl_NumHolesFromAToB_xdu8 >= 43)
         {
           Serial.print("Length: ");
-          Serial.println(Appl_LengthToAlarm_fdu32);
+          Serial3.println(Appl_LengthToAlarm_fdu32);
           Serial.print("currentPosition: ");
-          Serial.println(STEPPER_MOVE.currentPosition());
+          Serial3.println(STEPPER_MOVE.currentPosition());
 
-          Serial2.println(11);
+          Serial.println(11);
           digitalWrite(MATERIAL_STATUS, HIGH);
           Appl_NoMaterial_xdu = true;
           Appl_NoMaterialTriger_xdu = true;
@@ -313,7 +313,7 @@ int Forward_Move_Holes(int Holes)
     {
       if (Appl_NoMaterial_xdu == false)
       {
-        Serial2.println(11);
+        Serial.println(11);
         digitalWrite(MATERIAL_STATUS, HIGH);
         Appl_NoMaterial_xdu = true;
       }
@@ -325,10 +325,10 @@ int Forward_Move_Holes(int Holes)
     {
       if (digitalRead(BUTTON_START_PIN) == 0)
       {
-        Serial.println("start press");
+        Serial3.println("start press");
         Appl_NoMaterial_xdu = false;
         Appl_NoMaterialFirstCallCapture_xdu = 0;
-        Serial2.println(7);
+        Serial.println(7);
         digitalWrite(MATERIAL_STATUS, LOW);
         digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH);
         delay(1000);
@@ -340,7 +340,7 @@ int Forward_Move_Holes(int Holes)
     {
       if (digitalRead(BUTTON_START_PIN) == 0)
       {
-        Serial.println("Het phoi");
+        Serial3.println("Het phoi");
         digitalWrite(MATERIAL_STATUS, HIGH);
       }
     }
@@ -352,7 +352,7 @@ int Forward_Move_Holes(int Holes)
       Appl_ButtonPausePress_1_xdu = false;
       Appl_ButtonStartPress_xdu = false;
       Appl_StartRunning_xdu = true;
-      Serial.println("start press");
+      Serial3.println("start press");
       return NumHole_Internal;
     }
   }
@@ -365,7 +365,7 @@ int Forward_Move_Holes(int Holes)
 unsigned long Backward_Move(unsigned long Step_Remain)
 {
   static bool Flag_Pre;
-  Serial.println(Step_Remain);
+  Serial3.println(Step_Remain);
   STEPPER_MOVE.moveTo(-Step_Remain);
   while (STEPPER_MOVE.currentPosition() != -Step_Remain and (digitalRead(SS1_MOVE_HOME_A_PIN) == 0) and (digitalRead(BUTTON_EMERGENCY_PIN) == 0) and (digitalRead(BUTTON_STOP_PIN) == 0) and Appl_ButtonStopPress_xdu == false)
   {
@@ -386,7 +386,7 @@ unsigned long Backward_Move(unsigned long Step_Remain)
         }
         Appl_NumHolesFromAToB_xdu8--;
         Serial.print("NumHolesFromAToB_xdu8: ");
-        Serial.println(Appl_NumHolesFromAToB_xdu8);
+        Serial3.println(Appl_NumHolesFromAToB_xdu8);
         Flag_Pre = 0;
       }
     }
@@ -419,8 +419,6 @@ void Cutter_Forward()
   {
     digitalWrite(SOL_SLIDE_FORWARD_PIN, HIGH);
     digitalWrite(SOL_SLIDE_BACKWARD_PIN, LOW);
-    //  delay(1000);
-    //  digitalWrite(SOL_SLIDE_FORWARD_PIN,LOW);
   }
 }
 
@@ -430,8 +428,6 @@ void Cutter_Backward()
   {
     digitalWrite(SOL_SLIDE_BACKWARD_PIN, HIGH);
     digitalWrite(SOL_SLIDE_FORWARD_PIN, LOW);
-    //  delay(1000);
-    //  digitalWrite(SOL_SLIDE_BACKWARD_PIN,LOW);
   }
   Appl_CutterBackwardTrigger_xdu = true;
 }
@@ -440,16 +436,13 @@ void Cutter_Forward_Normal()
 {
   digitalWrite(SOL_SLIDE_FORWARD_PIN, HIGH);
   digitalWrite(SOL_SLIDE_BACKWARD_PIN, LOW);
-  //  delay(2000);
-  //  digitalWrite(SOL_SLIDE_FORWARD_PIN,LOW);
 }
 
 void Cutter_Backward_Normal()
 {
   digitalWrite(SOL_SLIDE_BACKWARD_PIN, HIGH);
   digitalWrite(SOL_SLIDE_FORWARD_PIN, LOW);
-  //  delay(1000);
-  //  digitalWrite(SOL_SLIDE_BACKWARD_PIN,LOW);
+  
   Appl_CutterBackwardTrigger_xdu = true;
 }
 
@@ -462,7 +455,7 @@ void Home_Stepper_Cutter()
     STEPPER_CUT.runSpeed();
   }
   STEPPER_CUT.stop();
-  Serial.println(STEPPER_CUT.currentPosition());
+  Serial3.println(STEPPER_CUT.currentPosition());
   STEPPER_CUT.setCurrentPosition(0);
 }
 
@@ -475,7 +468,7 @@ void Center_Stepper_Cutter()
     STEPPER_CUT.runSpeed();
   }
   STEPPER_CUT.stop();
-  Serial.println(STEPPER_CUT.currentPosition());
+  Serial3.println(STEPPER_CUT.currentPosition());
   STEPPER_CUT.setCurrentPosition(0);
 }
 
@@ -523,7 +516,7 @@ void Home_All()
   Home_Move_A_First();
   Home_Move_A();
   Cutter_Forward(); // Forward Cut
-  while (digitalRead(SS4_END_STROKE_BACK_PIN) == 0)
+  while (digitalRead(SS4_END_STROKE_BACK_PIN) == 0)  // Wait to cutter go in
   {
   }
   Home_Stepper_Cutter();

@@ -51,6 +51,7 @@ bool Appl_Forward_Trigger_xdu       = false;
 
 bool Appl_FinishTransfer_xdu        = false;
 bool Appl_NoMaterialFirstCallCapture_xdu = false;
+
 /* Private variables -------------------------------------------------- */
 
 /* Private function prototypes ---------------------------------------- */

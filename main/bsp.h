@@ -23,6 +23,7 @@
 
 #define SS7_END_STROKE_FRONT_PIN          (SS3)
 #define SS4_END_STROKE_BACK_PIN           (SS4)
+
 #define SS3_CUT_HOME_PIN                  (SS5)
 #define SS8_MATERIAL_BACK_PIN             (SS6)
 #define SS6_HOLES_PIN                     (SS7)

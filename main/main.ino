@@ -38,6 +38,7 @@ bool Emergency_Check();
 void setup()
 {
   Board_Setup();
+
   Serial.begin(115200);
   Serial2.begin(115200);
   Serial3.begin(115200);
@@ -86,46 +87,56 @@ void loop()
   case INIT_STATE:
     Home_All(); //Home Cut and Move
     InitVariables();
+
     Appl_SystemState_xdu8 = RECIEVE_AND_RUNNING_STATE;
-    Serial2.println(7);
-    Serial.println("--------------SystemState moved to RECIEVE_STATE--------------");
+
+    Serial.println(7);
+    Serial3.println("--------------SystemState moved to RECIEVE_STATE----------------------------");
+    
     break;
   case RECIEVE_AND_RUNNING_STATE:
     receive_data();
+
     if (Emergency_Check() == true)
     {
       Appl_SystemState_xdu8 = EMERGENCY_STATE;
-      Serial2.println(5);
-      Serial.println("--------------SystemState moved to EMERGENCY_STATE--------------");
+      Serial.println(5);
+      Serial3.println("--------------SystemState moved to EMERGENCY_STATE------------------------");
     }
+
     if (Appl_FinishTransfer_xdu == true and Appl_EmergencyHold_xdu == false)
     {
       Appl_SystemState_xdu8 = FINISH_STATE;
-      Serial2.println(8);
-      Serial.println("--------------SystemState moved to FINISH_STATE--------------");
+      Serial.println(8);
+      Serial3.println("--------------SystemState moved to FINISH_STATE---------------------------");
     }
+
     if (Appl_ButtonStopPress_xdu == true)
     {
       Appl_SystemState_xdu8 = STOP_BUTTON_PRESS_STATE;
-      Serial.println("--------------SystemState moved to STOP_BUTTON_PRESS_STATE--------------");
+      Serial3.println("--------------SystemState moved to STOP_BUTTON_PRESS_STATE----------------");
     }
+
     break;
   case FINISH_LETTER_STATE:
     digitalWrite(MATERIAL_STATUS, HIGH);
+
     if (digitalRead(BUTTON_START_PIN) == 0)
     {
       digitalWrite(MATERIAL_STATUS, LOW);
-      Serial.println("start press");
+      Serial3.println("start press");
       Execute_Forward("-200");
-      Serial2.println(1);
+      Serial.println(1);
       Appl_SystemState_xdu8 = RECIEVE_AND_RUNNING_STATE;
-      Serial.println("--------------SystemState moved to RECIEVE_STATE--------------");
+      Serial3.println("--------------SystemState moved to RECIEVE_STATE--------------------------");
     }
+
     if (Appl_ButtonStopPress_xdu == true)
     {
       Appl_SystemState_xdu8 = STOP_BUTTON_PRESS_STATE;
-      Serial.println("--------------SystemState moved to STOP_BUTTON_PRESS_STATE--------------");
+      Serial3.println("--------------SystemState moved to STOP_BUTTON_PRESS_STATE----------------");
     }
+
     break;
   case FINISH_STATE:
     if (Appl_FinishStateFirstCall_xdu == true)
@@ -135,36 +146,42 @@ void loop()
       digitalWrite(MATERIAL_STATUS, LOW);
       Appl_FinishStateFirstCall_xdu = false;
     }
+
     if (digitalRead(BUTTON_START_PIN) == 0)
     {
       Appl_FinishStateFirstCall_xdu = false;
       Appl_SystemState_xdu8 = INIT_STATE;
       Appl_FinishTransfer_xdu = false;
-      Serial2.println(6);
-      Serial.println("--------------SystemState moved to INIT STATE--------------");
+      Serial.println(6);
+      Serial3.println("--------------SystemState moved to INIT STATE-----------------------------");
     }
+
     if (Appl_ButtonStopPress_xdu == true)
     {
       Appl_FinishStateFirstCall_xdu = false;
       Appl_FinishTransfer_xdu = false;
       Appl_SystemState_xdu8 = STOP_BUTTON_PRESS_STATE;
-      Serial.println("--------------SystemState moved to STOP_BUTTON_PRESS_STATE--------------");
+      Serial3.println("--------------SystemState moved to STOP_BUTTON_PRESS_STATE----------------");
     }
+
     break;
   case STOP_BUTTON_PRESS_STATE:
     delay(1000);
     Appl_SystemState_xdu8 = INIT_STATE;
-    Serial2.println(6);
-    Serial.println("--------------SystemState moved to INIT STATE--------------");
+
+    Serial.println(6);
+    Serial3.println("--------------SystemState moved to INIT STATE-------------------------------");
+
     break;
   case EMERGENCY_STATE:
     if (Emergency_Check() == false)
     {
       Appl_SystemState_xdu8 = INIT_STATE;
       delay(1000);
-      Serial2.println(6);
-      Serial.println("--------------SystemState moved to INIT_STATE--------------");
+      Serial.println(6);
+      Serial3.println("--------------SystemState moved to INIT_STATE-----------------------------");
     }
+
     break;
   default:
     break;
@@ -176,7 +193,7 @@ void Stop_Push()
   NumHoles_AlreadyRun_xdu32 = 0;
   if (Appl_EmergencyHold_xdu == true)
   {
-    Serial.println("Emergency_Push");
+    Serial3.println("Emergency_Push");
   }
   else
   {
@@ -196,7 +213,7 @@ void Pause_Push()
 {
   if (Appl_EmergencyHold_xdu == true)
   {
-    Serial.println("Emergency_Push");
+    Serial3.println("Emergency_Push");
   }
   else
   {
@@ -212,14 +229,14 @@ void Pause_Push()
       }
       else
       {
-        Serial.println("Machine not start");
+        Serial3.println("Machine not start");
       }
     }
     else
     {
       digitalWrite(MATERIAL_STATUS, LOW);
       digitalWrite(SOL_CLAMP_FEEDER_PIN, LOW);
-      Serial.println("Tắt còi");
+      Serial3.println("Tắt còi");
     }
   }
 }
@@ -228,7 +245,7 @@ void Start_Push()
 {
   if (Appl_EmergencyHold_xdu == true)
   {
-    Serial.println("Emergency_Push");
+    Serial3.println("Emergency_Push");
   }
   else
   {
@@ -237,7 +254,7 @@ void Start_Push()
       Appl_ButtonStartPress_xdu = true;
       if (Appl_Forward_Trigger_xdu == true)
       {
-        Serial2.println(13);
+        Serial.println(13);
       }
       else
       {
@@ -248,7 +265,7 @@ void Start_Push()
     }
     else
     {
-      Serial.println("Pause not press");
+      Serial3.println("Pause not press");
     }
   }
 }
@@ -279,9 +296,9 @@ ISR(TIMER1_COMPA_vect)
     {
       Appl_SystemState_xdu8 = INIT_STATE;
       Brushless_Off();
-      Serial2.println(12); // Send Error to PC
-      Serial2.println(2);  // Send Stop to PC
-      Serial2.println(6);  // Homing to PC
+      Serial.println(12); // Send Error to PC
+      Serial.println(2);  // Send Stop to PC
+      Serial.println(6);  // Homing to PC
       Appl_Second_xdu8 = 0;
       Appl_CutterBackwardTrigger_xdu = false;
     }

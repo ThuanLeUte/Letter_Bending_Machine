@@ -38,151 +38,147 @@ int Execute_Manual(String Data_Input)
 
   if (Command == "HA") // MOVE_HOMA
   {
-    Serial.println("home-a");
+    Serial3.println("home-a");
     Home_Move_A();
     return 1;
   }
   else if (Command == "HM") // HOME ALL
   {
-    Serial.println("home-all");
+    Serial3.println("home-all");
     Appl_ButtonStopPress_xdu = true;
     return 1;
   }
   else if (Command == "CN") // KẾT NỐI
   {
     delay(100);
-    Serial2.println(10);
-    Serial.println("KET NOI");
+    Serial.println(10);
+    Serial3.println("KET NOI");
     return 1;
   }
   else if (Command == "ST") // STOP
   {
-    Serial.println("STOP");
+    Serial3.println("STOP");
     Stop();
     return 1;
   }
   else if (Command == "PS") // PAUSE
   {
-    Serial.println("PAUSE");
+    Serial3.println("PAUSE");
     Pause();
     return 1;
   }
   else if (Command == "HB") //MOVE_HOMB
   {
-    Serial.println("home-b");
+    Serial3.println("home-b");
     Home_Move_B();
     return 1;
   }
   else if (Command == "HC") //HOME_CUT
   {
-    Serial.println("home-cut");
+    Serial3.println("home-cut");
     Home_And_Center_Cutter();
     return 1;
   }
   else if (Command == "CF") //CUTTER FW
   {
-    Serial.println("CUTTER FW");
+    Serial3.println("CUTTER FW");
     Cutter_Forward();
     return 1;
   }
   else if (Command == "CB") //CUTTER BW
   {
-    Serial.println("CUTTER BW");
+    Serial3.println("CUTTER BW");
     Cutter_Backward();
     return 1;
   }
   else if (Command == "CU") //CUTTER UP
   {
-    Serial.println("CUTTER UP");
+    Serial3.println("CUTTER UP");
     digitalWrite(SOL_LIFTER_PIN, LOW); // Nang dao
-                                       // digitalWrite(SOL_CLAMPER_PIN,LOW);   // Nang dao
-
     return 1;
   }
   else if (Command == "CD") //CUTTER DW
   {
-    Serial.println("CUTTER DW");
+    Serial3.println("CUTTER DW");
     digitalWrite(SOL_LIFTER_PIN, HIGH); // Ha dao
-                                        // digitalWrite(SOL_CLAMPER_PIN,HIGH);   // Ha dao
     return 1;
   }
   else if (Command == "MO") //MOTOR ON
   {
-    Serial.println("MOTOR ON");
+    Serial3.println("MOTOR ON");
     Brushless_Run(BRUSHLESS_SPEED);
     return 1;
   }
   else if (Command == "MX") //MOTOR OFF
   {
-    Serial.println("MOTOR OFF");
+    Serial3.println("MOTOR OFF");
     Brushless_Off();
     return 1;
   }
   else if (Command == "BR") //MOTOR OFF
   {
-    Serial.println("BUZZER RESET");
+    Serial3.println("BUZZER RESET");
     digitalWrite(MATERIAL_STATUS, LOW);
     return 1;
   }
   else if (Command == "KP") //KEP PHOI
   {
-    Serial.println("KEP PHOI");
+    Serial3.println("KEP PHOI");
     digitalWrite(SOL_CLAMPER_PIN, HIGH);
     return 1;
   }
   else if (Command == "NP") //NHẢ PHOI
   {
-    Serial.println("KEP PHOI");
+    Serial3.println("KEP PHOI");
     digitalWrite(SOL_CLAMPER_PIN, LOW);
     return 1;
   }
   else if (Command == "AR") //ANGLE CUT RIGHT
   {
-    Serial.println("ANGLE CUT RIGHT");
+    Serial3.println("ANGLE CUT RIGHT");
     Angle_Cut(float(Data.toFloat() * 120));
     return 1;
   }
   else if (Command == "AL") //ANGLE CUT LEFT
   {
-    Serial.println("ANGLE CUT LEFT ");
+    Serial3.println("ANGLE CUT LEFT ");
     Angle_Cut(-float(Data.toFloat() * 120));
     return 1;
   }
   else if (Command == "MB") //MOVE BACK
   {
-    Serial.println("Move back");
+    Serial3.println("Move back");
     Execute_Forward(Data);
-    Serial.println(Data);
+    Serial3.println(Data);
     return 1;
   }
   else if (Command == "MF") //MOVE FORWARD
   {
-    Serial.println("Move forward");
+    Serial3.println("Move forward");
     Appl_StartRunning_xdu = true;
     Execute_Forward(Data);
-    Serial.println(Data);
-
+    Serial3.println(Data);
     return 1;
   }
   else if (Command == "AC") //ANGLE CUT
   {
-    Serial.println("ANGLE CUT");
+    Serial3.println("ANGLE CUT");
     Execute_Cut(Data);
     digitalWrite(SOL_CLAMPER_PIN, LOW);
-    Serial.println(Data);
+    Serial3.println(Data);
     return 1;
   }
   else if (Command == "AI") //ANGLE CUT IN
   {
-    Serial.println("ANGLE CUT IN");
+    Serial3.println("ANGLE CUT IN");
     Execute_Cut("-10");
     digitalWrite(SOL_CLAMPER_PIN, LOW);
     return 1;
   }
   else if (Command == "LP") //ANGLE CUT
   {
-    Serial.println("Set Length on pulse");
-    Serial.println(Data.toFloat());
+    Serial3.println("Set Length on pulse");
+    Serial3.println(Data.toFloat());
     return 1;
   }
   else if (Command == "MK") //KEP MOVE
@@ -208,7 +204,7 @@ void Execute_String(String Data_Input)
   static uint32_t j;
   static uint32_t count;
   Length_Data = Data_Input.length();
-  Serial.println(Data_Input);
+  Serial3.println(Data_Input);
 
   if (Execute_Manual(Data_Input) == 1)
   {
@@ -221,7 +217,7 @@ void Execute_String(String Data_Input)
         Data_Input.substring(i, i + 1) == "S" || Data_Input.substring(i, i + 1) == "E" || Data_Input.substring(i, i + 1) == "T" || Data_Input.substring(i, i + 1) == "Z")
     {
       count++;
-      Serial.println(count);
+      Serial3.println(count);
       for (j = i + 1; j < j + 10; j++)
       {
         if (Data_Input.substring(j, j + 1) == "_")
@@ -230,59 +226,59 @@ void Execute_String(String Data_Input)
           String Command = Data_Input.substring(i, i + 1);
           if (Command == "F")
           {
-            Serial2.println(Command + Data_Command);
-            Serial.println("Execute_Forward");
+            Serial.println(Command + Data_Command);
+            Serial3.println("Execute_Forward");
             Execute_Forward(Data_Command);
           }
           else if (Command == "C")
           {
-            Serial2.println(Command + Data_Command);
-            Serial.println("Execute_Cut");
+            Serial.println(Command + Data_Command);
+            Serial3.println("Execute_Cut");
             Execute_Cut(Data_Command);
           }
           else if (Command == "S")
           {
-            Serial.println("Execute_Cut First");
-            Serial2.println(Command);
+            Serial3.println("Execute_Cut First");
+            Serial.println(Command);
             Execute_Cut_First_End(Data_Command, EXECUTE_FIRST);
           }
           else if (Command == "T")
           {
-            Serial.println("Starting");
+            Serial3.println("Starting");
             Appl_StartRunning_xdu = true;
             Appl_ButtonStopPress_xdu = false;
             digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH);
           }
           else if (Command == "E")
           {
-            Serial2.println(Command);
-            Serial.println("Execute_Cut End");
+            Serial.println(Command);
+            Serial3.println("Execute_Cut End");
             Execute_Cut_First_End(Data_Command, EXECUTE_END);
           }
           else if (Command == "W")
           {
-            Serial2.println(Command);
+            Serial.println(Command);
             Appl_SystemState_xdu8 = FINISH_LETTER_STATE;
-            Serial.println("FINISH LETTER");
+            Serial3.println("FINISH LETTER");
           }
           else if (Command == "Z")
           {
-            //Serial2.println(Command);
+            //Serial.println(Command);
             Appl_FinishTransfer_xdu = true;
-            Serial.println("FINISH ALL LETTER");
+            Serial3.println("FINISH ALL LETTER");
           }
           else
           {
             //Do nothing
           }
-          Serial.println(Data_Input.substring(i, j));
+          Serial3.println(Data_Input.substring(i, j));
           break;
         }
       }
     }
     else
     {
-      Serial.println("_False");
+      Serial3.println("_False");
     }
   }
 }
@@ -307,11 +303,11 @@ void Execute_Forward(String Data_Input)
   StepForSmallMove = (Appl_DataLengthFloat_fdu32 / 0.011090301);
 
   Serial.print("Holes HaveToRun : ");
-  Serial.println(Holes_HaveToRun_xdu32);
+  Serial3.println(Holes_HaveToRun_xdu32);
   Serial.print("Remain end: ");
-  Serial.println(Appl_DataLengthFloatRemainEnd_fdu32);
+  Serial3.println(Appl_DataLengthFloatRemainEnd_fdu32);
   Serial.print("NumHolesFromAToB_xdu8: ");
-  Serial.println(Appl_NumHolesFromAToB_xdu8);
+  Serial3.println(Appl_NumHolesFromAToB_xdu8);
 
   if (Appl_DataLengthFloat_fdu32 > 0)
   {
@@ -329,7 +325,7 @@ void Execute_Forward(String Data_Input)
         Forward_Move_First();
         Appl_NumHolesFromAToB_xdu8++;
 
-        Serial.println("Forward starting");
+        Serial3.println("Forward starting");
         digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH); // Kep phoi
         if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
         {
@@ -345,7 +341,7 @@ void Execute_Forward(String Data_Input)
       {
         if (Appl_DataLengthFloat_fdu32 > 0 and Appl_DataLengthFloat_fdu32 < 50 and (Appl_NumHolesFromAToB_xdu8 + Holes_HaveToRun_xdu32) < 43)
         {
-          Serial.println("Forward starting");
+          Serial3.println("Forward starting");
           digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH); // Kep phoi
           if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
           {
@@ -373,7 +369,7 @@ void Execute_Forward(String Data_Input)
           }
           Forward_Move_1Step();
           Appl_NumHolesFromAToB_xdu8++;
-          Serial.println("Forward starting");
+          Serial3.println("Forward starting");
           digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH); // Kep phoi
           if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
           {
@@ -391,7 +387,7 @@ void Execute_Forward(String Data_Input)
     {
       if (Appl_DataLengthFloat_fdu32 > 0 and Appl_DataLengthFloat_fdu32 < 50 and (Appl_NumHolesFromAToB_xdu8 + Holes_HaveToRun_xdu32) < 43)
       {
-        Serial.println("Forward starting");
+        Serial3.println("Forward starting");
         digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH); // Kep phoi
         if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
         {
@@ -444,10 +440,10 @@ void Execute_Forward(String Data_Input)
         if (NumHoles_AlreadyRun_xdu32 < Holes_HaveToRun_xdu32)
         {
           NumHoles_AlreadyRun_xdu32 += Forward_Move_Holes(Holes_HaveToRun_xdu32 - NumHoles_AlreadyRun_xdu32);
-          //        Serial.print("Holes HaveToRun : ");
-          //        Serial.println(Holes_HaveToRun_xdu32);
-          //        Serial.print("NumHoles AlreadyRun : ");
-          //        Serial.println(NumHoles_AlreadyRun_xdu32);
+          // Serial.print("Holes HaveToRun : ");
+          // Serial3.println(Holes_HaveToRun_xdu32);
+          // Serial.print("NumHoles AlreadyRun : ");
+          // Serial3.println(NumHoles_AlreadyRun_xdu32);
         }
         else
         {
@@ -456,9 +452,9 @@ void Execute_Forward(String Data_Input)
       }
     }
     Serial.print("Holes HaveToRun : ");
-    Serial.println(Holes_HaveToRun_xdu32);
+    Serial3.println(Holes_HaveToRun_xdu32);
     Serial.print("NumHoles AlreadyRun : ");
-    Serial.println(NumHoles_AlreadyRun_xdu32);
+    Serial3.println(NumHoles_AlreadyRun_xdu32);
 
     if (Step != 0)
     {
@@ -492,7 +488,7 @@ void Execute_Forward(String Data_Input)
       }
     }
     Forward_Move(Step);
-    Serial.println("Execute_Forward Done");
+    Serial3.println("Execute_Forward Done");
     digitalWrite(SOL_CLAMPER_PIN, LOW);
   }
   else
@@ -500,7 +496,7 @@ void Execute_Forward(String Data_Input)
     static unsigned long Step_Remain;
     static unsigned long Step;
     Step = -float(Appl_DataLengthFloat_fdu32 / 0.011090301);
-    Serial.println("Backward starting");
+    Serial3.println("Backward starting");
     digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH);
     if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
     {
@@ -513,10 +509,10 @@ void Execute_Forward(String Data_Input)
     }
     Step_Remain = Backward_Move(Step);
     Serial.print("Xung con lai: ");
-    Serial.println(Step_Remain);
+    Serial3.println(Step_Remain);
     if (Step_Remain == 0)
     {
-      Serial.println("Execute_Backward Done");
+      Serial3.println("Execute_Backward Done");
       digitalWrite(SOL_CLAMPER_PIN, LOW);
     }
     else
@@ -534,13 +530,13 @@ void Execute_Forward(String Data_Input)
         }
         Step_Remain = Backward_Move(Step_Remain);
         Serial.print("Xung con lai: ");
-        Serial.println(Step_Remain);
+        Serial3.println(Step_Remain);
         if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true)
         {
           return;
         }
       }
-      Serial.println("Execute_Backward Done");
+      Serial3.println("Execute_Backward Done");
       digitalWrite(SOL_CLAMPER_PIN, LOW);
     }
   }
@@ -553,7 +549,7 @@ void Execute_Cut(String Data_Input)
   static float Data_Angle_Float;
   static int Step;
   Data_Angle_Float_Raw = (Data_Input.toFloat());
-  Serial.println(Data_Angle_Float_Raw);
+  Serial3.println(Data_Angle_Float_Raw);
   if (Data_Angle_Float_Raw <= 45 and Data_Angle_Float_Raw >= 0)
   {
     Data_Angle_Float = 0;
@@ -571,31 +567,36 @@ void Execute_Cut(String Data_Input)
     Data_Angle_Float = Data_Angle_Float_Raw;
   }
   Serial.print("Goc cat: ");
-  Serial.println(Data_Angle_Float);
+  Serial3.println(Data_Angle_Float);
   Step = float(Data_Angle_Float * 120);
 
   if (Step >= 0 and Appl_EmergencyHold_xdu == false and Appl_ButtonStopPress_xdu == false)
   {
     digitalWrite(SOL_CLAMPER_PIN, HIGH); // Kep phoi
+
     if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
     {
       delay(1000);
     }
+
     Angle_Cut(Step);                    // Xoay dao
     Brushless_Run(BRUSHLESS_SPEED);     // Brushless quay
     digitalWrite(SOL_LIFTER_PIN, HIGH); // Ha dao
+
     if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
     {
       delay(2000);
     }
     Cutter_Backward(); // Backward Cut
-    while (digitalRead(SS7_END_STROKE_FRONT_PIN) == 0)
+
+    while (digitalRead(SS7_END_STROKE_FRONT_PIN) == 0)  // Wait to cutter go out
     {
       if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == INIT_STATE)
       {
         return;
       }
     }
+
     Appl_CutterBackwardTrigger_xdu = false;
     if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
     {
@@ -603,7 +604,8 @@ void Execute_Cut(String Data_Input)
     }
     Angle_Cut(-2 * Step); // Xoay dao
     Cutter_Forward();     // Forward Cut
-    while (digitalRead(SS4_END_STROKE_BACK_PIN) == 0)
+
+    while (digitalRead(SS4_END_STROKE_BACK_PIN) == 0)  // Wait to cutter go in
     {
       if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == INIT_STATE)
       {
@@ -636,7 +638,8 @@ void Execute_Cut(String Data_Input)
       delay(2000);
     }
     Cutter_Backward(); // Backward Cut
-    while (digitalRead(SS7_END_STROKE_FRONT_PIN) == 0)
+
+    while (digitalRead(SS7_END_STROKE_FRONT_PIN) == 0)  // Wait to cutter go out
     {
       if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == INIT_STATE)
       {
@@ -645,7 +648,7 @@ void Execute_Cut(String Data_Input)
     }
     Appl_CutterBackwardTrigger_xdu = false;
     Cutter_Forward(); // Forward Cut
-    while (digitalRead(SS4_END_STROKE_BACK_PIN) == 0)
+    while (digitalRead(SS4_END_STROKE_BACK_PIN) == 0)  // Wait to cutter go in
     {
       if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true)
       {
@@ -669,19 +672,16 @@ void Execute_Cut_First_End(String Data_Input, bool type)
   static float Data_Angle_Float;
   static int Step;
   Data_Angle_Float_Raw = (Data_Input.toFloat());
-  Serial.println(Data_Angle_Float_Raw);
+  Serial3.println(Data_Angle_Float_Raw);
 
   if (Data_Angle_Float_Raw <= 45 and Data_Angle_Float_Raw >= 0)
   {
     Data_Angle_Float = ((Data_Angle_Float_Raw - 45) / 2);
-    //Data_Angle_Float= (Data_Angle_Float_Raw/2);
-    //Data_Angle_Float  = 22.5 - Data_Angle_Float;
   }
 
   else if (Data_Angle_Float_Raw > 45)
   {
     Data_Angle_Float = ((Data_Angle_Float_Raw - 45) / 2);
-    //Data_Angle_Float  = 22.5 - Data_Angle_Float;
     if (Data_Angle_Float >= 40)
     {
       Data_Angle_Float = 40;
@@ -693,7 +693,7 @@ void Execute_Cut_First_End(String Data_Input, bool type)
     Data_Angle_Float = ((Data_Angle_Float_Raw - 45) / 2);
   }
   Serial.print("Goc cat: ");
-  Serial.println(Data_Angle_Float);
+  Serial3.println(Data_Angle_Float);
   Step = float(Data_Angle_Float * 120);
 
   if (/*Step>=0 and */ Appl_EmergencyHold_xdu == false and Appl_ButtonStopPress_xdu == false)
@@ -718,26 +718,30 @@ void Execute_Cut_First_End(String Data_Input, bool type)
       delay(2000);
     }
     Cutter_Backward(); // Backward Cut
-    while (digitalRead(SS7_END_STROKE_FRONT_PIN) == 0)
+
+    while (digitalRead(SS7_END_STROKE_FRONT_PIN) == 0)  // Wait to cutter go out
     {
       if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == INIT_STATE)
       {
         return;
       }
     }
+
     Appl_CutterBackwardTrigger_xdu = false;
     if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
     {
       delay(TIME_CUTTER);
     }
     Cutter_Forward(); // Forward Cut
-    while (digitalRead(SS4_END_STROKE_BACK_PIN) == 0)
+
+    while (digitalRead(SS4_END_STROKE_BACK_PIN) == 0)  // Wait to cutter go in
     {
       if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true)
       {
         return;
       }
     }
+    
     Brushless_Off();
     if (type == EXECUTE_FIRST)
     {
@@ -764,17 +768,17 @@ void Stop()
   Cutter_Forward_Normal(); // Forward Cut
   Appl_Second_xdu8 = 0;
   Appl_CutterBackwardTrigger_xdu = false;
-  Serial2.println(2);
+  Serial.println(2);
 }
 
 void Start()
 {
-  Serial2.println(4);
+  Serial.println(4);
 }
 
 void Pause()
 {
-  Serial2.println(3);
+  Serial.println(3);
   Appl_SystemState_xdu8 = 1; //RECIEVE_AND_RUNNING_STATE
 }
 
@@ -787,7 +791,7 @@ void Emergency()
   digitalWrite(SOL_SLIDE_BACKWARD_PIN, LOW);
   digitalWrite(SOL_CLAMP_FEEDER_PIN, LOW);
   digitalWrite(SOL_LIFTER_PIN, LOW);
-  Serial2.println(5);
+  Serial.println(5);
 }
 
 void Button_Press_Buzzer()
