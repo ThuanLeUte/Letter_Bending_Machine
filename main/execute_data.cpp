@@ -589,7 +589,7 @@ void Execute_Cut(String Data_Input)
     }
     Cutter_Backward(); // Backward Cut
 
-    while (digitalRead(SS7_END_STROKE_FRONT_PIN) == 0)  // Wait to cutter go out
+    while ((digitalRead(SS4_END_STROKE_BACK_PIN) == 0) and (digitalRead(SS7_END_STROKE_FRONT_PIN) == 1))  // Wait to cutter go midle
     {
       if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == INIT_STATE)
       {
@@ -605,7 +605,7 @@ void Execute_Cut(String Data_Input)
     Angle_Cut(-2 * Step); // Xoay dao
     Cutter_Forward();     // Forward Cut
 
-    while (digitalRead(SS4_END_STROKE_BACK_PIN) == 0)  // Wait to cutter go in
+    while ((digitalRead(SS4_END_STROKE_BACK_PIN) == 0) and (digitalRead(SS7_END_STROKE_FRONT_PIN) == 0))  // Wait to cutter go in
     {
       if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == INIT_STATE)
       {
@@ -639,7 +639,7 @@ void Execute_Cut(String Data_Input)
     }
     Cutter_Backward(); // Backward Cut
 
-    while (digitalRead(SS7_END_STROKE_FRONT_PIN) == 0)  // Wait to cutter go out
+    while ((digitalRead(SS4_END_STROKE_BACK_PIN) == 1) and (digitalRead(SS7_END_STROKE_FRONT_PIN) == 0))  // Wait to cutter go out
     {
       if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == INIT_STATE)
       {
@@ -648,7 +648,7 @@ void Execute_Cut(String Data_Input)
     }
     Appl_CutterBackwardTrigger_xdu = false;
     Cutter_Forward(); // Forward Cut
-    while (digitalRead(SS4_END_STROKE_BACK_PIN) == 0)  // Wait to cutter go in
+    while ((digitalRead(SS4_END_STROKE_BACK_PIN) == 0) and (digitalRead(SS7_END_STROKE_FRONT_PIN) == 0))  // Wait to cutter go in
     {
       if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true)
       {
@@ -719,7 +719,7 @@ void Execute_Cut_First_End(String Data_Input, bool type)
     }
     Cutter_Backward(); // Backward Cut
 
-    while (digitalRead(SS7_END_STROKE_FRONT_PIN) == 0)  // Wait to cutter go out
+    while ((digitalRead(SS4_END_STROKE_BACK_PIN) == 0) and (digitalRead(SS7_END_STROKE_FRONT_PIN) == 1))  // Wait to cutter go midle
     {
       if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == INIT_STATE)
       {
@@ -733,15 +733,15 @@ void Execute_Cut_First_End(String Data_Input, bool type)
       delay(TIME_CUTTER);
     }
     Cutter_Forward(); // Forward Cut
-
-    while (digitalRead(SS4_END_STROKE_BACK_PIN) == 0)  // Wait to cutter go in
+    
+    while ((digitalRead(SS4_END_STROKE_BACK_PIN) == 0) and (digitalRead(SS7_END_STROKE_FRONT_PIN) == 0))  // Wait to cutter go in
     {
       if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true)
       {
         return;
       }
     }
-    
+
     Brushless_Off();
     if (type == EXECUTE_FIRST)
     {

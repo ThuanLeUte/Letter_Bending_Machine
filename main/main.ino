@@ -43,7 +43,7 @@ void setup()
   Serial2.begin(115200);
   Serial3.begin(115200);
 
-  stepper_setup();
+//  stepper_setup();
 
   attachInterrupt(2, Pause_Push, FALLING);    // Pin 21 Push go to LOW
   attachInterrupt(3, Emergency_Push, RISING); // Pin 20 Push go to HIGH
