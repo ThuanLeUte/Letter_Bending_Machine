@@ -28,7 +28,7 @@
 
 /* Function definitions ----------------------------------------------- */
 
-void Board_Setup()
+void board_setup()
 {
   pinMode(OUT_1, OUTPUT);
   pinMode(OUT_2, OUTPUT);

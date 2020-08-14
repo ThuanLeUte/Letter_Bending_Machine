@@ -258,13 +258,13 @@ void Execute_String(String Data_Input)
           else if (Command == "W")
           {
             Serial.println(Command);
-            Appl_SystemState_xdu8 = FINISH_LETTER_STATE;
+            appl_system_state_xdu8 = FINISH_LETTER_STATE;
             Serial3.println("FINISH LETTER");
           }
           else if (Command == "Z")
           {
             //Serial.println(Command);
-            Appl_FinishTransfer_xdu = true;
+            appl_finish_transfer_xdu = true;
             Serial3.println("FINISH ALL LETTER");
           }
           else
@@ -591,7 +591,7 @@ void Execute_Cut(String Data_Input)
 
     while ((digitalRead(SS4_END_STROKE_BACK_PIN) == 0) and (digitalRead(SS7_END_STROKE_FRONT_PIN) == 1))  // Wait to cutter go midle
     {
-      if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == INIT_STATE)
+      if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true or appl_system_state_xdu8 == INIT_STATE)
       {
         return;
       }
@@ -607,7 +607,7 @@ void Execute_Cut(String Data_Input)
 
     while ((digitalRead(SS4_END_STROKE_BACK_PIN) == 0) and (digitalRead(SS7_END_STROKE_FRONT_PIN) == 0))  // Wait to cutter go in
     {
-      if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == INIT_STATE)
+      if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true or appl_system_state_xdu8 == INIT_STATE)
       {
         return;
       }
@@ -641,7 +641,7 @@ void Execute_Cut(String Data_Input)
 
     while ((digitalRead(SS4_END_STROKE_BACK_PIN) == 1) and (digitalRead(SS7_END_STROKE_FRONT_PIN) == 0))  // Wait to cutter go out
     {
-      if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == INIT_STATE)
+      if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true or appl_system_state_xdu8 == INIT_STATE)
       {
         return;
       }
@@ -721,7 +721,7 @@ void Execute_Cut_First_End(String Data_Input, bool type)
 
     while ((digitalRead(SS4_END_STROKE_BACK_PIN) == 0) and (digitalRead(SS7_END_STROKE_FRONT_PIN) == 1))  // Wait to cutter go midle
     {
-      if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == INIT_STATE)
+      if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true or appl_system_state_xdu8 == INIT_STATE)
       {
         return;
       }
@@ -779,7 +779,7 @@ void Start()
 void Pause()
 {
   Serial.println(3);
-  Appl_SystemState_xdu8 = 1; //RECIEVE_AND_RUNNING_STATE
+  appl_system_state_xdu8 = 1; //RECIEVE_AND_RUNNING_STATE
 }
 
 void Emergency()

@@ -60,7 +60,7 @@
 /* Public variables --------------------------------------------------- */
 
 /* Public function definition ----------------------------------------- */
-void Board_Setup();
+void board_setup();
 
 #endif // __BOARD_DEFINE_H
 

@@ -1,3 +1,16 @@
+/**
+ * @file       main.c
+ * @copyright  Copyright (C) 2020 ThuanLe. All rights reserved.
+ * @license    This project is released under the ThuanLe License.
+ * @version    1.0.0
+ * @date       2020-08-14
+ * @author     Thuan Le
+ * @brief      Main file
+ * @note       None
+ * @example    None
+ */
+
+/* Includes ----------------------------------------------------------- */
 #include <avr/wdt.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
@@ -10,85 +23,47 @@
 #include "board_define.h"
 #include "bsp.h"
 
-//-------------------STEPPER_MOVE (11)--------------//
-/*
+/* Private defines ---------------------------------------------------- */
+/* Private enumerate/structure ---------------------------------------- */
+/* Private macros ----------------------------------------------------- */
+/* Public variables --------------------------------------------------- */
+/* Private variables -------------------------------------------------- */
+/* Private function prototypes ---------------------------------------- */
+static void stop_push();
+static void emergency_push();
+static void pause_push();
+static void start_push();
 
-  Micro-Stepp:800 step/vòng
-  Speed: 7000=> 17.5 vòng/giây.
-  Ti so: 1/18 => Speed = 0.972 vong/giay
-  Run: 7200 step => 1 vòng
-*/
+static void init_variables();
+static bool emergency_check();
+static inline void init_timer1(void);
 
-//-------------------STEPPER_CUT (12)--------------//
-/*
-  Micro-Stepp:400 step/vòng
-  1000=> 2.5 vong/s
-  ti so => 0.07 vong
-  0.7 vong/s
-  Speed: 7000=> 17.5 vòng/giây.
-  Ti so: 1/36 => Speed = 0.486 vong/giay
-  Run: 14400 => 1 vòng =>360
-  Run 43200 > 1 vong lon =>360
-  1 do => 120 step
-  Center to Home: 42 do 
-*/
-
-bool Emergency_Check();
-
+/* Function definitions ----------------------------------------------- */
 void setup()
 {
-  Board_Setup();
+  board_setup();
 
   Serial.begin(115200);
   Serial2.begin(115200);
   Serial3.begin(115200);
 
-//  stepper_setup();
+  stepper_setup();
 
-  attachInterrupt(2, Pause_Push, FALLING);    // Pin 21 Push go to LOW
-  attachInterrupt(3, Emergency_Push, RISING); // Pin 20 Push go to HIGH
-  attachInterrupt(4, Stop_Push, RISING);      // Pin 19 Push go to HIGH
-  attachInterrupt(5, Start_Push, FALLING);    // Pin 18 Push go to LOW
-
-  // initialize Timer1
-  cli();      // disable global interrupts
-  TCCR1A = 0; // set entire TCCR1A register to 0
-  TCCR1B = 0; // same for TCCR1B
-
-  // set compare match register to desired timer count:
-  OCR1A = 15624;
-  // turn on CTC mode:
-  TCCR1B |= (1 << WGM12);
-  // Set CS10 and CS12 bits for 1024 prescaler:
-  TCCR1B |= (1 << CS10);
-  TCCR1B |= (1 << CS12);
-  // enable timer compare interrupt:
-  TIMSK1 |= (1 << OCIE1A);
-  // enable global interrupts:
-  sei();
-}
-
-void InitVariables()
-{
-  NumHoles_AlreadyRun_xdu32 = 0;
-  Appl_NumHolesFromAToB_xdu8 = 0;
-  data_software = "";
-  Appl_NoMaterial_xdu = false;
-  Appl_NoMaterialFirstCallCapture_xdu = false;
-  Appl_Second_xdu8 = 0;
-  Appl_CutterBackwardTrigger_xdu = false;
-  Appl_Forward_Trigger_xdu = false;
+  attachInterrupt(2, pause_push, FALLING);    // Pin 21 Push go to LOW
+  attachInterrupt(3, emergency_push, RISING); // Pin 20 Push go to HIGH
+  attachInterrupt(4, stop_push, RISING);      // Pin 19 Push go to HIGH
+  attachInterrupt(5, start_push, FALLING);    // Pin 18 Push go to LOW
 }
 
 void loop()
 {
-  switch (Appl_SystemState_xdu8)
+  switch (appl_system_state_xdu8)
   {
   case INIT_STATE:
-    Home_All(); //Home Cut and Move
-    InitVariables();
+    home_all(); //Home Cut and Move
+    init_variables();
 
-    Appl_SystemState_xdu8 = RECIEVE_AND_RUNNING_STATE;
+    appl_system_state_xdu8 = RECIEVE_AND_RUNNING_STATE;
 
     Serial.println(7);
     Serial3.println("--------------SystemState moved to RECIEVE_STATE----------------------------");
@@ -97,23 +72,23 @@ void loop()
   case RECIEVE_AND_RUNNING_STATE:
     receive_data();
 
-    if (Emergency_Check() == true)
+    if (emergency_check() == true)
     {
-      Appl_SystemState_xdu8 = EMERGENCY_STATE;
+      appl_system_state_xdu8 = EMERGENCY_STATE;
       Serial.println(5);
       Serial3.println("--------------SystemState moved to EMERGENCY_STATE------------------------");
     }
 
-    if (Appl_FinishTransfer_xdu == true and Appl_EmergencyHold_xdu == false)
+    if (appl_finish_transfer_xdu == true and Appl_EmergencyHold_xdu == false)
     {
-      Appl_SystemState_xdu8 = FINISH_STATE;
+      appl_system_state_xdu8 = FINISH_STATE;
       Serial.println(8);
       Serial3.println("--------------SystemState moved to FINISH_STATE---------------------------");
     }
 
     if (Appl_ButtonStopPress_xdu == true)
     {
-      Appl_SystemState_xdu8 = STOP_BUTTON_PRESS_STATE;
+      appl_system_state_xdu8 = STOP_BUTTON_PRESS_STATE;
       Serial3.println("--------------SystemState moved to STOP_BUTTON_PRESS_STATE----------------");
     }
 
@@ -127,13 +102,13 @@ void loop()
       Serial3.println("start press");
       Execute_Forward("-200");
       Serial.println(1);
-      Appl_SystemState_xdu8 = RECIEVE_AND_RUNNING_STATE;
+      appl_system_state_xdu8 = RECIEVE_AND_RUNNING_STATE;
       Serial3.println("--------------SystemState moved to RECIEVE_STATE--------------------------");
     }
 
     if (Appl_ButtonStopPress_xdu == true)
     {
-      Appl_SystemState_xdu8 = STOP_BUTTON_PRESS_STATE;
+      appl_system_state_xdu8 = STOP_BUTTON_PRESS_STATE;
       Serial3.println("--------------SystemState moved to STOP_BUTTON_PRESS_STATE----------------");
     }
 
@@ -150,8 +125,8 @@ void loop()
     if (digitalRead(BUTTON_START_PIN) == 0)
     {
       Appl_FinishStateFirstCall_xdu = false;
-      Appl_SystemState_xdu8 = INIT_STATE;
-      Appl_FinishTransfer_xdu = false;
+      appl_system_state_xdu8 = INIT_STATE;
+      appl_finish_transfer_xdu = false;
       Serial.println(6);
       Serial3.println("--------------SystemState moved to INIT STATE-----------------------------");
     }
@@ -159,24 +134,24 @@ void loop()
     if (Appl_ButtonStopPress_xdu == true)
     {
       Appl_FinishStateFirstCall_xdu = false;
-      Appl_FinishTransfer_xdu = false;
-      Appl_SystemState_xdu8 = STOP_BUTTON_PRESS_STATE;
+      appl_finish_transfer_xdu = false;
+      appl_system_state_xdu8 = STOP_BUTTON_PRESS_STATE;
       Serial3.println("--------------SystemState moved to STOP_BUTTON_PRESS_STATE----------------");
     }
 
     break;
   case STOP_BUTTON_PRESS_STATE:
     delay(1000);
-    Appl_SystemState_xdu8 = INIT_STATE;
+    appl_system_state_xdu8 = INIT_STATE;
 
     Serial.println(6);
     Serial3.println("--------------SystemState moved to INIT STATE-------------------------------");
 
     break;
   case EMERGENCY_STATE:
-    if (Emergency_Check() == false)
+    if (emergency_check() == false)
     {
-      Appl_SystemState_xdu8 = INIT_STATE;
+      appl_system_state_xdu8 = INIT_STATE;
       delay(1000);
       Serial.println(6);
       Serial3.println("--------------SystemState moved to INIT_STATE-----------------------------");
@@ -188,12 +163,13 @@ void loop()
   }
 }
 
-void Stop_Push()
+/* Private function  ---------------------------------------- */
+static void stop_push()
 {
   NumHoles_AlreadyRun_xdu32 = 0;
   if (Appl_EmergencyHold_xdu == true)
   {
-    Serial3.println("Emergency_Push");
+    Serial3.println("emergency_push");
   }
   else
   {
@@ -204,16 +180,16 @@ void Stop_Push()
   }
 }
 
-void Emergency_Push()
+static void emergency_push()
 {
   Emergency();
 }
 
-void Pause_Push()
+static void pause_push()
 {
   if (Appl_EmergencyHold_xdu == true)
   {
-    Serial3.println("Emergency_Push");
+    Serial3.println("emergency_push");
   }
   else
   {
@@ -241,11 +217,11 @@ void Pause_Push()
   }
 }
 
-void Start_Push()
+static void start_push()
 {
   if (Appl_EmergencyHold_xdu == true)
   {
-    Serial3.println("Emergency_Push");
+    Serial3.println("emergency_push");
   }
   else
   {
@@ -270,7 +246,7 @@ void Start_Push()
   }
 }
 
-bool Emergency_Check()
+static bool emergency_check()
 {
   if (digitalRead(BUTTON_EMERGENCY_PIN) == 1)
   {
@@ -287,6 +263,38 @@ bool Emergency_Check()
   }
 }
 
+static void init_variables()
+{
+  NumHoles_AlreadyRun_xdu32 = 0;
+  Appl_NumHolesFromAToB_xdu8 = 0;
+  data_software = "";
+  Appl_NoMaterial_xdu = false;
+  Appl_NoMaterialFirstCallCapture_xdu = false;
+  Appl_Second_xdu8 = 0;
+  Appl_CutterBackwardTrigger_xdu = false;
+  Appl_Forward_Trigger_xdu = false;
+}
+
+static inline void init_timer1(void)
+{
+  // initialize Timer1
+  cli();      // disable global interrupts
+  TCCR1A = 0; // set entire TCCR1A register to 0
+  TCCR1B = 0; // same for TCCR1B
+
+  // set compare match register to desired timer count:
+  OCR1A = 15624;
+  // turn on CTC mode:
+  TCCR1B |= (1 << WGM12);
+  // Set CS10 and CS12 bits for 1024 prescaler:
+  TCCR1B |= (1 << CS10);
+  TCCR1B |= (1 << CS12);
+  // enable timer compare interrupt:
+  TIMSK1 |= (1 << OCIE1A);
+  // enable global interrupts:
+  sei();
+}
+
 ISR(TIMER1_COMPA_vect)
 {
   if (Appl_CutterBackwardTrigger_xdu == true)
@@ -294,7 +302,7 @@ ISR(TIMER1_COMPA_vect)
     Appl_Second_xdu8++;
     if (Appl_Second_xdu8 >= 8 and Appl_CutterBackwardTrigger_xdu == true)
     {
-      Appl_SystemState_xdu8 = INIT_STATE;
+      appl_system_state_xdu8 = INIT_STATE;
       Brushless_Off();
       Serial.println(12); // Send Error to PC
       Serial.println(2);  // Send Stop to PC
@@ -308,3 +316,5 @@ ISR(TIMER1_COMPA_vect)
     Appl_Second_xdu8 = 0;
   }
 }
+
+/* End of file -------------------------------------------------------- */

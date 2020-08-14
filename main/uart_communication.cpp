@@ -48,7 +48,7 @@ void receive_data()
       string_complete = false;
       Serial3.println("RUNNING");
       Execute_String(data_software);
-      if (Appl_SystemState_xdu8 == FINISH_LETTER_STATE)
+      if (appl_system_state_xdu8 == FINISH_LETTER_STATE)
       {
         // Do nothing
       }
