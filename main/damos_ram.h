@@ -30,11 +30,11 @@ extern float Appl_LengthToAlarm_fdu32;
 
 extern uint32_t Appl_FisrtPulse_xdu8;
 extern uint32_t Appl_LastPulse_xdu8;
-extern uint32_t num_holes_already_run_xdu32;
+extern uint32_t NumHolesAlreadyRun_xdu32;
 extern uint32_t Holes_HaveToRun_xdu32;
 
 extern uint8_t Appl_NumHolesFromAToB_xdu8;
-extern uint8_t appl_system_state_xdu8;
+extern uint8_t Appl_SystemState_xdu8;
 extern uint8_t Appl_Second_xdu8;
 
 extern bool Appl_NoMaterialTriger_xdu;
@@ -53,7 +53,7 @@ extern bool Appl_NoMaterial_xdu;
 extern bool Appl_CutterBackwardTrigger_xdu;
 extern bool Appl_PauseTrigger_xdu;
 extern bool Appl_Forward_Trigger_xdu;
-extern bool appl_finish_transfer_xdu;
+extern bool Appl_FinishTransfer_xdu;
 
 /* Public function definition ----------------------------------------- */
 

@@ -36,48 +36,49 @@ void setup()
   // Board support package init
   bsp_init();
 
+  // Stepper setup
   stepper_setup();
 }
 
 void loop()
 {
-  switch (appl_system_state_xdu8)
+  switch (Appl_SystemState_xdu8)
   {
-  case INIT_STATE:
+  case SYS_INIT_STATE:
     home_all(); //Home Cut and Move
     init_variables();
 
-    appl_system_state_xdu8 = RECIEVE_AND_RUNNING_STATE;
+    Appl_SystemState_xdu8 = SYS_RECIEVE_AND_RUNNING_STATE;
 
     Serial.println(7);
     Serial3.println("--------------SystemState moved to RECIEVE_STATE----------------------------");
     
     break;
-  case RECIEVE_AND_RUNNING_STATE:
+  case SYS_RECIEVE_AND_RUNNING_STATE:
     bsp_uart_receive();
 
     if (emergency_check() == true)
     {
-      appl_system_state_xdu8 = EMERGENCY_STATE;
+      Appl_SystemState_xdu8 = SYS_EMERGENCY_STATE;
       Serial.println(5);
-      Serial3.println("--------------SystemState moved to EMERGENCY_STATE------------------------");
+      Serial3.println("--------------SystemState moved to SYS_EMERGENCY_STATE------------------------");
     }
 
-    if (appl_finish_transfer_xdu == true and Appl_EmergencyHold_xdu == false)
+    if (Appl_FinishTransfer_xdu == true and Appl_EmergencyHold_xdu == false)
     {
-      appl_system_state_xdu8 = FINISH_STATE;
+      Appl_SystemState_xdu8 = SYS_FINISH_STATE;
       Serial.println(8);
-      Serial3.println("--------------SystemState moved to FINISH_STATE---------------------------");
+      Serial3.println("--------------SystemState moved to SYS_FINISH_STATE---------------------------");
     }
 
     if (Appl_ButtonStopPress_xdu == true)
     {
-      appl_system_state_xdu8 = STOP_BUTTON_PRESS_STATE;
-      Serial3.println("--------------SystemState moved to STOP_BUTTON_PRESS_STATE----------------");
+      Appl_SystemState_xdu8 = SYS_STOP_BUTTON_PRESS_STATE;
+      Serial3.println("--------------SystemState moved to SYS_STOP_BUTTON_PRESS_STATE----------------");
     }
 
     break;
-  case FINISH_LETTER_STATE:
+  case SYS_FINISH_LETTER_STATE:
     digitalWrite(MATERIAL_STATUS, HIGH);
 
     if (digitalRead(BUTTON_START_PIN) == 0)
@@ -86,18 +87,18 @@ void loop()
       Serial3.println("start press");
       Execute_Forward("-200");
       Serial.println(1);
-      appl_system_state_xdu8 = RECIEVE_AND_RUNNING_STATE;
+      Appl_SystemState_xdu8 = SYS_RECIEVE_AND_RUNNING_STATE;
       Serial3.println("--------------SystemState moved to RECIEVE_STATE--------------------------");
     }
 
     if (Appl_ButtonStopPress_xdu == true)
     {
-      appl_system_state_xdu8 = STOP_BUTTON_PRESS_STATE;
-      Serial3.println("--------------SystemState moved to STOP_BUTTON_PRESS_STATE----------------");
+      Appl_SystemState_xdu8 = SYS_STOP_BUTTON_PRESS_STATE;
+      Serial3.println("--------------SystemState moved to SYS_STOP_BUTTON_PRESS_STATE----------------");
     }
 
     break;
-  case FINISH_STATE:
+  case SYS_FINISH_STATE:
     if (Appl_FinishStateFirstCall_xdu == true)
     {
       digitalWrite(MATERIAL_STATUS, HIGH);
@@ -109,8 +110,8 @@ void loop()
     if (digitalRead(BUTTON_START_PIN) == 0)
     {
       Appl_FinishStateFirstCall_xdu = false;
-      appl_system_state_xdu8 = INIT_STATE;
-      appl_finish_transfer_xdu = false;
+      Appl_SystemState_xdu8 = SYS_INIT_STATE;
+      Appl_FinishTransfer_xdu = false;
       Serial.println(6);
       Serial3.println("--------------SystemState moved to INIT STATE-----------------------------");
     }
@@ -118,27 +119,27 @@ void loop()
     if (Appl_ButtonStopPress_xdu == true)
     {
       Appl_FinishStateFirstCall_xdu = false;
-      appl_finish_transfer_xdu = false;
-      appl_system_state_xdu8 = STOP_BUTTON_PRESS_STATE;
-      Serial3.println("--------------SystemState moved to STOP_BUTTON_PRESS_STATE----------------");
+      Appl_FinishTransfer_xdu = false;
+      Appl_SystemState_xdu8 = SYS_STOP_BUTTON_PRESS_STATE;
+      Serial3.println("--------------SystemState moved to SYS_STOP_BUTTON_PRESS_STATE----------------");
     }
 
     break;
-  case STOP_BUTTON_PRESS_STATE:
+  case SYS_STOP_BUTTON_PRESS_STATE:
     delay(1000);
-    appl_system_state_xdu8 = INIT_STATE;
+    Appl_SystemState_xdu8 = SYS_INIT_STATE;
 
     Serial.println(6);
     Serial3.println("--------------SystemState moved to INIT STATE-------------------------------");
 
     break;
-  case EMERGENCY_STATE:
+  case SYS_EMERGENCY_STATE:
     if (emergency_check() == false)
     {
-      appl_system_state_xdu8 = INIT_STATE;
+      Appl_SystemState_xdu8 = SYS_INIT_STATE;
       delay(1000);
       Serial.println(6);
-      Serial3.println("--------------SystemState moved to INIT_STATE-----------------------------");
+      Serial3.println("--------------SystemState moved to SYS_INIT_STATE-----------------------------");
     }
 
     break;
@@ -149,7 +150,7 @@ void loop()
 
 void bsp_stop_push(void)
 {
-  num_holes_already_run_xdu32 = 0;
+  NumHolesAlreadyRun_xdu32 = 0;
   if (Appl_EmergencyHold_xdu == true)
   {
     Serial3.println("emergency_push");
@@ -261,7 +262,7 @@ static bool emergency_check(void)
  */
 static void init_variables(void)
 {
-  num_holes_already_run_xdu32 = 0;
+  NumHolesAlreadyRun_xdu32 = 0;
   Appl_NumHolesFromAToB_xdu8 = 0;
   g_uart_data_receive = "";
   Appl_NoMaterial_xdu = false;
@@ -284,7 +285,7 @@ ISR(TIMER1_COMPA_vect)
     Appl_Second_xdu8++;
     if (Appl_Second_xdu8 >= 8 and Appl_CutterBackwardTrigger_xdu == true)
     {
-      appl_system_state_xdu8 = INIT_STATE;
+      Appl_SystemState_xdu8 = SYS_INIT_STATE;
       Brushless_Off();
       Serial.println(12); // Send Error to PC
       Serial.println(2);  // Send Stop to PC

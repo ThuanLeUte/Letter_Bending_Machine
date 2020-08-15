@@ -65,7 +65,7 @@ void bsp_uart_receive()
       Serial3.println("RUNNING");
       Execute_String(g_uart_data_receive);
 
-      if (appl_system_state_xdu8 == FINISH_LETTER_STATE)
+      if (Appl_SystemState_xdu8 == SYS_FINISH_LETTER_STATE)
       {
         // Do nothing
       }
