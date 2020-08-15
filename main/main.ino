@@ -15,13 +15,12 @@
 #include <avr/interrupt.h>
 #include <avr/io.h>
 
+#include "bsp.h"
 #include "stepper_control.h"
 #include "execute_data.h"
 #include "uart_communication.h"
 #include "main.h"
 #include "damos_ram.h"
-#include "board_define.h"
-#include "bsp.h"
 
 /* Private defines ---------------------------------------------------- */
 /* Private enumerate/structure ---------------------------------------- */
@@ -29,30 +28,16 @@
 /* Public variables --------------------------------------------------- */
 /* Private variables -------------------------------------------------- */
 /* Private function prototypes ---------------------------------------- */
-static void stop_push();
-static void emergency_push();
-static void pause_push();
-static void start_push();
-
-static void init_variables();
-static bool emergency_check();
-static inline void init_timer1(void);
+static void init_variables(void);
+static bool emergency_check(void);
 
 /* Function definitions ----------------------------------------------- */
 void setup()
 {
-  board_setup();
-
-  Serial.begin(115200);
-  Serial2.begin(115200);
-  Serial3.begin(115200);
+  // Board support package init
+  bsp_init();
 
   stepper_setup();
-
-  attachInterrupt(2, pause_push, FALLING);    // Pin 21 Push go to LOW
-  attachInterrupt(3, emergency_push, RISING); // Pin 20 Push go to HIGH
-  attachInterrupt(4, stop_push, RISING);      // Pin 19 Push go to HIGH
-  attachInterrupt(5, start_push, FALLING);    // Pin 18 Push go to LOW
 }
 
 void loop()
@@ -163,10 +148,9 @@ void loop()
   }
 }
 
-/* Private function  ---------------------------------------- */
-static void stop_push()
+void bsp_stop_push(void)
 {
-  NumHoles_AlreadyRun_xdu32 = 0;
+  num_holes_already_run_xdu32 = 0;
   if (Appl_EmergencyHold_xdu == true)
   {
     Serial3.println("emergency_push");
@@ -180,12 +164,12 @@ static void stop_push()
   }
 }
 
-static void emergency_push()
+void bsp_emergency_push(void)
 {
   Emergency();
 }
 
-static void pause_push()
+void bsp_pause_push(void)
 {
   if (Appl_EmergencyHold_xdu == true)
   {
@@ -217,7 +201,7 @@ static void pause_push()
   }
 }
 
-static void start_push()
+void bsp_start_push(void)
 {
   if (Appl_EmergencyHold_xdu == true)
   {
@@ -246,7 +230,14 @@ static void start_push()
   }
 }
 
-static bool emergency_check()
+/* Private function  ---------------------------------------- */
+/**
+ * @brief         Emergency check
+ * @param[in]     None
+ * @attention     None
+ * @return        true or false
+ */
+static bool emergency_check(void)
 {
   if (digitalRead(BUTTON_EMERGENCY_PIN) == 1)
   {
@@ -263,9 +254,15 @@ static bool emergency_check()
   }
 }
 
-static void init_variables()
+/**
+ * @brief         Init variables
+ * @param[in]     None
+ * @attention     None
+ * @return        None
+ */
+static void init_variables(void)
 {
-  NumHoles_AlreadyRun_xdu32 = 0;
+  num_holes_already_run_xdu32 = 0;
   Appl_NumHolesFromAToB_xdu8 = 0;
   data_software = "";
   Appl_NoMaterial_xdu = false;
@@ -275,26 +272,12 @@ static void init_variables()
   Appl_Forward_Trigger_xdu = false;
 }
 
-static inline void init_timer1(void)
-{
-  // initialize Timer1
-  cli();      // disable global interrupts
-  TCCR1A = 0; // set entire TCCR1A register to 0
-  TCCR1B = 0; // same for TCCR1B
-
-  // set compare match register to desired timer count:
-  OCR1A = 15624;
-  // turn on CTC mode:
-  TCCR1B |= (1 << WGM12);
-  // Set CS10 and CS12 bits for 1024 prescaler:
-  TCCR1B |= (1 << CS10);
-  TCCR1B |= (1 << CS12);
-  // enable timer compare interrupt:
-  TIMSK1 |= (1 << OCIE1A);
-  // enable global interrupts:
-  sei();
-}
-
+/**
+ * @brief         Timer 1 interrupt
+ * @param[in]     None
+ * @attention     None
+ * @return        None
+ */
 ISR(TIMER1_COMPA_vect)
 {
   if (Appl_CutterBackwardTrigger_xdu == true)

@@ -28,7 +28,6 @@
 #define SS8_MATERIAL_BACK_PIN             (SS6)
 #define SS6_HOLES_PIN                     (SS7)
 
-
 #define BUTTON_START_PIN                  (BT1)
 #define BUTTON_PAUSE_PIN                  (BT2)
 #define BUTTON_STOP_PIN                   (BT3)
@@ -50,17 +49,52 @@
 #define STEPPER_CUT_DIR_PIN               (OP6)
 #define STEPPER_CUT_STEP_PIN              (OP7)
 
-#define BRUSHLESS_ENA_PIN                 (0)
-#define BRUSHLESS_DIR_PIN                 (O)
 #define BRUSHLESS_SPEED_PIN               (OP8)
 
 /* Public enumerate/structure ----------------------------------------- */
-
 /* Public macros ------------------------------------------------------ */
-
 /* Public variables --------------------------------------------------- */
-
 /* Public function prototypes ----------------------------------------- */
+/**
+ * @brief         Board Support Package Init
+ * @param[in]     None
+ * @attention     None
+ * @return        None
+ */
+void bsp_init(void);
+
+/**
+ * @brief         Stop button interrupt
+ * @param[in]     None
+ * @attention     None
+ * @return        None
+ */
+void bsp_stop_push(void);
+
+/**
+ * @brief         Emergency button interrupt
+ * @param[in]     None
+ * @attention     None
+ * @return        None
+ */
+void bsp_emergency_push(void);
+
+/**
+ * @brief         Pause button interrupt
+ * @param[in]     None
+ * @attention     None
+ * @return        None
+ */
+void bsp_pause_push(void);
+
+
+/**
+ * @brief         Start button interrupt
+ * @param[in]     None
+ * @attention     None
+ * @return        None
+ */
+void bsp_start_push(void);
 
 #endif // __BSP_H
 

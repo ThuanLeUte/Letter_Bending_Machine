@@ -15,20 +15,14 @@
 #include "board_define.h"
 
 /* Private defines ---------------------------------------------------- */
-
 /* Private enumerate/structure ---------------------------------------- */
-
 /* Private macros ----------------------------------------------------- */
-
 /* Public variables --------------------------------------------------- */
-
 /* Private variables -------------------------------------------------- */
-
 /* Private function prototypes ---------------------------------------- */
-
 /* Function definitions ----------------------------------------------- */
 
-void board_setup()
+void board_define_init(void)
 {
   pinMode(OUT_1, OUTPUT);
   pinMode(OUT_2, OUTPUT);
@@ -66,5 +60,5 @@ void board_setup()
   pinMode(BT4, INPUT);
   pinMode(BT5, INPUT);
 }
-/* End of file -------------------------------------------------------- */
 
+/* End of file -------------------------------------------------------- */

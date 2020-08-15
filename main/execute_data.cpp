@@ -294,7 +294,7 @@ void Execute_Forward(String Data_Input)
   Appl_FisrtPulse_xdu8 = 0;
   Appl_LastPulse_xdu8 = 0;
   Appl_DataLengthFloat_fdu32 = Data_Input.toFloat();
-  NumHoles_AlreadyRun_xdu32 = 0;
+  num_holes_already_run_xdu32 = 0;
 
   Holes_HaveToRun_xdu32 = Appl_DataLengthFloat_fdu32 / 5.002;
   Appl_DataLengthFloatRemainEnd_fdu32 = Appl_DataLengthFloat_fdu32 - Holes_HaveToRun_xdu32 * 5.002;
@@ -408,7 +408,7 @@ void Execute_Forward(String Data_Input)
       }
     }
 
-    while (NumHoles_AlreadyRun_xdu32 < Holes_HaveToRun_xdu32 and Appl_ButtonStopPress_xdu == false and (digitalRead(BUTTON_EMERGENCY_PIN) == 0))
+    while (num_holes_already_run_xdu32 < Holes_HaveToRun_xdu32 and Appl_ButtonStopPress_xdu == false and (digitalRead(BUTTON_EMERGENCY_PIN) == 0))
     {
       if (Appl_NumHolesFromAToB_xdu8 >= 44 or digitalRead(SS2_MOVE_HOME_B_PIN) == 1)
       {
@@ -437,13 +437,13 @@ void Execute_Forward(String Data_Input)
       }
       else
       {
-        if (NumHoles_AlreadyRun_xdu32 < Holes_HaveToRun_xdu32)
+        if (num_holes_already_run_xdu32 < Holes_HaveToRun_xdu32)
         {
-          NumHoles_AlreadyRun_xdu32 += Forward_Move_Holes(Holes_HaveToRun_xdu32 - NumHoles_AlreadyRun_xdu32);
+          num_holes_already_run_xdu32 += Forward_Move_Holes(Holes_HaveToRun_xdu32 - num_holes_already_run_xdu32);
           // Serial.print("Holes HaveToRun : ");
           // Serial3.println(Holes_HaveToRun_xdu32);
           // Serial.print("NumHoles AlreadyRun : ");
-          // Serial3.println(NumHoles_AlreadyRun_xdu32);
+          // Serial3.println(num_holes_already_run_xdu32);
         }
         else
         {
@@ -454,7 +454,7 @@ void Execute_Forward(String Data_Input)
     Serial.print("Holes HaveToRun : ");
     Serial3.println(Holes_HaveToRun_xdu32);
     Serial.print("NumHoles AlreadyRun : ");
-    Serial3.println(NumHoles_AlreadyRun_xdu32);
+    Serial3.println(num_holes_already_run_xdu32);
 
     if (Step != 0)
     {

@@ -26,7 +26,7 @@ float Appl_LengthToAlarm_fdu32      = 0;
 
 uint32_t Appl_FisrtPulse_xdu8       = 0;
 uint32_t Appl_LastPulse_xdu8        = 0;
-uint32_t NumHoles_AlreadyRun_xdu32  = 0;
+uint32_t num_holes_already_run_xdu32  = 0;
 uint32_t Holes_HaveToRun_xdu32      = 0;
 
 uint8_t Appl_NumHolesFromAToB_xdu8  = 0;

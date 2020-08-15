@@ -5,7 +5,7 @@
  * @version    1.0.0
  * @date       2020-08-01
  * @author     ThuanLe
- * @brief      Board define
+ * @brief      Board defination
  * @note       None
  * @example    None
  */
@@ -15,7 +15,6 @@
 #define __BOARD_DEFINE_H
 
 /* Includes ----------------------------------------------------------- */
-
 /* Public defines ----------------------------------------------------- */
 #define OUT_1                   (61)
 #define OUT_2                   (60)
@@ -54,13 +53,16 @@
 #define BUZZER                  (30)
 
 /* Public enumerate/structure ----------------------------------------- */
-
 /* Public macros ------------------------------------------------------ */
-
 /* Public variables --------------------------------------------------- */
-
-/* Public function definition ----------------------------------------- */
-void board_setup();
+/* Public function prototypes ----------------------------------------- */
+/**
+ * @brief         Board init
+ * @param[in]     None
+ * @attention     None
+ * @return        None
+ */
+void board_define_init(void);
 
 #endif // __BOARD_DEFINE_H
 

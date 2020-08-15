@@ -73,7 +73,7 @@ void Home_Move_B()
     {
       if ((Flag_Pre == 1) and (digitalRead(SS6_HOLES_PIN) == 0))
       {
-        NumHoles_AlreadyRun_xdu32++;
+        num_holes_already_run_xdu32++;
         Flag_Pre = 0;
       }
     }
@@ -82,8 +82,8 @@ void Home_Move_B()
   Serial3.println(STEPPER_MOVE.currentPosition());
   STEPPER_MOVE.setCurrentPosition(0);
   Serial.print("Số lỗ: ");
-  Serial3.println(NumHoles_AlreadyRun_xdu32);
-  NumHoles_AlreadyRun_xdu32 = 0;
+  Serial3.println(num_holes_already_run_xdu32);
+  num_holes_already_run_xdu32 = 0;
 }
 
 void Forward_Move(unsigned long Step_Remain)
