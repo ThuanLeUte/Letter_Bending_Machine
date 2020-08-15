@@ -13,12 +13,19 @@
 /* Includes ----------------------------------------------------------- */
 #include "Arduino.h"
 #include "bsp.h"
+#include "execute_data.h"
+#include "damos_ram.h"
+#include "main.h"
 
 /* Private defines ---------------------------------------------------- */
 /* Private enumerate/structure ---------------------------------------- */
 /* Private macros ----------------------------------------------------- */
 /* Public variables --------------------------------------------------- */
+String g_uart_data_receive = "";
+
 /* Private variables -------------------------------------------------- */
+static boolean m_uart_string_complete = false;
+
 /* Private function prototypes ---------------------------------------- */
 static void m_timer_init(void);
 static void m_interrupt_init(void);
@@ -40,6 +47,37 @@ void bsp_init(void)
   m_interrupt_init();
 }
 
+void bsp_uart_receive()
+{
+  while (Serial.available()) // gửi data từ C# qua
+  {
+    char data = (char)Serial.read();
+    g_uart_data_receive += data;
+
+    if (data == '\n')
+    {
+      m_uart_string_complete = true;
+    }
+
+    if (m_uart_string_complete)
+    {
+      m_uart_string_complete = false;
+      Serial3.println("RUNNING");
+      Execute_String(g_uart_data_receive);
+
+      if (appl_system_state_xdu8 == FINISH_LETTER_STATE)
+      {
+        // Do nothing
+      }
+      else
+      {
+        Serial.println(1);
+      }
+
+      g_uart_data_receive = "";
+    }
+  }
+}
 /* Private functions definitions -------------------------------------- */
 /**
  * @brief         Timer init

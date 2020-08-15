@@ -54,6 +54,8 @@
 /* Public enumerate/structure ----------------------------------------- */
 /* Public macros ------------------------------------------------------ */
 /* Public variables --------------------------------------------------- */
+extern String g_uart_data_receive;
+
 /* Public function prototypes ----------------------------------------- */
 /**
  * @brief         Board Support Package Init
@@ -95,6 +97,14 @@ void bsp_pause_push(void);
  * @return        None
  */
 void bsp_start_push(void);
+
+/**
+ * @brief         Receive date from uart
+ * @param[in]     None
+ * @attention     None
+ * @return        None
+ */
+void bsp_uart_receive(void);
 
 #endif // __BSP_H
 

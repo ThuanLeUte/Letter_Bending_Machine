@@ -18,7 +18,6 @@
 #include "bsp.h"
 #include "stepper_control.h"
 #include "execute_data.h"
-#include "uart_communication.h"
 #include "main.h"
 #include "damos_ram.h"
 
@@ -55,7 +54,7 @@ void loop()
     
     break;
   case RECIEVE_AND_RUNNING_STATE:
-    receive_data();
+    bsp_uart_receive();
 
     if (emergency_check() == true)
     {
@@ -264,7 +263,7 @@ static void init_variables(void)
 {
   num_holes_already_run_xdu32 = 0;
   Appl_NumHolesFromAToB_xdu8 = 0;
-  data_software = "";
+  g_uart_data_receive = "";
   Appl_NoMaterial_xdu = false;
   Appl_NoMaterialFirstCallCapture_xdu = false;
   Appl_Second_xdu8 = 0;
