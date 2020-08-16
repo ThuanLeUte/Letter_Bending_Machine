@@ -45,7 +45,7 @@ void loop()
   switch (Appl_SystemState_xdu8)
   {
   case SYS_INIT_STATE:
-    home_all(); //Home Cut and Move
+    Home_All(); //Home Cut and Move
     init_variables();
 
     Appl_SystemState_xdu8 = SYS_RECIEVE_AND_RUNNING_STATE;

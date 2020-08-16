@@ -28,9 +28,8 @@
 
 /* Public function definition ----------------------------------------- */
 void Home_Move_A();
-void Move_From_A(float Appl_DataLengthFloat_fdu32);
 void Home_Move_B();
-void home_all();
+void Home_All();
 void Home_And_Center_Cutter();
 void Cutter_Forward();
 void Cutter_Backward();

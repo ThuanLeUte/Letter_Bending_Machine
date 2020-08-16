@@ -506,7 +506,7 @@ void Brushless_Off()
   digitalWrite(BRUSHLESS_SPEED_PIN, LOW);
 }
 
-void home_all()
+void Home_All()
 {
   digitalWrite(MATERIAL_STATUS, LOW);
   STEPPER_MOVE.setEnablePin(STEPPER_MOVE_ENA_PIN);
