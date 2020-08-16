@@ -249,9 +249,9 @@ void Execute_String(String Data_Input)
           }
           else if (Command == "S")
           {
+            Execute_Cut_First_End(Data_Command, EXECUTE_FIRST);
             Serial3.println("Execute_Cut First");
             Serial.println(Command);
-            Execute_Cut_First_End(Data_Command, EXECUTE_FIRST);
           }
           else if (Command == "T")
           {
@@ -658,6 +658,7 @@ void Execute_Cut(String Data_Input)
     }
     Cutter_Backward(); // Backward Cut
 
+    delay(2000);
     while (1)  // Wait to cutter go midle
     {
       if((IS_SENSOR_DETECTED(SS4_END_STROKE_BACK_PIN)) and (IS_SENSOR_NOT_DETECTED(SS7_END_STROKE_FRONT_PIN)))
@@ -748,8 +749,12 @@ void Execute_Cut_First_End(String Data_Input, bool type)
     }
     Cutter_Backward(); // Backward Cut
 
-    while ((IS_SENSOR_NOT_DETECTED(SS4_END_STROKE_BACK_PIN)) and (IS_SENSOR_DETECTED(SS7_END_STROKE_FRONT_PIN)))  // Wait to cutter go midle
+   while (1)  // Wait to cutter go midle
     {
+      if((IS_SENSOR_DETECTED(SS4_END_STROKE_BACK_PIN)) and (IS_SENSOR_NOT_DETECTED(SS7_END_STROKE_FRONT_PIN)))
+      {
+        break;
+      }
       if (Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
       {
         return;
@@ -763,9 +768,13 @@ void Execute_Cut_First_End(String Data_Input, bool type)
     }
     Cutter_Forward(); // Forward Cut
     
-    while ((IS_SENSOR_NOT_DETECTED(SS4_END_STROKE_BACK_PIN)) and (IS_SENSOR_NOT_DETECTED(SS7_END_STROKE_FRONT_PIN)))  // Wait to cutter go in
+    while (1)  // Wait to cutter go in
     {
-      if (Appl_ButtonStopPress_xdu == true)
+      if ((IS_SENSOR_DETECTED(SS4_END_STROKE_BACK_PIN)) and (IS_SENSOR_DETECTED(SS7_END_STROKE_FRONT_PIN)))
+      {
+        break;
+      }
+      if (Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
       {
         return;
       }

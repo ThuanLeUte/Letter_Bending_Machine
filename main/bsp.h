@@ -57,6 +57,7 @@
 
 #define IS_BUTTON_PRESSED(button)             (digitalRead(button) == 1)
 #define IS_BUTTON_NOT_PRESSED(button)         (digitalRead(button) == 0)
+
 /* Public variables --------------------------------------------------- */
 extern String g_uart_data_receive;
 
