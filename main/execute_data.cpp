@@ -179,11 +179,27 @@ int Execute_Manual(String Data_Input)
   else if (Command == "MK") //KEP MOVE
   {
     digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH);
+    digitalWrite(OUT_1, HIGH);
+    digitalWrite(OUT_2, HIGH);
+    digitalWrite(OUT_3, HIGH);
+    digitalWrite(OUT_4, HIGH);
+    digitalWrite(OUT_5, HIGH);
+    digitalWrite(OUT_6, HIGH);
+    digitalWrite(OUT_7, HIGH);
+    digitalWrite(OUT_8, HIGH);
     return 1;
   }
   else if (Command == "MN") //NHA MOVE
   {
     digitalWrite(SOL_CLAMP_FEEDER_PIN, LOW);
+    digitalWrite(OUT_1, LOW);
+    digitalWrite(OUT_2, LOW);
+    digitalWrite(OUT_3, LOW);
+    digitalWrite(OUT_4, LOW);
+    digitalWrite(OUT_5, LOW);
+    digitalWrite(OUT_6, LOW);
+    digitalWrite(OUT_7, LOW);
+    digitalWrite(OUT_8, LOW);
     return 1;
   }
   else
@@ -306,7 +322,7 @@ void Execute_Forward(String Data_Input)
 
   if (Appl_DataLengthFloat_fdu32 > 0)
   {
-    if (Appl_DataLengthIsRemain_xdu or digitalRead(SS1_MOVE_HOME_A_PIN) == 1) // Sensor bị che=> lưng chừng
+    if (Appl_DataLengthIsRemain_xdu or IS_SENSOR_DETECTED(SS1_MOVE_HOME_A_PIN)) // Sensor bị che=> lưng chừng
     {
       if (Appl_NumHolesFromAToB_xdu8 >= 43)
       {
@@ -405,7 +421,7 @@ void Execute_Forward(String Data_Input)
 
     while (NumHolesAlreadyRun_xdu32 < Holes_HaveToRun_xdu32 and Appl_ButtonStopPress_xdu == false )
     {
-      if (Appl_NumHolesFromAToB_xdu8 >= 44 or digitalRead(SS2_MOVE_HOME_B_PIN) == 1)
+      if (Appl_NumHolesFromAToB_xdu8 >= 44 or IS_SENSOR_DETECTED(SS2_MOVE_HOME_B_PIN))
       {
         delay(500);
         digitalWrite(SOL_CLAMPER_PIN, HIGH); // Kep cat
@@ -459,7 +475,7 @@ void Execute_Forward(String Data_Input)
     {
       Appl_DataLengthIsRemain_xdu = false;
     }
-    if (Appl_NumHolesFromAToB_xdu8 >= 45 or digitalRead(SS2_MOVE_HOME_B_PIN) == 1)
+    if (Appl_NumHolesFromAToB_xdu8 >= 45 or (IS_SENSOR_DETECTED(SS2_MOVE_HOME_B_PIN)))
     {
       digitalWrite(SOL_CLAMPER_PIN, HIGH);
       delay(1000);
@@ -561,10 +577,11 @@ void Execute_Cut(String Data_Input)
   {
     Data_Angle_Float = Data_Angle_Float_Raw;
   }
-  Serial.print("Goc cat: ");
+  Serial3.print("Goc cat: ");
   Serial3.println(Data_Angle_Float);
   Step = float(Data_Angle_Float * 120);
-
+  Serial3.println("Step:");
+  Serial3.println(Data_Angle_Float);
   if (Step >= 0 and Appl_ButtonStopPress_xdu == false)
   {
     digitalWrite(SOL_CLAMPER_PIN, HIGH); // Kep phoi
@@ -573,25 +590,29 @@ void Execute_Cut(String Data_Input)
     {
       delay(1000);
     }
-
+    Serial3.println("Xoay dao");
     Angle_Cut(Step);                    // Xoay dao
     Brushless_Run(BRUSHLESS_SPEED);     // Brushless quay
     digitalWrite(SOL_LIFTER_PIN, HIGH); // Ha dao
-
+    Serial3.println("Xoay dao finish");
     if (Appl_ButtonStopPress_xdu == false )
     {
       delay(2000);
     }
     Cutter_Backward(); // Backward Cut
 
-    while ((digitalRead(SS4_END_STROKE_BACK_PIN) == 0) and (digitalRead(SS7_END_STROKE_FRONT_PIN) == 1))  // Wait to cutter go midle
+    while (1)  // Wait to cutter go out
     {
+      if((IS_SENSOR_NOT_DETECTED(SS4_END_STROKE_BACK_PIN)) and (IS_SENSOR_DETECTED(SS7_END_STROKE_FRONT_PIN)))
+      {
+        break;
+      }
       if (Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
       {
         return;
       }
     }
-
+    
     Appl_CutterBackwardTrigger_xdu = false;
     if (Appl_ButtonStopPress_xdu == false )
     {
@@ -600,8 +621,12 @@ void Execute_Cut(String Data_Input)
     Angle_Cut(-2 * Step); // Xoay dao
     Cutter_Forward();     // Forward Cut
 
-    while ((digitalRead(SS4_END_STROKE_BACK_PIN) == 0) and (digitalRead(SS7_END_STROKE_FRONT_PIN) == 0))  // Wait to cutter go in
+    while (1)  // Wait to cutter go in
     {
+      if ((IS_SENSOR_DETECTED(SS4_END_STROKE_BACK_PIN)) and (IS_SENSOR_DETECTED(SS7_END_STROKE_FRONT_PIN)))
+      {
+        break;
+      }
       if (Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
       {
         return;
@@ -612,11 +637,10 @@ void Execute_Cut(String Data_Input)
 
     if (Appl_ButtonStopPress_xdu == true)
     {
-      digitalWrite(SOL_CLAMPER_PIN, HIGH); // Keop  phoi
+      digitalWrite(SOL_CLAMPER_PIN, HIGH); // Kep  phoi
     }
     else
     {
-      // digitalWrite(SOL_CLAMPER_PIN,LOW);   // Tha phoi
     }
   }
   else if (Step < 0 and Appl_ButtonStopPress_xdu == false)
@@ -634,8 +658,12 @@ void Execute_Cut(String Data_Input)
     }
     Cutter_Backward(); // Backward Cut
 
-    while ((digitalRead(SS4_END_STROKE_BACK_PIN) == 1) and (digitalRead(SS7_END_STROKE_FRONT_PIN) == 0))  // Wait to cutter go out
+    while (1)  // Wait to cutter go midle
     {
+      if((IS_SENSOR_DETECTED(SS4_END_STROKE_BACK_PIN)) and (IS_SENSOR_NOT_DETECTED(SS7_END_STROKE_FRONT_PIN)))
+      {
+        break;
+      }
       if (Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
       {
         return;
@@ -643,13 +671,19 @@ void Execute_Cut(String Data_Input)
     }
     Appl_CutterBackwardTrigger_xdu = false;
     Cutter_Forward(); // Forward Cut
-    while ((digitalRead(SS4_END_STROKE_BACK_PIN) == 0) and (digitalRead(SS7_END_STROKE_FRONT_PIN) == 0))  // Wait to cutter go in
+    
+    while (1)  // Wait to cutter go in
     {
-      if (Appl_ButtonStopPress_xdu == true)
+      if ((IS_SENSOR_DETECTED(SS4_END_STROKE_BACK_PIN)) and (IS_SENSOR_DETECTED(SS7_END_STROKE_FRONT_PIN)))
+      {
+        break;
+      }
+      if (Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
       {
         return;
       }
     }
+    
     Brushless_Off(); // Brushless off
     if (Appl_ButtonStopPress_xdu == true)
     {
@@ -658,7 +692,7 @@ void Execute_Cut(String Data_Input)
     else
     {
     }
-  }
+ }
 }
 
 void Execute_Cut_First_End(String Data_Input, bool type)
@@ -714,7 +748,7 @@ void Execute_Cut_First_End(String Data_Input, bool type)
     }
     Cutter_Backward(); // Backward Cut
 
-    while ((digitalRead(SS4_END_STROKE_BACK_PIN) == 0) and (digitalRead(SS7_END_STROKE_FRONT_PIN) == 1))  // Wait to cutter go midle
+    while ((IS_SENSOR_NOT_DETECTED(SS4_END_STROKE_BACK_PIN)) and (IS_SENSOR_DETECTED(SS7_END_STROKE_FRONT_PIN)))  // Wait to cutter go midle
     {
       if (Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
       {
@@ -729,7 +763,7 @@ void Execute_Cut_First_End(String Data_Input, bool type)
     }
     Cutter_Forward(); // Forward Cut
     
-    while ((digitalRead(SS4_END_STROKE_BACK_PIN) == 0) and (digitalRead(SS7_END_STROKE_FRONT_PIN) == 0))  // Wait to cutter go in
+    while ((IS_SENSOR_NOT_DETECTED(SS4_END_STROKE_BACK_PIN)) and (IS_SENSOR_NOT_DETECTED(SS7_END_STROKE_FRONT_PIN)))  // Wait to cutter go in
     {
       if (Appl_ButtonStopPress_xdu == true)
       {

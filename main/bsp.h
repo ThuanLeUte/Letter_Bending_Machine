@@ -32,10 +32,10 @@
 #define BUTTON_PAUSE_PIN                  (BT2)
 #define BUTTON_STOP_PIN                   (BT3)
 
-#define SOL_CLAMP_FEEDER_PIN              (OUT_1)
-#define SOL_SLIDE_BACKWARD_PIN            (OUT_2)
-#define SOL_LIFTER_PIN                    (OUT_3)
-#define SOL_CLAMPER_PIN                   (OUT_4)
+#define SOL_CLAMP_FEEDER_PIN              (OUT_2)
+#define SOL_SLIDE_BACKWARD_PIN            (OUT_3)
+#define SOL_LIFTER_PIN                    (OUT_4)
+#define SOL_CLAMPER_PIN                   (OUT_5)
 
 #define SOL_SLIDE_FORWARD_PIN             (OUT_5)
 #define MATERIAL_STATUS                   (OUT_6)
@@ -52,6 +52,11 @@
 
 /* Public enumerate/structure ----------------------------------------- */
 /* Public macros ------------------------------------------------------ */
+#define IS_SENSOR_DETECTED(sensor)            (digitalRead(sensor) == 0)
+#define IS_SENSOR_NOT_DETECTED(sensor)        (digitalRead(sensor) == 1)
+
+#define IS_BUTTON_PRESSED(button)             (digitalRead(button) == 1)
+#define IS_BUTTON_NOT_PRESSED(button)         (digitalRead(button) == 0)
 /* Public variables --------------------------------------------------- */
 extern String g_uart_data_receive;
 

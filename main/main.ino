@@ -35,8 +35,8 @@ void setup()
   // Board support package init
   bsp_init();
 
-  // Stepper setup
-  stepper_setup();
+//   Stepper setup
+   stepper_setup();
 }
 
 void loop()
@@ -74,7 +74,7 @@ void loop()
   case SYS_FINISH_LETTER_STATE:
     digitalWrite(MATERIAL_STATUS, HIGH);
 
-    if (digitalRead(BUTTON_START_PIN) == 0)
+    if (IS_BUTTON_NOT_PRESSED(BUTTON_START_PIN))
     {
       digitalWrite(MATERIAL_STATUS, LOW);
       Serial3.println("start press");
@@ -100,7 +100,7 @@ void loop()
       Appl_FinishStateFirstCall_xdu = false;
     }
 
-    if (digitalRead(BUTTON_START_PIN) == 0)
+    if (IS_BUTTON_NOT_PRESSED(BUTTON_START_PIN))
     {
       Appl_FinishStateFirstCall_xdu = false;
       Appl_SystemState_xdu8 = SYS_INIT_STATE;
@@ -215,24 +215,24 @@ static void init_variables(void)
  */
 ISR(TIMER1_COMPA_vect)
 {
-  if (Appl_CutterBackwardTrigger_xdu == true)
-  {
-    Appl_Second_xdu8++;
-    if (Appl_Second_xdu8 >= 8 and Appl_CutterBackwardTrigger_xdu == true)
-    {
-      Appl_SystemState_xdu8 = SYS_INIT_STATE;
-      Brushless_Off();
-      Serial.println(12); // Send Error to PC
-      Serial.println(2);  // Send Stop to PC
-      Serial.println(6);  // Homing to PC
-      Appl_Second_xdu8 = 0;
-      Appl_CutterBackwardTrigger_xdu = false;
-    }
-  }
-  else
-  {
-    Appl_Second_xdu8 = 0;
-  }
+  // if (Appl_CutterBackwardTrigger_xdu == true)
+  // {
+  //   Appl_Second_xdu8++;
+  //   if (Appl_Second_xdu8 >= 8 and Appl_CutterBackwardTrigger_xdu == true)
+  //   {
+  //     Appl_SystemState_xdu8 = SYS_INIT_STATE;
+  //     Brushless_Off();
+  //     Serial.println(12); // Send Error to PC
+  //     Serial.println(2);  // Send Stop to PC
+  //     Serial.println(6);  // Homing to PC
+  //     Appl_Second_xdu8 = 0;
+  //     Appl_CutterBackwardTrigger_xdu = false;
+  //   }
+  // }
+  // else
+  // {
+  //   Appl_Second_xdu8 = 0;
+  // }
 }
 
 /* End of file -------------------------------------------------------- */
