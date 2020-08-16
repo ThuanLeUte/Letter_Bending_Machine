@@ -17,19 +17,14 @@
 #include "damos_ram.h"
 
 /* Private defines ---------------------------------------------------- */
-
 /* Private enumerate/structure ---------------------------------------- */
-
 /* Private macros ----------------------------------------------------- */
-
 /* Public variables --------------------------------------------------- */
-
 /* Private variables -------------------------------------------------- */
 AccelStepper STEPPER_MOVE(AccelStepper::DRIVER, STEPPER_MOVE_STEP_PIN, STEPPER_MOVE_DIR_PIN);
 AccelStepper STEPPER_CUT(AccelStepper::DRIVER, STEPPER_CUT_STEP_PIN, STEPPER_CUT_DIR_PIN);
 
 /* Private function prototypes ---------------------------------------- */
-
 /* Function definitions ----------------------------------------------- */
 void Home_Move_A_First()
 {

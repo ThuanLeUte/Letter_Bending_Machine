@@ -230,7 +230,7 @@ void bsp_start_push(void)
   }
 }
 
-/* Private function  ---------------------------------------- */
+/* Private function  --------------------------------------------------- */
 /**
  * @brief         Emergency check
  * @param[in]     None

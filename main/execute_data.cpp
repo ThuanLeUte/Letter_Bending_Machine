@@ -16,18 +16,13 @@
 #include "main.h"
 #include "stepper_control.h"
 #include "bsp.h"
+
 /* Private defines ---------------------------------------------------- */
-
 /* Private enumerate/structure ---------------------------------------- */
-
 /* Private macros ----------------------------------------------------- */
-
 /* Public variables --------------------------------------------------- */
-
 /* Private variables -------------------------------------------------- */
-
 /* Private function prototypes ---------------------------------------- */
-
 /* Function definitions ----------------------------------------------- */
 int Execute_Manual(String Data_Input)
 {

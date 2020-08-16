@@ -89,7 +89,6 @@ void bsp_emergency_push(void);
  */
 void bsp_pause_push(void);
 
-
 /**
  * @brief         Start button interrupt
  * @param[in]     None

@@ -21,11 +21,8 @@
 #define MOVE_STEPPER_SPEED_HOME     (15000)
 
 /* Public enumerate/structure ----------------------------------------- */
-
 /* Public macros ------------------------------------------------------ */
-
 /* Public variables --------------------------------------------------- */
-
 /* Public function definition ----------------------------------------- */
 void Home_Move_A();
 void Home_Move_B();
@@ -50,7 +47,6 @@ int Forward_Move_Holes(int Holes);
 unsigned long Backward_Move(unsigned long Step_Remain);
 void Forward_Move_1Step();
 void stepper_setup(void);
-
 
 #endif // __STEPPER_CONTROL_H
 

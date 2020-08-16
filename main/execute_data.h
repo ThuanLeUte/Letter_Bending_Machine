@@ -23,11 +23,17 @@
 #define TIME_CUTTER         (5000)
 
 /* Public enumerate/structure ----------------------------------------- */
+/**
+ * @brief Execute enum
+ */
+enum execute
+{
+  EXECUTE_FIRST,
+  EXECUTE_END
+};
 
 /* Public macros ------------------------------------------------------ */
-
 /* Public variables --------------------------------------------------- */
-
 /* Public function definition ----------------------------------------- */
 int  Execute_Manual(String Data_Input);
 void EVxecute_Auto(String Data_Input);
