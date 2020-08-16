@@ -40,7 +40,6 @@ bool Appl_ButtonPausePress_xdu      = false;
 bool Appl_ButtonPausePress_1_xdu    = false;
 bool Appl_ButtonStopPress_xdu       = false;
 bool Appl_FinishStateFirstCall_xdu  = true;
-bool Appl_EmergencyHold_xdu         = false;
 
 bool Appl_DataLengthIsRemain_xdu    = false;
 bool Appl_NoMaterial_xdu            = false;

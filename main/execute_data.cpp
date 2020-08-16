@@ -322,12 +322,12 @@ void Execute_Forward(String Data_Input)
 
         Serial3.println("Forward starting");
         digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH); // Kep phoi
-        if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+        if (Appl_ButtonStopPress_xdu == false )
         {
           delay(500);
         }
         digitalWrite(SOL_CLAMPER_PIN, LOW); // Tha cat
-        if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+        if (Appl_ButtonStopPress_xdu == false )
         {
           delay(300);
         }
@@ -338,12 +338,12 @@ void Execute_Forward(String Data_Input)
         {
           Serial3.println("Forward starting");
           digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH); // Kep phoi
-          if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+          if (Appl_ButtonStopPress_xdu == false )
           {
             delay(500);
           }
           digitalWrite(SOL_CLAMPER_PIN, LOW); // Tha cat
-          if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+          if (Appl_ButtonStopPress_xdu == false )
           {
             delay(300);
           }
@@ -353,12 +353,12 @@ void Execute_Forward(String Data_Input)
         else
         {
           digitalWrite(SOL_CLAMPER_PIN, HIGH); // Kep cat
-          if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+          if (Appl_ButtonStopPress_xdu == false )
           {
             delay(300);
           }
           digitalWrite(SOL_CLAMP_FEEDER_PIN, LOW); // Tha phoi
-          if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+          if (Appl_ButtonStopPress_xdu == false )
           {
             delay(500);
           }
@@ -366,12 +366,12 @@ void Execute_Forward(String Data_Input)
           Appl_NumHolesFromAToB_xdu8++;
           Serial3.println("Forward starting");
           digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH); // Kep phoi
-          if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+          if (Appl_ButtonStopPress_xdu == false )
           {
             delay(500);
           }
           digitalWrite(SOL_CLAMPER_PIN, LOW); // Tha cat
-          if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+          if (Appl_ButtonStopPress_xdu == false )
           {
             delay(300);
           }
@@ -384,12 +384,12 @@ void Execute_Forward(String Data_Input)
       {
         Serial3.println("Forward starting");
         digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH); // Kep phoi
-        if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+        if (Appl_ButtonStopPress_xdu == false )
         {
           delay(500);
         }
         digitalWrite(SOL_CLAMPER_PIN, LOW); // Tha cat
-        if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+        if (Appl_ButtonStopPress_xdu == false )
         {
           delay(300);
         }
@@ -397,13 +397,13 @@ void Execute_Forward(String Data_Input)
         return;
       }
       digitalWrite(SOL_CLAMPER_PIN, LOW); // Tha cat
-      if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+      if (Appl_ButtonStopPress_xdu == false )
       {
         delay(300);
       }
     }
 
-    while (NumHolesAlreadyRun_xdu32 < Holes_HaveToRun_xdu32 and Appl_ButtonStopPress_xdu == false and (digitalRead(BUTTON_EMERGENCY_PIN) == 0))
+    while (NumHolesAlreadyRun_xdu32 < Holes_HaveToRun_xdu32 and Appl_ButtonStopPress_xdu == false )
     {
       if (Appl_NumHolesFromAToB_xdu8 >= 44 or digitalRead(SS2_MOVE_HOME_B_PIN) == 1)
       {
@@ -420,12 +420,12 @@ void Execute_Forward(String Data_Input)
         Appl_NumHolesFromAToB_xdu8++;
         digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH); // Kep phoi
 
-        if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+        if (Appl_ButtonStopPress_xdu == false )
         {
           delay(500);
         }
         digitalWrite(SOL_CLAMPER_PIN, LOW); // Tha cat
-        if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+        if (Appl_ButtonStopPress_xdu == false )
         {
           delay(300);
         }
@@ -472,12 +472,12 @@ void Execute_Forward(String Data_Input)
       Appl_NumHolesFromAToB_xdu8++;
       delay(500);
       digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH);
-      if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+      if (Appl_ButtonStopPress_xdu == false )
       {
         delay(500);
       }
       digitalWrite(SOL_CLAMPER_PIN, LOW);
-      if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+      if (Appl_ButtonStopPress_xdu == false )
       {
         delay(300);
       }
@@ -493,12 +493,12 @@ void Execute_Forward(String Data_Input)
     Step = -float(Appl_DataLengthFloat_fdu32 / 0.011090301);
     Serial3.println("Backward starting");
     digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH);
-    if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+    if (Appl_ButtonStopPress_xdu == false )
     {
       delay(1000);
     }
     digitalWrite(SOL_CLAMPER_PIN, LOW);
-    if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+    if (Appl_ButtonStopPress_xdu == false )
     {
       delay(300);
     }
@@ -512,21 +512,21 @@ void Execute_Forward(String Data_Input)
     }
     else
     {
-      while (Step_Remain != 0 and (digitalRead(BUTTON_EMERGENCY_PIN) == 0))
+      while (Step_Remain != 0 )
       {
         digitalWrite(SOL_CLAMP_FEEDER_PIN, LOW);
         delay(1000);
         Home_Move_B();
         digitalWrite(SOL_CLAMPER_PIN, LOW);
         digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH);
-        if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+        if (Appl_ButtonStopPress_xdu == false )
         {
           delay(1000);
         }
         Step_Remain = Backward_Move(Step_Remain);
         Serial.print("Xung con lai: ");
         Serial3.println(Step_Remain);
-        if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true)
+        if (Appl_ButtonStopPress_xdu == true)
         {
           return;
         }
@@ -565,11 +565,11 @@ void Execute_Cut(String Data_Input)
   Serial3.println(Data_Angle_Float);
   Step = float(Data_Angle_Float * 120);
 
-  if (Step >= 0 and Appl_EmergencyHold_xdu == false and Appl_ButtonStopPress_xdu == false)
+  if (Step >= 0 and Appl_ButtonStopPress_xdu == false)
   {
     digitalWrite(SOL_CLAMPER_PIN, HIGH); // Kep phoi
 
-    if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+    if (Appl_ButtonStopPress_xdu == false )
     {
       delay(1000);
     }
@@ -578,7 +578,7 @@ void Execute_Cut(String Data_Input)
     Brushless_Run(BRUSHLESS_SPEED);     // Brushless quay
     digitalWrite(SOL_LIFTER_PIN, HIGH); // Ha dao
 
-    if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+    if (Appl_ButtonStopPress_xdu == false )
     {
       delay(2000);
     }
@@ -586,14 +586,14 @@ void Execute_Cut(String Data_Input)
 
     while ((digitalRead(SS4_END_STROKE_BACK_PIN) == 0) and (digitalRead(SS7_END_STROKE_FRONT_PIN) == 1))  // Wait to cutter go midle
     {
-      if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
+      if (Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
       {
         return;
       }
     }
 
     Appl_CutterBackwardTrigger_xdu = false;
-    if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+    if (Appl_ButtonStopPress_xdu == false )
     {
       delay(TIME_CUTTER);
     }
@@ -602,7 +602,7 @@ void Execute_Cut(String Data_Input)
 
     while ((digitalRead(SS4_END_STROKE_BACK_PIN) == 0) and (digitalRead(SS7_END_STROKE_FRONT_PIN) == 0))  // Wait to cutter go in
     {
-      if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
+      if (Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
       {
         return;
       }
@@ -619,16 +619,16 @@ void Execute_Cut(String Data_Input)
       // digitalWrite(SOL_CLAMPER_PIN,LOW);   // Tha phoi
     }
   }
-  else if (Step < 0 and Appl_EmergencyHold_xdu == false and Appl_ButtonStopPress_xdu == false)
+  else if (Step < 0 and Appl_ButtonStopPress_xdu == false)
   {
     digitalWrite(SOL_CLAMPER_PIN, HIGH); // Kep phoi
-    if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+    if (Appl_ButtonStopPress_xdu == false )
     {
       delay(1000);
     }
     Brushless_Run(BRUSHLESS_SPEED);     // Brushless quay
     digitalWrite(SOL_LIFTER_PIN, HIGH); // Ha dao
-    if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+    if (Appl_ButtonStopPress_xdu == false )
     {
       delay(2000);
     }
@@ -636,7 +636,7 @@ void Execute_Cut(String Data_Input)
 
     while ((digitalRead(SS4_END_STROKE_BACK_PIN) == 1) and (digitalRead(SS7_END_STROKE_FRONT_PIN) == 0))  // Wait to cutter go out
     {
-      if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
+      if (Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
       {
         return;
       }
@@ -645,7 +645,7 @@ void Execute_Cut(String Data_Input)
     Cutter_Forward(); // Forward Cut
     while ((digitalRead(SS4_END_STROKE_BACK_PIN) == 0) and (digitalRead(SS7_END_STROKE_FRONT_PIN) == 0))  // Wait to cutter go in
     {
-      if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true)
+      if (Appl_ButtonStopPress_xdu == true)
       {
         return;
       }
@@ -691,10 +691,10 @@ void Execute_Cut_First_End(String Data_Input, bool type)
   Serial3.println(Data_Angle_Float);
   Step = float(Data_Angle_Float * 120);
 
-  if (/*Step>=0 and */ Appl_EmergencyHold_xdu == false and Appl_ButtonStopPress_xdu == false)
+  if (Appl_ButtonStopPress_xdu == false)
   {
     digitalWrite(SOL_CLAMPER_PIN, HIGH); // Kep phoi
-    if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+    if (Appl_ButtonStopPress_xdu == false )
     {
       delay(1000);
     }
@@ -708,7 +708,7 @@ void Execute_Cut_First_End(String Data_Input, bool type)
     }
     Brushless_Run(BRUSHLESS_SPEED);     // Brushless quay
     digitalWrite(SOL_LIFTER_PIN, HIGH); // Ha dao
-    if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+    if (Appl_ButtonStopPress_xdu == false )
     {
       delay(2000);
     }
@@ -716,14 +716,14 @@ void Execute_Cut_First_End(String Data_Input, bool type)
 
     while ((digitalRead(SS4_END_STROKE_BACK_PIN) == 0) and (digitalRead(SS7_END_STROKE_FRONT_PIN) == 1))  // Wait to cutter go midle
     {
-      if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
+      if (Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
       {
         return;
       }
     }
 
     Appl_CutterBackwardTrigger_xdu = false;
-    if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+    if (Appl_ButtonStopPress_xdu == false )
     {
       delay(TIME_CUTTER);
     }
@@ -731,7 +731,7 @@ void Execute_Cut_First_End(String Data_Input, bool type)
     
     while ((digitalRead(SS4_END_STROKE_BACK_PIN) == 0) and (digitalRead(SS7_END_STROKE_FRONT_PIN) == 0))  // Wait to cutter go in
     {
-      if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true)
+      if (Appl_ButtonStopPress_xdu == true)
       {
         return;
       }
@@ -775,18 +775,6 @@ void Pause()
 {
   Serial.println(3);
   Appl_SystemState_xdu8 = 1; //SYS_RECIEVE_AND_RUNNING_STATE
-}
-
-void Emergency()
-{
-  Brushless_Off();
-  digitalWrite(STEPPER_MOVE_ENA_PIN, LOW);
-  digitalWrite(STEPPER_CUT_ENA_PIN, LOW);
-  digitalWrite(SOL_SLIDE_FORWARD_PIN, LOW);
-  digitalWrite(SOL_SLIDE_BACKWARD_PIN, LOW);
-  digitalWrite(SOL_CLAMP_FEEDER_PIN, LOW);
-  digitalWrite(SOL_LIFTER_PIN, LOW);
-  Serial.println(5);
 }
 
 void Button_Press_Buzzer()

@@ -31,7 +31,6 @@
 #define BUTTON_START_PIN                  (BT1)
 #define BUTTON_PAUSE_PIN                  (BT2)
 #define BUTTON_STOP_PIN                   (BT3)
-#define BUTTON_EMERGENCY_PIN              (BT4)
 
 #define SOL_CLAMP_FEEDER_PIN              (OUT_1)
 #define SOL_SLIDE_BACKWARD_PIN            (OUT_2)
@@ -72,14 +71,6 @@ void bsp_init(void);
  * @return        None
  */
 void bsp_stop_push(void);
-
-/**
- * @brief         Emergency button interrupt
- * @param[in]     None
- * @attention     None
- * @return        None
- */
-void bsp_emergency_push(void);
 
 /**
  * @brief         Pause button interrupt

@@ -28,7 +28,6 @@
 /* Private variables -------------------------------------------------- */
 /* Private function prototypes ---------------------------------------- */
 static void init_variables(void);
-static bool emergency_check(void);
 
 /* Function definitions ----------------------------------------------- */
 void setup()
@@ -45,6 +44,7 @@ void loop()
   switch (Appl_SystemState_xdu8)
   {
   case SYS_INIT_STATE:
+  Serial3.println("--------------SystemState moved to RECIEVE_STATE----------------------------");
     Home_All(); //Home Cut and Move
     init_variables();
 
@@ -57,14 +57,7 @@ void loop()
   case SYS_RECIEVE_AND_RUNNING_STATE:
     bsp_uart_receive();
 
-    if (emergency_check() == true)
-    {
-      Appl_SystemState_xdu8 = SYS_EMERGENCY_STATE;
-      Serial.println(5);
-      Serial3.println("--------------SystemState moved to SYS_EMERGENCY_STATE------------------------");
-    }
-
-    if (Appl_FinishTransfer_xdu == true and Appl_EmergencyHold_xdu == false)
+    if (Appl_FinishTransfer_xdu == true)
     {
       Appl_SystemState_xdu8 = SYS_FINISH_STATE;
       Serial.println(8);
@@ -133,16 +126,7 @@ void loop()
     Serial3.println("--------------SystemState moved to INIT STATE-------------------------------");
 
     break;
-  case SYS_EMERGENCY_STATE:
-    if (emergency_check() == false)
-    {
-      Appl_SystemState_xdu8 = SYS_INIT_STATE;
-      delay(1000);
-      Serial.println(6);
-      Serial3.println("--------------SystemState moved to SYS_INIT_STATE-----------------------------");
-    }
-
-    break;
+  
   default:
     break;
   }
@@ -151,109 +135,60 @@ void loop()
 void bsp_stop_push(void)
 {
   NumHolesAlreadyRun_xdu32 = 0;
-  if (Appl_EmergencyHold_xdu == true)
-  {
-    Serial3.println("emergency_push");
-  }
-  else
-  {
-    Stop();
-    Appl_ButtonStopPress_xdu = true;
-    Appl_ButtonStartPress_xdu = false;
-    Appl_StartRunning_xdu = false;
-  }
-}
-
-void bsp_emergency_push(void)
-{
-  Emergency();
+  Stop();
+  Appl_ButtonStopPress_xdu = true;
+  Appl_ButtonStartPress_xdu = false;
+  Appl_StartRunning_xdu = false;
 }
 
 void bsp_pause_push(void)
 {
-  if (Appl_EmergencyHold_xdu == true)
+  if (Appl_NoMaterial_xdu == false)
   {
-    Serial3.println("emergency_push");
-  }
-  else
-  {
-    if (Appl_NoMaterial_xdu == false)
+    if (Appl_StartRunning_xdu == true and Appl_ButtonStopPress_xdu == false)
     {
-      if (Appl_StartRunning_xdu == true and Appl_ButtonStopPress_xdu == false)
-      {
-        Pause();
-        Appl_ButtonPausePress_xdu = true;
-        Appl_ButtonPausePress_1_xdu = true;
-        Appl_StartRunning_xdu = false;
-        Appl_PauseTrigger_xdu = true;
-      }
-      else
-      {
-        Serial3.println("Machine not start");
-      }
+      Pause();
+      Appl_ButtonPausePress_xdu = true;
+      Appl_ButtonPausePress_1_xdu = true;
+      Appl_StartRunning_xdu = false;
+      Appl_PauseTrigger_xdu = true;
     }
     else
     {
-      digitalWrite(MATERIAL_STATUS, LOW);
-      digitalWrite(SOL_CLAMP_FEEDER_PIN, LOW);
-      Serial3.println("Tắt còi");
+      Serial3.println("Machine not start");
     }
+  }
+  else
+  {
+    digitalWrite(MATERIAL_STATUS, LOW);
+    digitalWrite(SOL_CLAMP_FEEDER_PIN, LOW);
+    Serial3.println("Tắt còi");
   }
 }
 
 void bsp_start_push(void)
 {
-  if (Appl_EmergencyHold_xdu == true)
+  if (Appl_ButtonPausePress_xdu == true)
   {
-    Serial3.println("emergency_push");
-  }
-  else
-  {
-    if (Appl_ButtonPausePress_xdu == true)
+    Appl_ButtonStartPress_xdu = true;
+    if (Appl_Forward_Trigger_xdu == true)
     {
-      Appl_ButtonStartPress_xdu = true;
-      if (Appl_Forward_Trigger_xdu == true)
-      {
-        Serial.println(13);
-      }
-      else
-      {
-        Start();
-      }
-      Appl_ButtonPausePress_xdu = false;
-      Appl_ButtonStopPress_xdu = false;
+      Serial.println(13);
     }
     else
     {
-      Serial3.println("Pause not press");
+      Start();
     }
-  }
-}
-
-/* Private function  --------------------------------------------------- */
-/**
- * @brief         Emergency check
- * @param[in]     None
- * @attention     None
- * @return        true or false
- */
-static bool emergency_check(void)
-{
-  if (digitalRead(BUTTON_EMERGENCY_PIN) == 1)
-  {
-    Appl_EmergencyHold_xdu = true;
-    Brushless_Off();
-    digitalWrite(STEPPER_MOVE_ENA_PIN, LOW);
-    digitalWrite(STEPPER_CUT_ENA_PIN, LOW);
-    return true;
+    Appl_ButtonPausePress_xdu = false;
+    Appl_ButtonStopPress_xdu = false;
   }
   else
   {
-    Appl_EmergencyHold_xdu = false;
-    return false;
+    Serial3.println("Pause not press");
   }
 }
 
+/* Private function  -------------------------------------------------- */
 /**
  * @brief         Init variables
  * @param[in]     None

@@ -18,6 +18,8 @@
 #include "main.h"
 
 /* Private defines ---------------------------------------------------- */
+#define LOG_BUFFER_SIZE       (256)
+
 /* Private enumerate/structure ---------------------------------------- */
 /* Private macros ----------------------------------------------------- */
 /* Public variables --------------------------------------------------- */
@@ -47,7 +49,7 @@ void bsp_init(void)
   m_interrupt_init();
 }
 
-void bsp_uart_receive()
+ void bsp_uart_receive()
 {
   while (Serial.available()) // gửi data từ C# qua
   {
@@ -117,10 +119,9 @@ static void m_timer_init(void)
  */
 static void m_interrupt_init(void)
 {
-  attachInterrupt(2, bsp_pause_push, FALLING);    // Pin 21 Push go to LOW
-  attachInterrupt(3, bsp_emergency_push, RISING); // Pin 20 Push go to HIGH
-  attachInterrupt(4, bsp_stop_push, RISING);      // Pin 19 Push go to HIGH
   attachInterrupt(5, bsp_start_push, FALLING);    // Pin 18 Push go to LOW
+  attachInterrupt(4, bsp_pause_push, FALLING);    // Pin 21 Push go to LOW
+  attachInterrupt(3, bsp_stop_push,  RISING);     // Pin 19 Push go to HIGH
 }
 
 /* End of file -------------------------------------------------------- */

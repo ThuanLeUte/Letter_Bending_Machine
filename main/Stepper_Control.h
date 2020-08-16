@@ -15,7 +15,6 @@
 #define __STEPPER_CONTROL_H
 
 /* Includes ----------------------------------------------------------- */
-
 /* Public defines ----------------------------------------------------- */
 #define MOVE_STEPPER_SPEED          (10000)
 #define MOVE_STEPPER_SPEED_HOME     (15000)

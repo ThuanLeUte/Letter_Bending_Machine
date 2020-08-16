@@ -44,7 +44,6 @@ void Execute_Cut_First_End(String Data_Input, bool type);
 void Stop();
 void Start();
 void Pause();
-void Emergency();
 void Button_Press_Buzzer();
 
 #endif // __EXECUTE_DATA_H

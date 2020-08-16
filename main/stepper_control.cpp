@@ -29,7 +29,7 @@ AccelStepper STEPPER_CUT(AccelStepper::DRIVER, STEPPER_CUT_STEP_PIN, STEPPER_CUT
 void Home_Move_A_First()
 {
   STEPPER_MOVE.moveTo(-1000);
-  while (STEPPER_MOVE.currentPosition() != -1000 and (digitalRead(SS1_MOVE_HOME_A_PIN) == 0) and (digitalRead(BUTTON_EMERGENCY_PIN) == 0) and (digitalRead(BUTTON_STOP_PIN) == 0))
+  while (STEPPER_MOVE.currentPosition() != -1000 and (digitalRead(SS1_MOVE_HOME_A_PIN) == 0) and (digitalRead(BUTTON_STOP_PIN) == 0))
   {
     STEPPER_MOVE.setSpeed(-3000);
     STEPPER_MOVE.runSpeed();
@@ -41,7 +41,7 @@ void Home_Move_A_First()
 void Home_Move_A()
 {
   STEPPER_MOVE.moveTo(-50000);
-  while (STEPPER_MOVE.currentPosition() != -50000 and (digitalRead(SS1_MOVE_HOME_A_PIN) == 0) and (digitalRead(BUTTON_EMERGENCY_PIN) == 0) and (digitalRead(BUTTON_STOP_PIN) == 0))
+  while (STEPPER_MOVE.currentPosition() != -50000 and (digitalRead(SS1_MOVE_HOME_A_PIN) == 0) and (digitalRead(BUTTON_STOP_PIN) == 0))
   {
     STEPPER_MOVE.setSpeed(-MOVE_STEPPER_SPEED_HOME);
     STEPPER_MOVE.runSpeed();
@@ -56,7 +56,7 @@ void Home_Move_B()
 {
   static bool Flag_Pre;
   STEPPER_MOVE.moveTo(50000);
-  while (STEPPER_MOVE.currentPosition() != 50000 and (digitalRead(SS2_MOVE_HOME_B_PIN) == 0) and (digitalRead(BUTTON_EMERGENCY_PIN) == 0) and (digitalRead(BUTTON_STOP_PIN) == 0))
+  while (STEPPER_MOVE.currentPosition() != 50000 and (digitalRead(SS2_MOVE_HOME_B_PIN) == 0) and (digitalRead(BUTTON_STOP_PIN) == 0))
   {
     STEPPER_MOVE.setSpeed(MOVE_STEPPER_SPEED);
     STEPPER_MOVE.runSpeed();
@@ -84,7 +84,7 @@ void Home_Move_B()
 void Forward_Move(unsigned long Step_Remain)
 {
   static bool Flag_Pre;
-  while (STEPPER_MOVE.currentPosition() != Step_Remain and (digitalRead(SS2_MOVE_HOME_B_PIN) == 0) and (Appl_NoMaterial_xdu == false) and (digitalRead(BUTTON_EMERGENCY_PIN) == 0) and (digitalRead(BUTTON_STOP_PIN) == 0) and Appl_ButtonStopPress_xdu == false)
+  while (STEPPER_MOVE.currentPosition() != Step_Remain and (digitalRead(SS2_MOVE_HOME_B_PIN) == 0) and (Appl_NoMaterial_xdu == false) and (digitalRead(BUTTON_STOP_PIN) == 0) and Appl_ButtonStopPress_xdu == false)
   {
     STEPPER_MOVE.setSpeed(4000);
     STEPPER_MOVE.runSpeed();
@@ -115,7 +115,7 @@ void Forward_Move_First()
   static bool Flag_Pre;
   static int NumHole_Internal;
   NumHole_Internal = 0;
-  while (STEPPER_MOVE.currentPosition() != 100000 and (digitalRead(SS2_MOVE_HOME_B_PIN) == 0) and (Appl_NoMaterial_xdu == false) and (digitalRead(BUTTON_EMERGENCY_PIN) == 0) and (digitalRead(BUTTON_STOP_PIN) == 0) and Appl_ButtonStopPress_xdu == false and NumHole_Internal != 1)
+  while (STEPPER_MOVE.currentPosition() != 100000 and (digitalRead(SS2_MOVE_HOME_B_PIN) == 0) and (Appl_NoMaterial_xdu == false) and (digitalRead(BUTTON_STOP_PIN) == 0) and Appl_ButtonStopPress_xdu == false and NumHole_Internal != 1)
   {
     STEPPER_MOVE.setSpeed(3000);
     STEPPER_MOVE.runSpeed();
@@ -153,7 +153,7 @@ void Forward_Move_1Step()
   static bool Flag_Pre;
   static int NumHole_Internal;
   NumHole_Internal = 0;
-  while (STEPPER_MOVE.currentPosition() != 100000 and (digitalRead(SS2_MOVE_HOME_B_PIN) == 0) and (Appl_NoMaterial_xdu == false) and (digitalRead(BUTTON_EMERGENCY_PIN) == 0) and (digitalRead(BUTTON_STOP_PIN) == 0) and Appl_ButtonStopPress_xdu == false and NumHole_Internal != 1)
+  while (STEPPER_MOVE.currentPosition() != 100000 and (digitalRead(SS2_MOVE_HOME_B_PIN) == 0) and (Appl_NoMaterial_xdu == false) and (digitalRead(BUTTON_STOP_PIN) == 0) and Appl_ButtonStopPress_xdu == false and NumHole_Internal != 1)
   {
     STEPPER_MOVE.setSpeed(3000);
     STEPPER_MOVE.runSpeed();
@@ -187,7 +187,7 @@ int Forward_Move_Holes(int Holes)
   static int Speed = 1000;
   static int Appl_NumHolesFromAToB_Pre_xdu8;
   NumHole_Internal = 0;
-  while (STEPPER_MOVE.currentPosition() != 100000 and (digitalRead(SS2_MOVE_HOME_B_PIN) == 0) and (Appl_ButtonPausePress_1_xdu == false) and (Appl_NoMaterial_xdu == false) and (digitalRead(BUTTON_EMERGENCY_PIN) == 0) and (digitalRead(BUTTON_STOP_PIN) == 0) and Appl_ButtonStopPress_xdu == false and NumHole_Internal != Holes and Appl_NumHolesFromAToB_xdu8 < 44)
+  while (STEPPER_MOVE.currentPosition() != 100000 and (digitalRead(SS2_MOVE_HOME_B_PIN) == 0) and (Appl_ButtonPausePress_1_xdu == false) and (Appl_NoMaterial_xdu == false) and (digitalRead(BUTTON_STOP_PIN) == 0) and Appl_ButtonStopPress_xdu == false and NumHole_Internal != Holes and Appl_NumHolesFromAToB_xdu8 < 44)
   {
     if (Appl_NumHolesFromAToB_xdu8 == 42 or (NumHole_Internal == (Holes - 2)) or Appl_NumHolesFromAToB_xdu8 == 1)
     {
@@ -362,7 +362,7 @@ unsigned long Backward_Move(unsigned long Step_Remain)
   static bool Flag_Pre;
   Serial3.println(Step_Remain);
   STEPPER_MOVE.moveTo(-Step_Remain);
-  while (STEPPER_MOVE.currentPosition() != -Step_Remain and (digitalRead(SS1_MOVE_HOME_A_PIN) == 0) and (digitalRead(BUTTON_EMERGENCY_PIN) == 0) and (digitalRead(BUTTON_STOP_PIN) == 0) and Appl_ButtonStopPress_xdu == false)
+  while (STEPPER_MOVE.currentPosition() != -Step_Remain and (digitalRead(SS1_MOVE_HOME_A_PIN) == 0) and (digitalRead(BUTTON_STOP_PIN) == 0) and Appl_ButtonStopPress_xdu == false)
   {
     STEPPER_MOVE.setSpeed(-10000);
     STEPPER_MOVE.runSpeed();
@@ -386,10 +386,7 @@ unsigned long Backward_Move(unsigned long Step_Remain)
     }
   }
   STEPPER_MOVE.stop();
-  if (digitalRead(BUTTON_EMERGENCY_PIN) == 1)
-  {
-    return 0;
-  }
+
   digitalWrite(SOL_CLAMPER_PIN, HIGH);
 
   if (abs(Step_Remain) == abs(STEPPER_MOVE.currentPosition()))
@@ -409,7 +406,7 @@ unsigned long Backward_Move(unsigned long Step_Remain)
 
 void Cutter_Forward()
 {
-  if (digitalRead(BUTTON_EMERGENCY_PIN) == 0 and (digitalRead(BUTTON_STOP_PIN) == 0) and Appl_ButtonStopPress_xdu == false)
+  if ((digitalRead(BUTTON_STOP_PIN) == 0) and Appl_ButtonStopPress_xdu == false)
   {
     digitalWrite(SOL_SLIDE_FORWARD_PIN, HIGH);
     digitalWrite(SOL_SLIDE_BACKWARD_PIN, LOW);
@@ -418,7 +415,7 @@ void Cutter_Forward()
 
 void Cutter_Backward()
 {
-  if (digitalRead(BUTTON_EMERGENCY_PIN) == 0 and (digitalRead(BUTTON_STOP_PIN) == 0) and Appl_ButtonStopPress_xdu == false)
+  if ((digitalRead(BUTTON_STOP_PIN) == 0) and Appl_ButtonStopPress_xdu == false)
   {
     digitalWrite(SOL_SLIDE_BACKWARD_PIN, HIGH);
     digitalWrite(SOL_SLIDE_FORWARD_PIN, LOW);
@@ -436,14 +433,14 @@ void Cutter_Backward_Normal()
 {
   digitalWrite(SOL_SLIDE_BACKWARD_PIN, HIGH);
   digitalWrite(SOL_SLIDE_FORWARD_PIN, LOW);
-  
+
   Appl_CutterBackwardTrigger_xdu = true;
 }
 
 void Home_Stepper_Cutter()
 {
   STEPPER_CUT.moveTo(10800);
-  while (STEPPER_CUT.currentPosition() != 10800 and (digitalRead(SS3_CUT_HOME_PIN) == 0) /* and (digitalRead(BUTTON_STOP_PIN)==0) */ and (digitalRead(BUTTON_EMERGENCY_PIN) == 0))
+  while (STEPPER_CUT.currentPosition() != 10800 and (digitalRead(SS3_CUT_HOME_PIN) == 0) /* and (digitalRead(BUTTON_STOP_PIN)==0) */)
   {
     STEPPER_CUT.setSpeed(2000);
     STEPPER_CUT.runSpeed();
@@ -456,7 +453,7 @@ void Home_Stepper_Cutter()
 void Center_Stepper_Cutter()
 {
   STEPPER_CUT.moveTo(-5040);
-  while (STEPPER_CUT.currentPosition() != -5040 and (digitalRead(BUTTON_EMERGENCY_PIN) == 0))
+  while (STEPPER_CUT.currentPosition() != -5040)
   {
     STEPPER_CUT.setSpeed(-2000);
     STEPPER_CUT.runSpeed();
@@ -479,7 +476,7 @@ void Angle_Cut(int Step_Remain)
   }
 
   STEPPER_CUT.moveTo(Step_Remain);
-  while (STEPPER_CUT.currentPosition() != Step_Remain and (digitalRead(BUTTON_STOP_PIN) == 0) and (digitalRead(BUTTON_EMERGENCY_PIN) == 0) and Appl_ButtonStopPress_xdu == false)
+  while (STEPPER_CUT.currentPosition() != Step_Remain and (digitalRead(BUTTON_STOP_PIN) == 0) and Appl_ButtonStopPress_xdu == false)
   {
     STEPPER_CUT.setSpeed(Speed);
     STEPPER_CUT.runSpeed();
@@ -490,7 +487,7 @@ void Angle_Cut(int Step_Remain)
 
 void Brushless_Run(int Speed)
 {
-  if (digitalRead(BUTTON_EMERGENCY_PIN) == 0 and (digitalRead(BUTTON_STOP_PIN) == 0) and Appl_ButtonStopPress_xdu == false)
+  if ((digitalRead(BUTTON_STOP_PIN) == 0) and Appl_ButtonStopPress_xdu == false)
   {
     analogWrite(BRUSHLESS_SPEED_PIN, Speed);
   }
@@ -509,8 +506,8 @@ void Home_All()
   digitalWrite(SOL_CLAMP_FEEDER_PIN, LOW);
   Home_Move_A_First();
   Home_Move_A();
-  Cutter_Forward(); // Forward Cut
-  while (digitalRead(SS4_END_STROKE_BACK_PIN) == 0)  // Wait to cutter go in
+  Cutter_Forward();                                 // Forward Cut
+  while (digitalRead(SS4_END_STROKE_BACK_PIN) == 0) // Wait to cutter go in
   {
   }
   Home_Stepper_Cutter();

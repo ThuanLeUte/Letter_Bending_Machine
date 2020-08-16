@@ -34,11 +34,11 @@
 #define SS7                     (10)
 #define SS8                     (11)
 
-#define BT1                     (18)
-#define BT2                     (19)
-#define BT3                     (20)
-#define BT4                     (21)
-#define BT5                     (2)
+#define BT1                     (18)    // Interrupt 5
+#define BT2                     (19)    // Interrupt 4
+#define BT3                     (20)    // Interrupt 3
+#define BT4                     (21)    // Interrupt 2
+#define BT5                     (2)     // Interrupt 0
 
 #define OP1                     (34)
 #define OP2                     (35)

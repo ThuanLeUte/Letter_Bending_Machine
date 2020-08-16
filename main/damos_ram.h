@@ -44,7 +44,6 @@ extern bool Appl_ButtonPausePress_xdu;
 extern bool Appl_ButtonPausePress_1_xdu;
 extern bool Appl_ButtonStopPress_xdu;
 extern bool Appl_FinishStateFirstCall_xdu;
-extern bool Appl_EmergencyHold_xdu;
 extern bool Appl_NoMaterialFirstCallCapture_xdu;
 
 extern bool Appl_DataLengthIsRemain_xdu;
