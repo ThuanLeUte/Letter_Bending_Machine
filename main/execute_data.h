@@ -56,7 +56,7 @@ void Execute_String(String Data_Input);
  * @attention     None
  * @return        None
  */
-void Execute_Forward(String Data_Input);
+void Execute_Move(String Data_Input);
 /**
  * @brief         Excecute cutter 
  * @param[in]     Data_Input      Data

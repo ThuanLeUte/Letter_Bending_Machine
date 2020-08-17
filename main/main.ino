@@ -80,7 +80,7 @@ void loop()
     {
       GPIO_SET(MATERIAL_STATUS, LOW);
       SERIAL_DATA_MONITOR("start press");
-      Execute_Forward("-200");
+      Execute_Move("-200");
       SERIAL_DATA_SEND(1);
       Appl_SystemState_xdu8 = SYS_RECIEVE_AND_RUNNING_STATE;
       SERIAL_DATA_MONITOR("--------------SystemState moved to RECIEVE_STATE--------------------------");
