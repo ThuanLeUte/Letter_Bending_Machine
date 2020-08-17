@@ -179,27 +179,11 @@ int Execute_Manual(String Data_Input)
   else if (Command == "MK") //KEP MOVE
   {
     digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH);
-    digitalWrite(OUT_1, HIGH);
-    digitalWrite(OUT_2, HIGH);
-    digitalWrite(OUT_3, HIGH);
-    digitalWrite(OUT_4, HIGH);
-    digitalWrite(OUT_5, HIGH);
-    digitalWrite(OUT_6, HIGH);
-    digitalWrite(OUT_7, HIGH);
-    digitalWrite(OUT_8, HIGH);
     return 1;
   }
   else if (Command == "MN") //NHA MOVE
   {
     digitalWrite(SOL_CLAMP_FEEDER_PIN, LOW);
-    digitalWrite(OUT_1, LOW);
-    digitalWrite(OUT_2, LOW);
-    digitalWrite(OUT_3, LOW);
-    digitalWrite(OUT_4, LOW);
-    digitalWrite(OUT_5, LOW);
-    digitalWrite(OUT_6, LOW);
-    digitalWrite(OUT_7, LOW);
-    digitalWrite(OUT_8, LOW);
     return 1;
   }
   else
