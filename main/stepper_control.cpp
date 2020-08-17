@@ -17,6 +17,9 @@
 #include "damos_ram.h"
 
 /* Private defines ---------------------------------------------------- */
+#define MOVE_STEPPER_SPEED_HOME     (10000)
+#define MOVE_STEPPER_SPEED          (10000)
+
 /* Private enumerate/structure ---------------------------------------- */
 /* Private macros ----------------------------------------------------- */
 /* Public variables --------------------------------------------------- */
@@ -26,28 +29,24 @@ AccelStepper STEPPER_CUT(AccelStepper::DRIVER, STEPPER_CUT_STEP_PIN, STEPPER_CUT
 
 /* Private function prototypes ---------------------------------------- */
 /* Function definitions ----------------------------------------------- */
-void Home_Move_A_First()
-{
-  STEPPER_MOVE.moveTo(-1000);
-  while (STEPPER_MOVE.currentPosition() != -1000 and (IS_SENSOR_NOT_DETECTED(SS1_MOVE_HOME_A_PIN)) and (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN)))
-  {
-    STEPPER_MOVE.setSpeed(-3000);
-    STEPPER_MOVE.runSpeed();
-  }
-  STEPPER_MOVE.stop();
-  STEPPER_MOVE.setCurrentPosition(0);
-}
-
 void Home_Move_A()
 {
   STEPPER_MOVE.moveTo(-50000);
-  while (STEPPER_MOVE.currentPosition() != -50000 and (IS_SENSOR_NOT_DETECTED(SS1_MOVE_HOME_A_PIN)) and (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN)))
+
+  // Wait untill sensor A detected or button stop pressed
+  while (STEPPER_MOVE.currentPosition() != -50000 and 
+        (IS_SENSOR_NOT_DETECTED(SS1_MOVE_HOME_A_PIN)) and 
+        (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN)))
   {
     STEPPER_MOVE.setSpeed(-MOVE_STEPPER_SPEED_HOME);
     STEPPER_MOVE.runSpeed();
   }
+
+  // Stop stepper and reset position
   STEPPER_MOVE.stop();
   STEPPER_MOVE.setCurrentPosition(0);
+  
+  // Reset numbers of pulse
   Appl_FisrtPulse_xdu8 = 0;
   Appl_LastPulse_xdu8 = 0;
 }
@@ -56,10 +55,16 @@ void Home_Move_B()
 {
   static bool Flag_Pre;
   STEPPER_MOVE.moveTo(50000);
-  while (STEPPER_MOVE.currentPosition() != 50000 and (IS_SENSOR_NOT_DETECTED(SS2_MOVE_HOME_B_PIN)) and (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN)))
+  
+  // Wait untill sensor B detected or button stop pressed
+  while (STEPPER_MOVE.currentPosition() != 50000 and 
+        (IS_SENSOR_NOT_DETECTED(SS2_MOVE_HOME_B_PIN)) and 
+        (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN)))
   {
-    STEPPER_MOVE.setSpeed(MOVE_STEPPER_SPEED);
+    STEPPER_MOVE.setSpeed(MOVE_STEPPER_SPEED_HOME);
     STEPPER_MOVE.runSpeed();
+
+    // Increase number of Holes already run
     if (IS_SENSOR_DETECTED(SS6_HOLES_PIN))
     {
       Flag_Pre = 1;
@@ -73,21 +78,28 @@ void Home_Move_B()
       }
     }
   }
+
+  // Stop stepper and reset positon
   STEPPER_MOVE.stop();
-  Serial3.println(STEPPER_MOVE.currentPosition());
   STEPPER_MOVE.setCurrentPosition(0);
-  Serial.print("Số lỗ: ");
-  Serial3.println(NumHolesAlreadyRun_xdu32);
   NumHolesAlreadyRun_xdu32 = 0;
 }
 
 void Forward_Move(unsigned long Step_Remain)
 {
   static bool Flag_Pre;
-  while (STEPPER_MOVE.currentPosition() != Step_Remain and (IS_SENSOR_NOT_DETECTED(SS2_MOVE_HOME_B_PIN)) and (Appl_NoMaterial_xdu == false) and (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN)) and Appl_ButtonStopPress_xdu == false)
+
+  // Wait untill reach positin and button stop is pressed
+  while ((STEPPER_MOVE.currentPosition() != Step_Remain)  and
+        (IS_SENSOR_NOT_DETECTED(SS2_MOVE_HOME_B_PIN))     and
+        (Appl_NoMaterial_xdu == false)                    and
+        (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN))          and
+        (Appl_ButtonStopPress_xdu == false))
   {
     STEPPER_MOVE.setSpeed(4000);
     STEPPER_MOVE.runSpeed();
+
+    // Increase number of Holes already run
     if (IS_SENSOR_DETECTED(SS6_HOLES_PIN))
     {
       Flag_Pre = 1;
@@ -98,16 +110,13 @@ void Forward_Move(unsigned long Step_Remain)
       {
         Flag_Pre = 0;
         Appl_NumHolesFromAToB_xdu8++;
-        Serial.print("NumHolesFromAToB_xdu8 forward: ");
-        Serial3.println(Appl_NumHolesFromAToB_xdu8);
       }
     }
   }
+
+  // Stop stepper and reset positon
   STEPPER_MOVE.stop();
   STEPPER_MOVE.setCurrentPosition(0);
-  Serial.print("Step_Remain: ");
-  Serial3.println(Step_Remain);
-  Serial3.println(STEPPER_MOVE.currentPosition());
 }
 
 void Forward_Move_First()
@@ -115,7 +124,12 @@ void Forward_Move_First()
   static bool Flag_Pre;
   static int NumHole_Internal;
   NumHole_Internal = 0;
-  while (STEPPER_MOVE.currentPosition() != 100000 and (IS_SENSOR_NOT_DETECTED(SS2_MOVE_HOME_B_PIN)) and (Appl_NoMaterial_xdu == false) and (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN)) and Appl_ButtonStopPress_xdu == false and NumHole_Internal != 1)
+
+  while ((STEPPER_MOVE.currentPosition() != 100000)   and (IS_SENSOR_NOT_DETECTED(SS2_MOVE_HOME_B_PIN))       and 
+  (Appl_NoMaterial_xdu == false)                      and 
+  (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN))            and 
+  (Appl_ButtonStopPress_xdu == false)                   and 
+  (NumHole_Internal != 1))
   {
     STEPPER_MOVE.setSpeed(3000);
     STEPPER_MOVE.runSpeed();
@@ -134,11 +148,11 @@ void Forward_Move_First()
             NumHole_Internal++;
             Flag_Pre = 0;
             Serial.print("First Holes : ");
-            Serial3.println(NumHole_Internal);
+            SERIAL_DATA_MONITOR(NumHole_Internal);
           }
           else
           {
-            Serial3.println("Loi cam bien");
+            SERIAL_DATA_MONITOR("Loi cam bien");
           }
         }
       }
@@ -165,13 +179,13 @@ void Forward_Move_1Step()
     {
       if ((Flag_Pre == 1) and (IS_SENSOR_NOT_DETECTED(SS6_HOLES_PIN)))
       {
-        delay(20);
+        DELAY(20);
         if ((IS_SENSOR_NOT_DETECTED(SS6_HOLES_PIN)))
         {
           NumHole_Internal++;
           Flag_Pre = 0;
           Serial.print("First Holes : ");
-          Serial3.println(NumHole_Internal);
+          SERIAL_DATA_MONITOR(NumHole_Internal);
         }
       }
     }
@@ -192,13 +206,11 @@ int Forward_Move_Holes(int Holes)
     if (Appl_NumHolesFromAToB_xdu8 == 42 or (NumHole_Internal == (Holes - 2)) or Appl_NumHolesFromAToB_xdu8 == 1)
     {
       STEPPER_MOVE.setSpeed(6000); // số chuẩn
-      //STEPPER_MOVE.setSpeed(7000); //nghiệm phụ
       STEPPER_MOVE.runSpeed();
     }
     else if ((Appl_NumHolesFromAToB_xdu8 >= 43 or (NumHole_Internal == (Holes - 1))))
     {
       STEPPER_MOVE.setSpeed(4000); // số chuẩn
-      //STEPPER_MOVE.setSpeed(5000); nghiệm phụ
       STEPPER_MOVE.runSpeed();
     }
     else if ((NumHole_Internal == 0) or (NumHole_Internal == 1) or (NumHole_Internal == 2) or (NumHole_Internal == 3))
@@ -244,10 +256,6 @@ int Forward_Move_Holes(int Holes)
           {
             NumHole_Internal++;
             Appl_NumHolesFromAToB_xdu8++;
-            //Serial.print("NumHolesFromAToB_xdu8: ");
-            //Serial3.println(Appl_NumHolesFromAToB_xdu8);
-            //Serial.print("Step_Remain: ");
-            //Serial3.println(STEPPER_MOVE.currentPosition());
             Appl_LastPulse_xdu8 = STEPPER_MOVE.currentPosition();
             Flag_Pre = 0;
           }
@@ -264,7 +272,7 @@ int Forward_Move_Holes(int Holes)
             }
             else
             {
-              Serial3.println("Loi cam bien");
+              SERIAL_DATA_MONITOR("Loi cam bien");
             }
           }
         }
@@ -278,7 +286,7 @@ int Forward_Move_Holes(int Holes)
         Appl_LengthToAlarm_A_fdu32 = abs(STEPPER_MOVE.currentPosition()) * 0.011090301;
         Appl_NoMaterialFirstCallCapture_xdu = 1;
         Serial.print("Length: ");
-        Serial3.println(Appl_LengthToAlarm_A_fdu32);
+        SERIAL_DATA_MONITOR(Appl_LengthToAlarm_A_fdu32);
       }
       if (Appl_NoMaterial_xdu == false and Appl_NoMaterialFirstCallCapture_xdu == 1)
       {
@@ -287,12 +295,12 @@ int Forward_Move_Holes(int Holes)
         if (Appl_LengthToAlarm_fdu32 >= 100 or Appl_NumHolesFromAToB_xdu8 >= 43)
         {
           Serial.print("Length: ");
-          Serial3.println(Appl_LengthToAlarm_fdu32);
+          SERIAL_DATA_MONITOR(Appl_LengthToAlarm_fdu32);
           Serial.print("currentPosition: ");
-          Serial3.println(STEPPER_MOVE.currentPosition());
+          SERIAL_DATA_MONITOR(STEPPER_MOVE.currentPosition());
 
-          Serial.println(11);
-          digitalWrite(MATERIAL_STATUS, HIGH);
+          SERIAL_DATA_SEND(11);
+          GPIO_SET(MATERIAL_STATUS, HIGH);
           Appl_NoMaterial_xdu = true;
           Appl_NoMaterialTriger_xdu = true;
         }
@@ -308,8 +316,8 @@ int Forward_Move_Holes(int Holes)
     {
       if (Appl_NoMaterial_xdu == false)
       {
-        Serial.println(11);
-        digitalWrite(MATERIAL_STATUS, HIGH);
+        SERIAL_DATA_SEND(11);
+        GPIO_SET(MATERIAL_STATUS, HIGH);
         Appl_NoMaterial_xdu = true;
       }
     }
@@ -320,23 +328,23 @@ int Forward_Move_Holes(int Holes)
     {
       if (IS_BUTTON_NOT_PRESSED(BUTTON_START_PIN))
       {
-        Serial3.println("start press");
+        SERIAL_DATA_MONITOR("start press");
         Appl_NoMaterial_xdu = false;
         Appl_NoMaterialFirstCallCapture_xdu = 0;
-        Serial.println(7);
-        digitalWrite(MATERIAL_STATUS, LOW);
-        digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH);
-        delay(1000);
+        SERIAL_DATA_SEND(7);
+        GPIO_SET(MATERIAL_STATUS, LOW);
+        GPIO_SET(SOL_CLAMP_FEEDER_PIN, HIGH);
+        DELAY(1000);
         return NumHole_Internal;
       }
-      digitalWrite(MATERIAL_STATUS, LOW);
+      GPIO_SET(MATERIAL_STATUS, LOW);
     }
     else
     {
       if (IS_BUTTON_NOT_PRESSED(BUTTON_START_PIN))
       {
-        Serial3.println("Het phoi");
-        digitalWrite(MATERIAL_STATUS, HIGH);
+        SERIAL_DATA_MONITOR("Het phoi");
+        GPIO_SET(MATERIAL_STATUS, HIGH);
       }
     }
   }
@@ -347,7 +355,7 @@ int Forward_Move_Holes(int Holes)
       Appl_ButtonPausePress_1_xdu = false;
       Appl_ButtonStartPress_xdu = false;
       Appl_StartRunning_xdu = true;
-      Serial3.println("start press");
+      SERIAL_DATA_MONITOR("start press");
       return NumHole_Internal;
     }
   }
@@ -360,7 +368,7 @@ int Forward_Move_Holes(int Holes)
 unsigned long Backward_Move(unsigned long Step_Remain)
 {
   static bool Flag_Pre;
-  Serial3.println(Step_Remain);
+  SERIAL_DATA_MONITOR(Step_Remain);
   STEPPER_MOVE.moveTo(-Step_Remain);
   while (STEPPER_MOVE.currentPosition() != -Step_Remain and (IS_SENSOR_NOT_DETECTED(SS1_MOVE_HOME_A_PIN)) and (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN)) and Appl_ButtonStopPress_xdu == false)
   {
@@ -380,14 +388,14 @@ unsigned long Backward_Move(unsigned long Step_Remain)
         }
         Appl_NumHolesFromAToB_xdu8--;
         Serial.print("NumHolesFromAToB_xdu8: ");
-        Serial3.println(Appl_NumHolesFromAToB_xdu8);
+        SERIAL_DATA_MONITOR(Appl_NumHolesFromAToB_xdu8);
         Flag_Pre = 0;
       }
     }
   }
   STEPPER_MOVE.stop();
 
-  digitalWrite(SOL_CLAMPER_PIN, HIGH);
+  GPIO_SET(SOL_CLAMPER_PIN, HIGH);
 
   if (abs(Step_Remain) == abs(STEPPER_MOVE.currentPosition()))
   {
@@ -408,8 +416,8 @@ void Cutter_Forward()
 {
   if ((IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN)) and Appl_ButtonStopPress_xdu == false)
   {
-    digitalWrite(SOL_SLIDE_FORWARD_PIN, HIGH);
-    digitalWrite(SOL_SLIDE_BACKWARD_PIN, LOW);
+    GPIO_SET(SOL_SLIDE_FORWARD_PIN, HIGH);
+    GPIO_SET(SOL_SLIDE_BACKWARD_PIN, LOW);
   }
 }
 
@@ -417,22 +425,22 @@ void Cutter_Backward()
 {
   if ((IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN)) and Appl_ButtonStopPress_xdu == false)
   {
-    digitalWrite(SOL_SLIDE_BACKWARD_PIN, HIGH);
-    digitalWrite(SOL_SLIDE_FORWARD_PIN, LOW);
+    GPIO_SET(SOL_SLIDE_BACKWARD_PIN, HIGH);
+    GPIO_SET(SOL_SLIDE_FORWARD_PIN, LOW);
   }
   Appl_CutterBackwardTrigger_xdu = true;
 }
 
 void Cutter_Forward_Normal()
 {
-  digitalWrite(SOL_SLIDE_FORWARD_PIN, HIGH);
-  digitalWrite(SOL_SLIDE_BACKWARD_PIN, LOW);
+  GPIO_SET(SOL_SLIDE_FORWARD_PIN, HIGH);
+  GPIO_SET(SOL_SLIDE_BACKWARD_PIN, LOW);
 }
 
 void Cutter_Backward_Normal()
 {
-  digitalWrite(SOL_SLIDE_BACKWARD_PIN, HIGH);
-  digitalWrite(SOL_SLIDE_FORWARD_PIN, LOW);
+  GPIO_SET(SOL_SLIDE_BACKWARD_PIN, HIGH);
+  GPIO_SET(SOL_SLIDE_FORWARD_PIN, LOW);
 
   Appl_CutterBackwardTrigger_xdu = true;
 }
@@ -446,7 +454,7 @@ void Home_Stepper_Cutter()
     STEPPER_CUT.runSpeed();
   }
   STEPPER_CUT.stop();
-  Serial3.println(STEPPER_CUT.currentPosition());
+  SERIAL_DATA_MONITOR(STEPPER_CUT.currentPosition());
   STEPPER_CUT.setCurrentPosition(0);
 }
 
@@ -459,7 +467,7 @@ void Center_Stepper_Cutter()
     STEPPER_CUT.runSpeed();
   }
   STEPPER_CUT.stop();
-  Serial3.println(STEPPER_CUT.currentPosition());
+  SERIAL_DATA_MONITOR(STEPPER_CUT.currentPosition());
   STEPPER_CUT.setCurrentPosition(0);
 }
 
@@ -495,25 +503,24 @@ void Brushless_Run(int Speed)
 
 void Brushless_Off()
 {
-  digitalWrite(BRUSHLESS_SPEED_PIN, LOW);
+  GPIO_SET(BRUSHLESS_SPEED_PIN, LOW);
 }
 
 void Home_All()
 {
-  digitalWrite(MATERIAL_STATUS, LOW);
+  GPIO_SET(MATERIAL_STATUS, LOW);
   STEPPER_MOVE.setEnablePin(STEPPER_MOVE_ENA_PIN);
   STEPPER_CUT.setEnablePin(STEPPER_CUT_ENA_PIN);
-  digitalWrite(SOL_CLAMP_FEEDER_PIN, LOW);
-  // Home_Move_A_First();
+  GPIO_SET(SOL_CLAMP_FEEDER_PIN, LOW);
   Home_Move_A();
   Cutter_Forward();                                 // Forward Cut
   while (IS_SENSOR_NOT_DETECTED(SS4_END_STROKE_BACK_PIN)) // Wait to cutter go in
   {
   }
   Home_Stepper_Cutter();
-  delay(200);
+  DELAY(200);
   Center_Stepper_Cutter();
-  digitalWrite(SOL_CLAMPER_PIN, LOW);
+  GPIO_SET(SOL_CLAMPER_PIN, LOW);
   Appl_ButtonStopPress_xdu = false;
   Appl_FinishStateFirstCall_xdu = true;
 }
@@ -521,7 +528,7 @@ void Home_All()
 void Home_And_Center_Cutter()
 {
   Home_Stepper_Cutter();
-  delay(200);
+  DELAY(200);
   Center_Stepper_Cutter();
 }
 

@@ -14,11 +14,8 @@
 #include "damos_ram.h"
 
 /* Private defines ---------------------------------------------------- */
-
 /* Private enumerate/structure ---------------------------------------- */
-
 /* Private macros ----------------------------------------------------- */
-
 /* Public variables --------------------------------------------------- */
 float Appl_LengthToAlarm_B_fdu32    = 0;
 float Appl_LengthToAlarm_A_fdu32    = 0;
@@ -52,9 +49,7 @@ bool Appl_FinishTransfer_xdu        = false;
 bool Appl_NoMaterialFirstCallCapture_xdu = false;
 
 /* Private variables -------------------------------------------------- */
-
 /* Private function prototypes ---------------------------------------- */
-
 /* Function definitions ----------------------------------------------- */
 
 /* End of file -------------------------------------------------------- */

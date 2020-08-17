@@ -18,11 +18,8 @@
 #include "Arduino.h"
 
 /* Public defines ----------------------------------------------------- */
-
 /* Public enumerate/structure ----------------------------------------- */
-
 /* Public macros ------------------------------------------------------ */
-
 /* Public variables --------------------------------------------------- */
 extern float Appl_LengthToAlarm_B_fdu32;
 extern float Appl_LengthToAlarm_A_fdu32;

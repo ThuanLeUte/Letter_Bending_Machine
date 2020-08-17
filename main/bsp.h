@@ -58,6 +58,13 @@
 #define IS_BUTTON_PRESSED(button)             (digitalRead(button) == 1)
 #define IS_BUTTON_NOT_PRESSED(button)         (digitalRead(button) == 0)
 
+#define SERIAL_DATA_SEND(data)                (Serial.println(data))
+#define SERIAL_DATA_MONITOR(data)             (Serial3.println(data))
+
+#define GPIO_SET(pin, level)                  (digitalWrite(pin, level))
+#define DELAY(ms)                             (delay(ms))
+
+
 /* Public variables --------------------------------------------------- */
 extern String g_uart_data_receive;
 

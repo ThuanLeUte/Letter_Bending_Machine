@@ -27,7 +27,10 @@
 /* Public variables --------------------------------------------------- */
 /* Private variables -------------------------------------------------- */
 /* Private function prototypes ---------------------------------------- */
-static void init_variables(void);
+static inline void init_variables(void);
+static inline void Stop();
+static inline void Start();
+static inline void Pause();
 
 /* Function definitions ----------------------------------------------- */
 void setup()
@@ -35,7 +38,7 @@ void setup()
   // Board support package init
   bsp_init();
 
-//   Stepper setup
+  // Stepper setup
    stepper_setup();
 }
 
@@ -44,14 +47,13 @@ void loop()
   switch (Appl_SystemState_xdu8)
   {
   case SYS_INIT_STATE:
-  Serial3.println("--------------SystemState moved to RECIEVE_STATE----------------------------");
-    Home_All(); //Home Cut and Move
+    Home_All(); // Home Cut and Move
     init_variables();
 
     Appl_SystemState_xdu8 = SYS_RECIEVE_AND_RUNNING_STATE;
 
-    Serial.println(7);
-    Serial3.println("--------------SystemState moved to RECIEVE_STATE----------------------------");
+    SERIAL_DATA_SEND(7);
+    SERIAL_DATA_MONITOR("--------------SystemState moved to RECIEVE_STATE----------------------------");
     
     break;
   case SYS_RECIEVE_AND_RUNNING_STATE:
@@ -60,43 +62,43 @@ void loop()
     if (Appl_FinishTransfer_xdu == true)
     {
       Appl_SystemState_xdu8 = SYS_FINISH_STATE;
-      Serial.println(8);
-      Serial3.println("--------------SystemState moved to SYS_FINISH_STATE---------------------------");
+      SERIAL_DATA_SEND(8);
+      SERIAL_DATA_MONITOR("--------------SystemState moved to SYS_FINISH_STATE---------------------------");
     }
 
     if (Appl_ButtonStopPress_xdu == true)
     {
       Appl_SystemState_xdu8 = SYS_STOP_BUTTON_PRESS_STATE;
-      Serial3.println("--------------SystemState moved to SYS_STOP_BUTTON_PRESS_STATE----------------");
+      SERIAL_DATA_MONITOR("--------------SystemState moved to SYS_STOP_BUTTON_PRESS_STATE----------------");
     }
 
     break;
   case SYS_FINISH_LETTER_STATE:
-    digitalWrite(MATERIAL_STATUS, HIGH);
+    GPIO_SET(MATERIAL_STATUS, HIGH);
 
     if (IS_BUTTON_NOT_PRESSED(BUTTON_START_PIN))
     {
-      digitalWrite(MATERIAL_STATUS, LOW);
-      Serial3.println("start press");
+      GPIO_SET(MATERIAL_STATUS, LOW);
+      SERIAL_DATA_MONITOR("start press");
       Execute_Forward("-200");
-      Serial.println(1);
+      SERIAL_DATA_SEND(1);
       Appl_SystemState_xdu8 = SYS_RECIEVE_AND_RUNNING_STATE;
-      Serial3.println("--------------SystemState moved to RECIEVE_STATE--------------------------");
+      SERIAL_DATA_MONITOR("--------------SystemState moved to RECIEVE_STATE--------------------------");
     }
 
     if (Appl_ButtonStopPress_xdu == true)
     {
       Appl_SystemState_xdu8 = SYS_STOP_BUTTON_PRESS_STATE;
-      Serial3.println("--------------SystemState moved to SYS_STOP_BUTTON_PRESS_STATE----------------");
+      SERIAL_DATA_MONITOR("--------------SystemState moved to SYS_STOP_BUTTON_PRESS_STATE----------------");
     }
 
     break;
   case SYS_FINISH_STATE:
     if (Appl_FinishStateFirstCall_xdu == true)
     {
-      digitalWrite(MATERIAL_STATUS, HIGH);
-      delay(2000);
-      digitalWrite(MATERIAL_STATUS, LOW);
+      GPIO_SET(MATERIAL_STATUS, HIGH);
+      DELAY(2000);
+      GPIO_SET(MATERIAL_STATUS, LOW);
       Appl_FinishStateFirstCall_xdu = false;
     }
 
@@ -105,8 +107,8 @@ void loop()
       Appl_FinishStateFirstCall_xdu = false;
       Appl_SystemState_xdu8 = SYS_INIT_STATE;
       Appl_FinishTransfer_xdu = false;
-      Serial.println(6);
-      Serial3.println("--------------SystemState moved to INIT STATE-----------------------------");
+      SERIAL_DATA_SEND(6);
+      SERIAL_DATA_MONITOR("--------------SystemState moved to INIT STATE-----------------------------");
     }
 
     if (Appl_ButtonStopPress_xdu == true)
@@ -114,16 +116,16 @@ void loop()
       Appl_FinishStateFirstCall_xdu = false;
       Appl_FinishTransfer_xdu = false;
       Appl_SystemState_xdu8 = SYS_STOP_BUTTON_PRESS_STATE;
-      Serial3.println("--------------SystemState moved to SYS_STOP_BUTTON_PRESS_STATE----------------");
+      SERIAL_DATA_MONITOR("--------------SystemState moved to SYS_STOP_BUTTON_PRESS_STATE----------------");
     }
 
     break;
   case SYS_STOP_BUTTON_PRESS_STATE:
-    delay(1000);
+    DELAY(1000);
     Appl_SystemState_xdu8 = SYS_INIT_STATE;
 
-    Serial.println(6);
-    Serial3.println("--------------SystemState moved to INIT STATE-------------------------------");
+    SERIAL_DATA_SEND(6);
+    SERIAL_DATA_MONITOR("--------------SystemState moved to INIT STATE-------------------------------");
 
     break;
   
@@ -155,14 +157,14 @@ void bsp_pause_push(void)
     }
     else
     {
-      Serial3.println("Machine not start");
+      SERIAL_DATA_MONITOR("Machine not start");
     }
   }
   else
   {
-    digitalWrite(MATERIAL_STATUS, LOW);
-    digitalWrite(SOL_CLAMP_FEEDER_PIN, LOW);
-    Serial3.println("Tắt còi");
+    GPIO_SET(MATERIAL_STATUS, LOW);
+    GPIO_SET(SOL_CLAMP_FEEDER_PIN, LOW);
+    SERIAL_DATA_MONITOR("Tắt còi");
   }
 }
 
@@ -173,7 +175,7 @@ void bsp_start_push(void)
     Appl_ButtonStartPress_xdu = true;
     if (Appl_Forward_Trigger_xdu == true)
     {
-      Serial.println(13);
+      SERIAL_DATA_SEND(13);
     }
     else
     {
@@ -184,7 +186,7 @@ void bsp_start_push(void)
   }
   else
   {
-    Serial3.println("Pause not press");
+    SERIAL_DATA_MONITOR("Pause not press");
   }
 }
 
@@ -195,7 +197,7 @@ void bsp_start_push(void)
  * @attention     None
  * @return        None
  */
-static void init_variables(void)
+static inline void init_variables(void)
 {
   NumHolesAlreadyRun_xdu32 = 0;
   Appl_NumHolesFromAToB_xdu8 = 0;
@@ -207,6 +209,25 @@ static void init_variables(void)
   Appl_Forward_Trigger_xdu = false;
 }
 
+void Stop()
+{
+  Brushless_Off();
+  Cutter_Forward_Normal(); // Forward Cut
+  Appl_Second_xdu8 = 0;
+  Appl_CutterBackwardTrigger_xdu = false;
+  SERIAL_DATA_SEND(2);
+}
+
+void Start()
+{
+  SERIAL_DATA_SEND(4);
+}
+
+void Pause()
+{
+  SERIAL_DATA_SEND(3);
+  Appl_SystemState_xdu8 = 1; //SYS_RECIEVE_AND_RUNNING_STATE
+}
 /**
  * @brief         Timer 1 interrupt
  * @param[in]     None
@@ -215,24 +236,7 @@ static void init_variables(void)
  */
 ISR(TIMER1_COMPA_vect)
 {
-  // if (Appl_CutterBackwardTrigger_xdu == true)
-  // {
-  //   Appl_Second_xdu8++;
-  //   if (Appl_Second_xdu8 >= 8 and Appl_CutterBackwardTrigger_xdu == true)
-  //   {
-  //     Appl_SystemState_xdu8 = SYS_INIT_STATE;
-  //     Brushless_Off();
-  //     Serial.println(12); // Send Error to PC
-  //     Serial.println(2);  // Send Stop to PC
-  //     Serial.println(6);  // Homing to PC
-  //     Appl_Second_xdu8 = 0;
-  //     Appl_CutterBackwardTrigger_xdu = false;
-  //   }
-  // }
-  // else
-  // {
-  //   Appl_Second_xdu8 = 0;
-  // }
+ 
 }
 
 /* End of file -------------------------------------------------------- */

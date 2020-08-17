@@ -51,7 +51,7 @@ void bsp_init(void)
 
  void bsp_uart_receive()
 {
-  while (Serial.available()) // gửi data từ C# qua
+  while (Serial.available()) // Receive data from computer
   {
     char data = (char)Serial.read();
     g_uart_data_receive += data;
@@ -64,7 +64,7 @@ void bsp_init(void)
     if (m_uart_string_complete)
     {
       m_uart_string_complete = false;
-      Serial3.println("RUNNING");
+      SERIAL_DATA_MONITOR("RUNNING");
       Execute_String(g_uart_data_receive);
 
       if (Appl_SystemState_xdu8 == SYS_FINISH_LETTER_STATE)
@@ -73,13 +73,14 @@ void bsp_init(void)
       }
       else
       {
-        Serial.println(1);
+        SERIAL_DATA_SEND(1);
       }
 
       g_uart_data_receive = "";
     }
   }
 }
+
 /* Private functions definitions -------------------------------------- */
 /**
  * @brief         Timer init
@@ -121,7 +122,7 @@ static void m_interrupt_init(void)
 {
   attachInterrupt(5, bsp_start_push, FALLING);    // Pin 18 Push go to LOW
   attachInterrupt(4, bsp_pause_push, FALLING);    // Pin 21 Push go to LOW
-  attachInterrupt(3, bsp_stop_push,  RISING);     // Pin 19 Push go to HIGH
+  attachInterrupt(3, bsp_stop_push,  FALLING);    // Pin 19 Push go to LOW
 }
 
 /* End of file -------------------------------------------------------- */
