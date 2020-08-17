@@ -23,6 +23,10 @@
 /* Public variables --------------------------------------------------- */
 /* Private variables -------------------------------------------------- */
 /* Private function prototypes ---------------------------------------- */
+static inline void wait_for_cutter_go_out(void);
+static inline void wait_to_cutter_go_midle(void);
+static inline void wait_to_cutter_go_in(void);
+
 /* Function definitions ----------------------------------------------- */
 int Execute_Manual(String Data_Input)
 {
@@ -449,7 +453,7 @@ void Execute_Forward(String Data_Input)
         DELAY(300);
       }
     }
-    
+
     // Move step remand
     Forward_Move(Step);
     SERIAL_DATA_MONITOR("Execute_Forward Done");
@@ -513,7 +517,9 @@ void Execute_Cut(String Data_Input)
   static float Data_Angle_Float;
   static int Step;
   Data_Angle_Float_Raw = (Data_Input.toFloat());
+
   SERIAL_DATA_MONITOR(Data_Angle_Float_Raw);
+
   if (Data_Angle_Float_Raw <= 45 and Data_Angle_Float_Raw >= 0)
   {
     Data_Angle_Float = 0;
@@ -530,11 +536,15 @@ void Execute_Cut(String Data_Input)
   {
     Data_Angle_Float = Data_Angle_Float_Raw;
   }
+
   Serial3.print("Goc cat: ");
   SERIAL_DATA_MONITOR(Data_Angle_Float);
+
   Step = float(Data_Angle_Float * 120);
+
   SERIAL_DATA_MONITOR("Step:");
   SERIAL_DATA_MONITOR(Data_Angle_Float);
+
   if (Step >= 0 and Appl_ButtonStopPress_xdu == false)
   {
     GPIO_SET(SOL_CLAMPER_PIN, HIGH); // Kep phoi
@@ -545,8 +555,10 @@ void Execute_Cut(String Data_Input)
     }
     SERIAL_DATA_MONITOR("Xoay dao");
     Angle_Cut(Step);                    // Xoay dao
+
     Brushless_Run(BRUSHLESS_SPEED);     // Brushless quay
-    GPIO_SET(SOL_LIFTER_PIN, HIGH); // Ha dao
+
+    GPIO_SET(SOL_LIFTER_PIN, HIGH);     // Ha dao
     SERIAL_DATA_MONITOR("Xoay dao finish");
     if (Appl_ButtonStopPress_xdu == false )
     {
@@ -554,38 +566,22 @@ void Execute_Cut(String Data_Input)
     }
     Cutter_Backward(); // Backward Cut
 
-    while (1)  // Wait to cutter go out
-    {
-      if((IS_SENSOR_NOT_DETECTED(SS4_END_STROKE_BACK_PIN)) and (IS_SENSOR_DETECTED(SS7_END_STROKE_FRONT_PIN)))
-      {
-        break;
-      }
-      if (Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
-      {
-        return;
-      }
-    }
-    
+    wait_for_cutter_go_out(); // Wait to cutter go out
+
     Appl_CutterBackwardTrigger_xdu = false;
     if (Appl_ButtonStopPress_xdu == false )
     {
       DELAY(TIME_CUTTER);
     }
+
     Angle_Cut(-2 * Step); // Xoay dao
+
     Cutter_Forward();     // Forward Cut
 
-    while (1)  // Wait to cutter go in
-    {
-      if ((IS_SENSOR_DETECTED(SS4_END_STROKE_BACK_PIN)) and (IS_SENSOR_DETECTED(SS7_END_STROKE_FRONT_PIN)))
-      {
-        break;
-      }
-      if (Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
-      {
-        return;
-      }
-    }
+    wait_to_cutter_go_in(); // Wait to cutter go in
+
     Brushless_Off();
+
     Angle_Cut(Step); // Xoay dao
 
     if (Appl_ButtonStopPress_xdu == true)
@@ -604,44 +600,28 @@ void Execute_Cut(String Data_Input)
       DELAY(1000);
     }
     Brushless_Run(BRUSHLESS_SPEED);     // Brushless quay
+
     GPIO_SET(SOL_LIFTER_PIN, HIGH); // Ha dao
+
     if (Appl_ButtonStopPress_xdu == false )
     {
       DELAY(2000);
     }
+
     Cutter_Backward(); // Backward Cut
 
     DELAY(2000);
-    while (1)  // Wait to cutter go midle
-    {
-      if((IS_SENSOR_DETECTED(SS4_END_STROKE_BACK_PIN)) and (IS_SENSOR_NOT_DETECTED(SS7_END_STROKE_FRONT_PIN)))
-      {
-        break;
-      }
-      if (Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
-      {
-        return;
-      }
-    }
-    Appl_CutterBackwardTrigger_xdu = false;
+    
+    wait_to_cutter_go_midle() // Wait to cutter go midle
+    
     Cutter_Forward(); // Forward Cut
     
-    while (1)  // Wait to cutter go in
-    {
-      if ((IS_SENSOR_DETECTED(SS4_END_STROKE_BACK_PIN)) and (IS_SENSOR_DETECTED(SS7_END_STROKE_FRONT_PIN)))
-      {
-        break;
-      }
-      if (Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
-      {
-        return;
-      }
-    }
+    wait_to_cutter_go_in() // Wait to cutter go in
     
     Brushless_Off(); // Brushless off
     if (Appl_ButtonStopPress_xdu == true)
     {
-      GPIO_SET(SOL_CLAMPER_PIN, HIGH); // Kep  phoi
+      GPIO_SET(SOL_CLAMPER_PIN, HIGH); // Kep phoi
     }
     else
     {
@@ -675,6 +655,7 @@ void Execute_Cut_First_End(String Data_Input, execute_type_t type)
     Data_Angle_Float_Raw = 0;
     Data_Angle_Float = ((Data_Angle_Float_Raw - 45) / 2);
   }
+
   Serial.print("Goc cat: ");
   SERIAL_DATA_MONITOR(Data_Angle_Float);
   Step = float(Data_Angle_Float * 120);
@@ -686,6 +667,7 @@ void Execute_Cut_First_End(String Data_Input, execute_type_t type)
     {
       DELAY(1000);
     }
+    
     if (type == EXECUTE_FIRST)
     {
       Angle_Cut(-Step); // Xoay dao
@@ -694,46 +676,30 @@ void Execute_Cut_First_End(String Data_Input, execute_type_t type)
     {
       Angle_Cut(Step); // Xoay dao
     }
+
     Brushless_Run(BRUSHLESS_SPEED);     // Brushless quay
+
     GPIO_SET(SOL_LIFTER_PIN, HIGH); // Ha dao
+
     if (Appl_ButtonStopPress_xdu == false )
     {
       DELAY(2000);
     }
+
     Cutter_Backward(); // Backward Cut
 
-   while (1)  // Wait to cutter go midle
-    {
-      if((IS_SENSOR_DETECTED(SS4_END_STROKE_BACK_PIN)) and (IS_SENSOR_NOT_DETECTED(SS7_END_STROKE_FRONT_PIN)))
-      {
-        break;
-      }
-      if (Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
-      {
-        return;
-      }
-    }
+    wait_to_cutter_go_midle(); // Wait to cutter go midle
 
-    Appl_CutterBackwardTrigger_xdu = false;
     if (Appl_ButtonStopPress_xdu == false )
     {
       DELAY(TIME_CUTTER);
     }
     Cutter_Forward(); // Forward Cut
     
-    while (1)  // Wait to cutter go in
-    {
-      if ((IS_SENSOR_DETECTED(SS4_END_STROKE_BACK_PIN)) and (IS_SENSOR_DETECTED(SS7_END_STROKE_FRONT_PIN)))
-      {
-        break;
-      }
-      if (Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
-      {
-        return;
-      }
-    }
+    wait_to_cutter_go_in(); // Wait to cutter go in
 
     Brushless_Off();
+
     if (type == EXECUTE_FIRST)
     {
       Angle_Cut(Step); // Xoay dao
@@ -742,13 +708,59 @@ void Execute_Cut_First_End(String Data_Input, execute_type_t type)
     {
       Angle_Cut(-Step); // Xoay dao
     }
+
     if (Appl_ButtonStopPress_xdu == true)
     {
       GPIO_SET(SOL_CLAMPER_PIN, HIGH); // Kep  phoi
     }
     else
     {
-      // GPIO_SET(SOL_CLAMPER_PIN,LOW);   // Tha phoi
+    }
+  }
+}
+
+/* Private function definitions ---------------------------------------- */
+static inline void wait_for_cutter_go_out(void)
+{
+  while (1)  // Wait for cutter go out
+  {
+    if((IS_SENSOR_NOT_DETECTED(SS4_END_STROKE_BACK_PIN)) and (IS_SENSOR_DETECTED(SS7_END_STROKE_FRONT_PIN)))
+    {
+      break;
+    }
+    if (Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
+    {
+      return;
+    }
+  }
+}
+
+static inline void wait_to_cutter_go_midle(void)
+{
+  while (1)  // Wait for cutter go midle
+  {
+    if((IS_SENSOR_DETECTED(SS4_END_STROKE_BACK_PIN)) and (IS_SENSOR_NOT_DETECTED(SS7_END_STROKE_FRONT_PIN)))
+    {
+      break;
+    }
+    if (Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
+    {
+      return;
+    }
+  }
+}
+
+static inline void wait_to_cutter_go_in(void)
+{
+  while (1)  // Wait for cutter go in
+  {
+    if ((IS_SENSOR_DETECTED(SS4_END_STROKE_BACK_PIN)) and (IS_SENSOR_DETECTED(SS7_END_STROKE_FRONT_PIN)))
+    {
+      break;
+    }
+    if (Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
+    {
+      return;
     }
   }
 }
