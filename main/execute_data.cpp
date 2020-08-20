@@ -30,6 +30,10 @@
 static inline void m_wait_for_cutter_go_out(void);
 static inline void m_wait_to_cutter_go_midle(void);
 static inline void m_wait_to_cutter_go_in(void);
+static inline void m_button_stop_delay(uint16_t delay);
+static void m_cutter_cut_out(int step);
+static void m_cutter_cut_in(void);
+
 
 /* Function definitions ----------------------------------------------- */
 int Execute_Manual(String Data_Input)
@@ -346,7 +350,7 @@ void Execute_Move(String Data_Input)
       if (Appl_DataLengthFloat_fdu32 > 0 and Appl_DataLengthFloat_fdu32 < 50 and (Appl_NumHolesFromAToB_xdu8 + Holes_HaveToRun_xdu32) < 43)
       {
         SERIAL_DATA_MONITOR("Forward starting");
-        
+
         GPIO_SET(SOL_CLAMP_FEEDER_PIN, HIGH);       // Kep phoi
         m_button_stop_delay(500);
 
@@ -739,11 +743,11 @@ static void m_cutter_cut_in(void)
 
   DELAY(2000);
 
-  m_wait_to_cutter_go_midle()           // Wait to cutter go midle
+  m_wait_to_cutter_go_midle();          // Wait to cutter go midle
 
   Cutter_Forward();                     // Forward Cut
 
-  m_wait_to_cutter_go_in()              // Wait to cutter go in
+  m_wait_to_cutter_go_in();             // Wait to cutter go in
 
   Brushless_Off();                      // Brushless off
 
@@ -757,11 +761,11 @@ static void m_cutter_cut_in(void)
   }
 }
 
-static inline void m_button_stop_delay(uint16_t delay)
+static inline void m_button_stop_delay(uint16_t ms)
 {
   if (false == Appl_ButtonStopPress_xdu)
   {
-    DELAY(delay);
+    DELAY(ms);
   }
 }
 
@@ -774,4 +778,5 @@ static void m_excecute_backward(void)
 {
 
 }
+
 /* End of file -------------------------------------------------------- */

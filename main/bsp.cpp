@@ -16,6 +16,8 @@
 #include "execute_data.h"
 #include "damos_ram.h"
 #include "main.h"
+#include "stdio.h"
+#include "stdarg.h"
 
 /* Private defines ---------------------------------------------------- */
 #define LOG_BUFFER_SIZE       (256)
@@ -79,6 +81,18 @@ void bsp_init(void)
       g_uart_data_receive = "";
     }
   }
+}
+
+void bsp_log_data(const char *format, ...)
+{
+  char buf[LOG_BUFFER_SIZE];
+  va_list argptr;
+
+  va_start(argptr, format);
+  vsnprintf(buf, LOG_BUFFER_SIZE, format, argptr);
+  va_end(argptr);
+
+  SERIAL_DATA_MONITOR(buf);
 }
 
 /* Private functions definitions -------------------------------------- */

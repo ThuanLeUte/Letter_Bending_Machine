@@ -64,6 +64,7 @@
 #define GPIO_SET(pin, level)                  (digitalWrite(pin, level))
 #define DELAY(ms)                             (delay(ms))
 
+#define LOG(...)                               bsp_log_data(__VA_ARGS__)
 
 /* Public variables --------------------------------------------------- */
 extern String g_uart_data_receive;
@@ -108,6 +109,13 @@ void bsp_start_push(void);
  * @return        None
  */
 void bsp_uart_receive(void);
+/**
+ * @brief         Log data
+ * @param[in]     None
+ * @attention     None
+ * @return        None
+ */
+void bsp_log_data(const char *format, ...);
 
 #endif // __BSP_H
 
