@@ -24,6 +24,15 @@
 /* Private defines ---------------------------------------------------- */
 /* Private enumerate/structure ---------------------------------------- */
 /* Private macros ----------------------------------------------------- */
+#define FSM_UPDATE_STATE(new_state)           \
+do                                            \
+{                                             \
+  if (new_state < SYS_STATE_CNT){             \
+    Appl_SystemState_xdu8 = new_state;        \
+    LOG("[FSM] new state: %s", #new_state);   \
+  }                                           \
+} while (0);                                  \
+
 /* Public variables --------------------------------------------------- */
 /* Private variables -------------------------------------------------- */
 /* Private function prototypes ---------------------------------------- */
@@ -35,11 +44,8 @@ static inline void Pause();
 /* Function definitions ----------------------------------------------- */
 void setup()
 {
-  // Board support package init
-  bsp_init();
-
-  // Stepper setup
-   stepper_setup();
+  bsp_init();        // Board support package init
+  stepper_setup();   // Stepper setup
 }
 
 void loop()
@@ -47,53 +53,58 @@ void loop()
   switch (Appl_SystemState_xdu8)
   {
   case SYS_INIT_STATE:
-    Home_All(); // Home Cut and Move
-    init_variables();
+  {
+    Home_All();                     // Home Cut and Move
+    init_variables();               // Init variables
 
-    Appl_SystemState_xdu8 = SYS_RECIEVE_AND_RUNNING_STATE;
-
-    SERIAL_DATA_SEND(7);
-    SERIAL_DATA_MONITOR("--------------SystemState moved to RECIEVE_STATE----------------------------");
-    
+    DATA_SEND_TO_PC(RES_READY_RECEIVE);
+    FSM_UPDATE_STATE(SYS_RECIEVE_AND_RUNNING_STATE);
     break;
-  case SYS_RECIEVE_AND_RUNNING_STATE:
-    bsp_uart_receive();
+  }
 
+  case SYS_RECIEVE_AND_RUNNING_STATE:
+  {
+    bsp_uart_receive();             // Wait data from PC
+
+    // Finish of transfer data from PC to device
     if (Appl_FinishTransfer_xdu == true)
     {
-      Appl_SystemState_xdu8 = SYS_FINISH_STATE;
-      SERIAL_DATA_SEND(8);
-      SERIAL_DATA_MONITOR("--------------SystemState moved to SYS_FINISH_STATE---------------------------");
+      DATA_SEND_TO_PC(RES_LETTER_FINISHED);
+      FSM_UPDATE_STATE(SYS_FINISH_STATE);
     }
 
+    // Button stop pressed
     if (Appl_ButtonStopPress_xdu == true)
     {
-      Appl_SystemState_xdu8 = SYS_STOP_BUTTON_PRESS_STATE;
-      SERIAL_DATA_MONITOR("--------------SystemState moved to SYS_STOP_BUTTON_PRESS_STATE----------------");
+      FSM_UPDATE_STATE(SYS_STOP_BUTTON_PRESS_STATE)
     }
-
     break;
-  case SYS_FINISH_LETTER_STATE:
-    GPIO_SET(MATERIAL_STATUS, HIGH);
+  }
 
-    if (IS_BUTTON_NOT_PRESSED(BUTTON_START_PIN))
+  case SYS_FINISH_LETTER_STATE:
+  {
+    GPIO_SET(MATERIAL_STATUS, HIGH);    // Buzzer on
+
+    // Button start pressed
+    if (IS_BUTTON_PRESSED(BUTTON_START_PIN))
     {
       GPIO_SET(MATERIAL_STATUS, LOW);
-      SERIAL_DATA_MONITOR("start press");
+      LOG("Start press");
       Execute_Move("-200");
-      SERIAL_DATA_SEND(1);
-      Appl_SystemState_xdu8 = SYS_RECIEVE_AND_RUNNING_STATE;
-      SERIAL_DATA_MONITOR("--------------SystemState moved to RECIEVE_STATE--------------------------");
+      DATA_SEND_TO_PC(RES_EXCECUTE_SUCCESS);
+      FSM_UPDATE_STATE(SYS_RECIEVE_AND_RUNNING_STATE);
     }
 
+    // Button stop pressed
     if (Appl_ButtonStopPress_xdu == true)
     {
-      Appl_SystemState_xdu8 = SYS_STOP_BUTTON_PRESS_STATE;
-      SERIAL_DATA_MONITOR("--------------SystemState moved to SYS_STOP_BUTTON_PRESS_STATE----------------");
+      FSM_UPDATE_STATE(SYS_STOP_BUTTON_PRESS_STATE);
     }
 
     break;
+  }
   case SYS_FINISH_STATE:
+  {
     if (Appl_FinishStateFirstCall_xdu == true)
     {
       GPIO_SET(MATERIAL_STATUS, HIGH);
@@ -102,32 +113,31 @@ void loop()
       Appl_FinishStateFirstCall_xdu = false;
     }
 
-    if (IS_BUTTON_NOT_PRESSED(BUTTON_START_PIN))
+    if (IS_BUTTON_PRESSED(BUTTON_START_PIN))
     {
       Appl_FinishStateFirstCall_xdu = false;
-      Appl_SystemState_xdu8 = SYS_INIT_STATE;
       Appl_FinishTransfer_xdu = false;
-      SERIAL_DATA_SEND(6);
-      SERIAL_DATA_MONITOR("--------------SystemState moved to INIT STATE-----------------------------");
+      DATA_SEND_TO_PC(RES_COMMAND_HOMING);
+      FSM_UPDATE_STATE(SYS_INIT_STATE);
     }
 
     if (Appl_ButtonStopPress_xdu == true)
     {
       Appl_FinishStateFirstCall_xdu = false;
       Appl_FinishTransfer_xdu = false;
-      Appl_SystemState_xdu8 = SYS_STOP_BUTTON_PRESS_STATE;
-      SERIAL_DATA_MONITOR("--------------SystemState moved to SYS_STOP_BUTTON_PRESS_STATE----------------");
+      FSM_UPDATE_STATE(SYS_STOP_BUTTON_PRESS_STATE);
     }
 
     break;
+  }
   case SYS_STOP_BUTTON_PRESS_STATE:
+  {
     DELAY(1000);
-    Appl_SystemState_xdu8 = SYS_INIT_STATE;
-
-    SERIAL_DATA_SEND(6);
-    SERIAL_DATA_MONITOR("--------------SystemState moved to INIT STATE-------------------------------");
+    DATA_SEND_TO_PC(RES_COMMAND_HOMING);
+    FSM_UPDATE_STATE(SYS_INIT_STATE);
 
     break;
+  }
   
   default:
     break;
@@ -157,14 +167,14 @@ void bsp_pause_push(void)
     }
     else
     {
-      SERIAL_DATA_MONITOR("Machine not start");
+      LOG("Machine not start");
     }
   }
   else
   {
     GPIO_SET(MATERIAL_STATUS, LOW);
     GPIO_SET(SOL_CLAMP_FEEDER_PIN, LOW);
-    SERIAL_DATA_MONITOR("Tắt còi");
+    LOG("Tắt còi");
   }
 }
 
@@ -175,7 +185,7 @@ void bsp_start_push(void)
     Appl_ButtonStartPress_xdu = true;
     if (Appl_Forward_Trigger_xdu == true)
     {
-      SERIAL_DATA_SEND(13);
+      DATA_SEND_TO_PC(RES_START);
     }
     else
     {
@@ -186,7 +196,7 @@ void bsp_start_push(void)
   }
   else
   {
-    SERIAL_DATA_MONITOR("Pause not press");
+    LOG("Pause not press");
   }
 }
 
@@ -215,17 +225,17 @@ void Stop()
   Cutter_Forward_Normal(); // Forward Cut
   Appl_Second_xdu8 = 0;
   Appl_CutterBackwardTrigger_xdu = false;
-  SERIAL_DATA_SEND(2);
+  DATA_SEND_TO_PC(RES_COMMAND_STOP);
 }
 
 void Start()
 {
-  SERIAL_DATA_SEND(4);
+  DATA_SEND_TO_PC(RES_COMMAND_START);
 }
 
 void Pause()
 {
-  SERIAL_DATA_SEND(3);
+  DATA_SEND_TO_PC(RES_COMMAND_PAUSE);
   Appl_SystemState_xdu8 = 1; //SYS_RECIEVE_AND_RUNNING_STATE
 }
 /**

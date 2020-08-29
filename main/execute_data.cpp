@@ -30,7 +30,7 @@
 static inline void m_wait_for_cutter_go_out(void);
 static inline void m_wait_to_cutter_go_midle(void);
 static inline void m_wait_to_cutter_go_in(void);
-static inline void m_button_stop_delay(uint16_t delay);
+static inline void m_button_stop_delay(uint16_t ms);
 static void m_cutter_cut_out(int step);
 static void m_cutter_cut_in(void);
 
@@ -59,7 +59,7 @@ int Execute_Manual(String Data_Input)
   else if (Command == "CN") // Connection
   {
     DELAY(100);
-    SERIAL_DATA_SEND(10);
+    DATA_SEND_TO_PC(RES_CONNECTED);
     return 1;
   }
   else if (Command == "HB") // Home move B
@@ -168,7 +168,7 @@ void Execute_String(String Data_Input)
   static uint32_t j;
   static uint32_t count;
   Length_Data = Data_Input.length();
-  SERIAL_DATA_MONITOR(Data_Input);
+  LOG("Data receive: %s",Data_Input);
 
   // Check and excecute manual data
   if (Execute_Manual(Data_Input) == 1)
@@ -185,7 +185,7 @@ void Execute_String(String Data_Input)
         (Data_Input.substring(i, i + 1) == "Z"))
     {
       count++;
-      SERIAL_DATA_MONITOR(count);
+      LOG("Count: %d",count);
 
       // Loop for the command
       for (j = i + 1; j < j + 10; j++)
@@ -198,58 +198,59 @@ void Execute_String(String Data_Input)
           // Check command and excecute
           if (Command == "F")
           {
-            SERIAL_DATA_SEND(Command + Data_Command);
-            SERIAL_DATA_MONITOR("Execute_Move");
+            DATA_SEND_TO_PC(Command + Data_Command);
+            LOG("Execute_Move");
             Execute_Move(Data_Command);
           }
           else if (Command == "C")
           {
-            SERIAL_DATA_SEND(Command + Data_Command);
-            SERIAL_DATA_MONITOR("Execute_Cut");
+            DATA_SEND_TO_PC(Command + Data_Command);
+            LOG("Execute_Cut");
             Execute_Cut(Data_Command);
           }
           else if (Command == "S")
           {
-            SERIAL_DATA_SEND(Command);
-            SERIAL_DATA_MONITOR("Execute_Cut First");
+            DATA_SEND_TO_PC(Command);
+            LOG("Execute_Cut First");
             Execute_Cut_First_End(Data_Command, EXECUTE_FIRST);
           }
           else if (Command == "T")
           {
-            SERIAL_DATA_MONITOR("Starting");
+            LOG("Starting");
             Appl_ButtonStopPress_xdu = false;
             Appl_StartRunning_xdu = true;
             GPIO_SET(SOL_CLAMP_FEEDER_PIN, HIGH);
           }
           else if (Command == "E")
           {
-            SERIAL_DATA_SEND(Command);
-            SERIAL_DATA_MONITOR("Execute_Cut End");
+            DATA_SEND_TO_PC(Command);
+            LOG("Execute_Cut End");
             Execute_Cut_First_End(Data_Command, EXECUTE_END);
           }
           else if (Command == "W")
           {
-            SERIAL_DATA_SEND(Command);
+            DATA_SEND_TO_PC(Command);
             Appl_SystemState_xdu8 = SYS_FINISH_LETTER_STATE;
-            SERIAL_DATA_MONITOR("FINISH LETTER");
+            LOG("FINISH LETTER");
           }
           else if (Command == "Z")
           {
             Appl_FinishTransfer_xdu = true;
-            SERIAL_DATA_MONITOR("FINISH ALL LETTER");
+            LOG("FINISH ALL LETTER");
           }
           else
           {
             //Do nothing
           }
-          SERIAL_DATA_MONITOR(Data_Input.substring(i, j));
+          // SERIAL_DATA_MONITOR(Data_Input.substring(i, j));
+          LOG("Data: %s", Data_Input.substring(i, j));
           break;
         }
       }
     }
     else
     {
-      SERIAL_DATA_MONITOR("Data is incorrect");
+      LOG("Data is incorrect");
     }
   }
 }
@@ -274,12 +275,9 @@ void Execute_Move(String Data_Input)
   Step = (Appl_DataLengthFloatRemainEnd_fdu32 / (float) LENGTH_OF_ONE_STEP);
   StepForSmallMove = (Appl_DataLengthFloat_fdu32 / (float) LENGTH_OF_ONE_STEP);
 
-  Serial.print("Holes HaveToRun : ");
-  SERIAL_DATA_MONITOR(Holes_HaveToRun_xdu32);
-  Serial.print("Remain end: ");
-  SERIAL_DATA_MONITOR(Appl_DataLengthFloatRemainEnd_fdu32);
-  Serial.print("NumHolesFromAToB_xdu8: ");
-  SERIAL_DATA_MONITOR(Appl_NumHolesFromAToB_xdu8);
+  LOG("Holes hava to run: %d", Holes_HaveToRun_xdu32);
+  LOG("Remain end : %f", Appl_DataLengthFloatRemainEnd_fdu32);
+  LOG("NumHolesFromAToB_xdu8: %d", Appl_NumHolesFromAToB_xdu8);
 
   // Excecute forward
   if (Appl_DataLengthFloat_fdu32 > 0)
@@ -303,7 +301,7 @@ void Execute_Move(String Data_Input)
         Forward_Move_First();
         Appl_NumHolesFromAToB_xdu8++;
 
-        SERIAL_DATA_MONITOR("Forward starting");
+        LOG("Forward starting");
 
         GPIO_SET(SOL_CLAMP_FEEDER_PIN, HIGH);       // Kep phoi
         m_button_stop_delay(500);
@@ -316,7 +314,7 @@ void Execute_Move(String Data_Input)
       {
         if (Appl_DataLengthFloat_fdu32 > 0 and Appl_DataLengthFloat_fdu32 < 50 and (Appl_NumHolesFromAToB_xdu8 + Holes_HaveToRun_xdu32) < 43)
         {
-          SERIAL_DATA_MONITOR("Forward starting");
+          LOG("Forward starting");
           GPIO_SET(SOL_CLAMP_FEEDER_PIN, HIGH);     // Kep phoi
           m_button_stop_delay(500);
 
@@ -336,7 +334,7 @@ void Execute_Move(String Data_Input)
 
           Forward_Move_1Step();
           Appl_NumHolesFromAToB_xdu8++;
-          SERIAL_DATA_MONITOR("Forward starting");
+          LOG("Forward starting");
           GPIO_SET(SOL_CLAMP_FEEDER_PIN, HIGH);     // Kep phoi
           m_button_stop_delay(500);
 
@@ -349,7 +347,7 @@ void Execute_Move(String Data_Input)
     {
       if (Appl_DataLengthFloat_fdu32 > 0 and Appl_DataLengthFloat_fdu32 < 50 and (Appl_NumHolesFromAToB_xdu8 + Holes_HaveToRun_xdu32) < 43)
       {
-        SERIAL_DATA_MONITOR("Forward starting");
+        LOG("Forward starting");
 
         GPIO_SET(SOL_CLAMP_FEEDER_PIN, HIGH);       // Kep phoi
         m_button_stop_delay(500);
@@ -402,10 +400,8 @@ void Execute_Move(String Data_Input)
       }
     }
 
-    Serial.print("Holes HaveToRun : ");
-    SERIAL_DATA_MONITOR(Holes_HaveToRun_xdu32);
-    Serial.print("NumHoles AlreadyRun : ");
-    SERIAL_DATA_MONITOR(NumHolesAlreadyRun_xdu32);
+    LOG("Holes HaveToRun : %d", Holes_HaveToRun_xdu32);
+    LOG("NumHoles AlreadyRun : %d", NumHolesAlreadyRun_xdu32);
 
     if (Step != 0)
     {
@@ -446,7 +442,7 @@ void Execute_Move(String Data_Input)
 
     // Move step remand
     Forward_Move(Step);
-    SERIAL_DATA_MONITOR("Execute_Move Done");
+    LOG("Execute_Move Done");
     GPIO_SET(SOL_CLAMPER_PIN, LOW);
   }
   else // Excecute backward
@@ -454,7 +450,7 @@ void Execute_Move(String Data_Input)
     static unsigned long Step_Remain;
     static unsigned long Step;
     Step = -float(Appl_DataLengthFloat_fdu32 / 0.011090301);
-    SERIAL_DATA_MONITOR("Backward starting");
+    LOG("Backward starting");
     GPIO_SET(SOL_CLAMP_FEEDER_PIN, HIGH);
     m_button_stop_delay(1000);
 
@@ -462,11 +458,10 @@ void Execute_Move(String Data_Input)
     m_button_stop_delay(300);
 
     Step_Remain = Backward_Move(Step);
-    Serial.print("Xung con lai: ");
-    SERIAL_DATA_MONITOR(Step_Remain);
+    LOG("Xung con lai: %d", Step_Remain);
     if (Step_Remain == 0)
     {
-      SERIAL_DATA_MONITOR("Execute_Backward Done");
+      LOG("Execute_Backward Done");
       GPIO_SET(SOL_CLAMPER_PIN, LOW);
     }
     else
@@ -480,14 +475,13 @@ void Execute_Move(String Data_Input)
         GPIO_SET(SOL_CLAMP_FEEDER_PIN, HIGH);
         m_button_stop_delay(1000);
         Step_Remain = Backward_Move(Step_Remain);
-        Serial.print("Xung con lai: ");
-        SERIAL_DATA_MONITOR(Step_Remain);
+        LOG("Xung con lai: %d", Step_Remain);
         if (Appl_ButtonStopPress_xdu == true)
         {
           return;
         }
       }
-      SERIAL_DATA_MONITOR("Execute_Backward Done");
+      LOG("Execute_Backward Done");
       GPIO_SET(SOL_CLAMPER_PIN, LOW);
     }
   }
@@ -522,14 +516,12 @@ void Execute_Cut(String Data_Input)
     Data_Angle_Float = Data_Angle_Float_Raw;
   }
 
-  SERIAL_DATA_MONITOR("Angle cut: ");
-  SERIAL_DATA_MONITOR(Data_Angle_Float);
+  LOG("Angle cut: %f", Data_Angle_Float);
 
   // Calculate step 
   Step = float(Data_Angle_Float * CUTTER_STEP_PER_DEGREE);
 
-  SERIAL_DATA_MONITOR("Step: ");
-  SERIAL_DATA_MONITOR(Step);
+  LOG("Step: %d", Step);
 
   if ((Step >= 0) and (Appl_ButtonStopPress_xdu == false))
   {
@@ -575,8 +567,7 @@ void Execute_Cut_First_End(String Data_Input, execute_type_t type)
     Data_Angle_Float = ((Data_Angle_Float_Raw - 45) / 2);
   }
 
-  SERIAL_DATA_MONITOR("Angle cut: ");
-  SERIAL_DATA_MONITOR(Data_Angle_Float);
+  LOG("Angle cut: %f", Data_Angle_Float);
 
   // Calculate angle cut
   Step = float(Data_Angle_Float * CUTTER_STEP_PER_DEGREE);

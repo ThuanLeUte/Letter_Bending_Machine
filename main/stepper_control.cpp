@@ -148,11 +148,11 @@ void Forward_Move_First()
             NumHole_Internal++;
             Flag_Pre = 0;
             Serial.print("First Holes : ");
-            SERIAL_DATA_MONITOR(NumHole_Internal);
+            LOG(NumHole_Internal);
           }
           else
           {
-            SERIAL_DATA_MONITOR("Loi cam bien");
+            LOG("Loi cam bien");
           }
         }
       }
@@ -185,7 +185,7 @@ void Forward_Move_1Step()
           NumHole_Internal++;
           Flag_Pre = 0;
           Serial.print("First Holes : ");
-          SERIAL_DATA_MONITOR(NumHole_Internal);
+          LOG(NumHole_Internal);
         }
       }
     }
@@ -272,7 +272,7 @@ int Forward_Move_Holes(int Holes)
             }
             else
             {
-              SERIAL_DATA_MONITOR("Loi cam bien");
+              LOG("Loi cam bien");
             }
           }
         }
@@ -285,8 +285,7 @@ int Forward_Move_Holes(int Holes)
       {
         Appl_LengthToAlarm_A_fdu32 = abs(STEPPER_MOVE.currentPosition()) * 0.011090301;
         Appl_NoMaterialFirstCallCapture_xdu = 1;
-        Serial.print("Length: ");
-        SERIAL_DATA_MONITOR(Appl_LengthToAlarm_A_fdu32);
+        LOG("Length: %f", Appl_LengthToAlarm_A_fdu32);
       }
       if (Appl_NoMaterial_xdu == false and Appl_NoMaterialFirstCallCapture_xdu == 1)
       {
@@ -294,12 +293,10 @@ int Forward_Move_Holes(int Holes)
         Appl_LengthToAlarm_fdu32 = Appl_LengthToAlarm_B_fdu32 - Appl_LengthToAlarm_A_fdu32;
         if (Appl_LengthToAlarm_fdu32 >= 100 or Appl_NumHolesFromAToB_xdu8 >= 43)
         {
-          Serial.print("Length: ");
-          SERIAL_DATA_MONITOR(Appl_LengthToAlarm_fdu32);
-          Serial.print("currentPosition: ");
-          SERIAL_DATA_MONITOR(STEPPER_MOVE.currentPosition());
+          LOG("Length: %f", Appl_LengthToAlarm_fdu32);
+          LOG("CurrentPosition: %d", STEPPER_MOVE.currentPosition());
 
-          SERIAL_DATA_SEND(11);
+          DATA_SEND_TO_PC(RES_NO_MATERIAL);
           GPIO_SET(MATERIAL_STATUS, HIGH);
           Appl_NoMaterial_xdu = true;
           Appl_NoMaterialTriger_xdu = true;
@@ -316,7 +313,7 @@ int Forward_Move_Holes(int Holes)
     {
       if (Appl_NoMaterial_xdu == false)
       {
-        SERIAL_DATA_SEND(11);
+        DATA_SEND_TO_PC(RES_NO_MATERIAL);
         GPIO_SET(MATERIAL_STATUS, HIGH);
         Appl_NoMaterial_xdu = true;
       }
@@ -328,10 +325,10 @@ int Forward_Move_Holes(int Holes)
     {
       if (IS_BUTTON_NOT_PRESSED(BUTTON_START_PIN))
       {
-        SERIAL_DATA_MONITOR("start press");
+        LOG("start press");
         Appl_NoMaterial_xdu = false;
         Appl_NoMaterialFirstCallCapture_xdu = 0;
-        SERIAL_DATA_SEND(7);
+        DATA_SEND_TO_PC(RES_READY_RECEIVE);
         GPIO_SET(MATERIAL_STATUS, LOW);
         GPIO_SET(SOL_CLAMP_FEEDER_PIN, HIGH);
         DELAY(1000);
@@ -343,7 +340,7 @@ int Forward_Move_Holes(int Holes)
     {
       if (IS_BUTTON_NOT_PRESSED(BUTTON_START_PIN))
       {
-        SERIAL_DATA_MONITOR("Het phoi");
+        LOG("Het phoi");
         GPIO_SET(MATERIAL_STATUS, HIGH);
       }
     }
@@ -355,7 +352,7 @@ int Forward_Move_Holes(int Holes)
       Appl_ButtonPausePress_1_xdu = false;
       Appl_ButtonStartPress_xdu = false;
       Appl_StartRunning_xdu = true;
-      SERIAL_DATA_MONITOR("start press");
+      LOG("start press");
       return NumHole_Internal;
     }
   }
@@ -368,7 +365,7 @@ int Forward_Move_Holes(int Holes)
 unsigned long Backward_Move(unsigned long Step_Remain)
 {
   static bool Flag_Pre;
-  SERIAL_DATA_MONITOR(Step_Remain);
+  LOG(Step_Remain);
   STEPPER_MOVE.moveTo(-Step_Remain);
   while (STEPPER_MOVE.currentPosition() != -Step_Remain and (IS_SENSOR_NOT_DETECTED(SS1_MOVE_HOME_A_PIN)) and (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN)) and Appl_ButtonStopPress_xdu == false)
   {
@@ -387,8 +384,7 @@ unsigned long Backward_Move(unsigned long Step_Remain)
           Appl_NumHolesFromAToB_xdu8 = 45;
         }
         Appl_NumHolesFromAToB_xdu8--;
-        Serial.print("NumHolesFromAToB_xdu8: ");
-        SERIAL_DATA_MONITOR(Appl_NumHolesFromAToB_xdu8);
+        LOG("NumHolesFromAToB_xdu8: %d", Appl_NumHolesFromAToB_xdu8);
         Flag_Pre = 0;
       }
     }
@@ -454,7 +450,7 @@ void Home_Stepper_Cutter()
     STEPPER_CUT.runSpeed();
   }
   STEPPER_CUT.stop();
-  SERIAL_DATA_MONITOR(STEPPER_CUT.currentPosition());
+  LOG(STEPPER_CUT.currentPosition());
   STEPPER_CUT.setCurrentPosition(0);
 }
 
@@ -467,7 +463,7 @@ void Center_Stepper_Cutter()
     STEPPER_CUT.runSpeed();
   }
   STEPPER_CUT.stop();
-  SERIAL_DATA_MONITOR(STEPPER_CUT.currentPosition());
+  LOG(STEPPER_CUT.currentPosition());
   STEPPER_CUT.setCurrentPosition(0);
 }
 

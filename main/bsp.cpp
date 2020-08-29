@@ -41,8 +41,8 @@ void bsp_init(void)
   board_define_init();
 
   // Init Serial communication
-  Serial.begin(115200);
-  Serial3.begin(115200);
+  Serial.begin(115200);     // Monitor
+  Serial3.begin(115200);    // PC communication
 
   // Init timer 1
   m_timer_init();
@@ -66,7 +66,7 @@ void bsp_init(void)
     if (m_uart_string_complete)
     {
       m_uart_string_complete = false;
-      SERIAL_DATA_MONITOR("RUNNING");
+      LOG("RUNNING");
       Execute_String(g_uart_data_receive);
 
       if (Appl_SystemState_xdu8 == SYS_FINISH_LETTER_STATE)
@@ -75,7 +75,7 @@ void bsp_init(void)
       }
       else
       {
-        SERIAL_DATA_SEND(1);
+        DATA_SEND_TO_PC(RES_EXCECUTE_SUCCESS);
       }
 
       g_uart_data_receive = "";

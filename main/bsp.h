@@ -51,6 +51,21 @@
 #define BRUSHLESS_SPEED_PIN               (OP8)
 
 /* Public enumerate/structure ----------------------------------------- */
+typedef enum
+{
+  RES_EXCECUTE_SUCCESS = 1,
+  RES_COMMAND_STOP     = 2,
+  RES_COMMAND_PAUSE    = 3,
+  RES_COMMAND_START    = 4,
+  RES_COMMAND_HOMING   = 6,
+  RES_READY_RECEIVE    = 7,
+  RES_LETTER_FINISHED  = 8,
+  RES_CONNECTED        = 10,
+  RES_NO_MATERIAL      = 11,
+  RES_START            = 13
+}
+data_respond_pc_t;
+
 /* Public macros ------------------------------------------------------ */
 #define IS_SENSOR_DETECTED(sensor)            (digitalRead(sensor) == 0)
 #define IS_SENSOR_NOT_DETECTED(sensor)        (digitalRead(sensor) == 1)
@@ -58,7 +73,7 @@
 #define IS_BUTTON_PRESSED(button)             (digitalRead(button) == 1)
 #define IS_BUTTON_NOT_PRESSED(button)         (digitalRead(button) == 0)
 
-#define SERIAL_DATA_SEND(data)                (Serial.println(data))
+#define DATA_SEND_TO_PC(data)                 (Serial.println(data))
 #define SERIAL_DATA_MONITOR(data)             (Serial3.println(data))
 
 #define GPIO_SET(pin, level)                  (digitalWrite(pin, level))
