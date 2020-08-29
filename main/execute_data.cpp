@@ -19,7 +19,7 @@
 
 /* Private defines ---------------------------------------------------- */
 #define CUTTER_STEP_PER_DEGREE      (120)
-#define LENGTH_OF_ONE_HOLE          (5.002)
+#define LENGTH_OF_ONE_HOLE          (4.997)
 #define LENGTH_OF_ONE_STEP          (0.011090301)
 
 /* Private enumerate/structure ---------------------------------------- */
