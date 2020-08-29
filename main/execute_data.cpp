@@ -168,7 +168,7 @@ void Execute_String(String Data_Input)
   static uint32_t j;
   static uint32_t count;
   Length_Data = Data_Input.length();
-  LOG("Data receive: %s",Data_Input);
+  SERIAL_DATA_MONITOR(Data_Input);
 
   // Check and excecute manual data
   if (Execute_Manual(Data_Input) == 1)

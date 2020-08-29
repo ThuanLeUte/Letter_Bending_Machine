@@ -147,7 +147,6 @@ void Forward_Move_First()
           {
             NumHole_Internal++;
             Flag_Pre = 0;
-            Serial.print("First Holes : ");
             LOG(NumHole_Internal);
           }
           else
@@ -184,8 +183,7 @@ void Forward_Move_1Step()
         {
           NumHole_Internal++;
           Flag_Pre = 0;
-          Serial.print("First Holes : ");
-          LOG(NumHole_Internal);
+          LOG("First Holes : %d", NumHole_Internal);
         }
       }
     }
