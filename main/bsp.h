@@ -49,6 +49,7 @@
 #define STEPPER_CUT_STEP_PIN              (OP7)
 
 #define BRUSHLESS_SPEED_PIN               (OP8)
+#define BRUSHLESS_ENA_PIN                 (OP9)
 
 /* Public enumerate/structure ----------------------------------------- */
 typedef enum

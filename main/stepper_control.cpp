@@ -128,7 +128,7 @@ void Forward_Move_First()
   while ((STEPPER_MOVE.currentPosition() != 100000)   and (IS_SENSOR_NOT_DETECTED(SS2_MOVE_HOME_B_PIN))       and 
   (Appl_NoMaterial_xdu == false)                      and 
   (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN))            and 
-  (Appl_ButtonStopPress_xdu == false)                   and 
+  (Appl_ButtonStopPress_xdu == false)                 and 
   (NumHole_Internal != 1))
   {
     STEPPER_MOVE.setSpeed(3000);
@@ -410,7 +410,6 @@ void Cutter_Forward()
 {
   if ((IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN)) and Appl_ButtonStopPress_xdu == false)
   {
-    GPIO_SET(SOL_SLIDE_FORWARD_PIN, HIGH);
     GPIO_SET(SOL_SLIDE_BACKWARD_PIN, LOW);
   }
 }
@@ -420,7 +419,6 @@ void Cutter_Backward()
   if ((IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN)) and Appl_ButtonStopPress_xdu == false)
   {
     GPIO_SET(SOL_SLIDE_BACKWARD_PIN, HIGH);
-    GPIO_SET(SOL_SLIDE_FORWARD_PIN, LOW);
   }
   Appl_CutterBackwardTrigger_xdu = true;
 }
@@ -448,7 +446,6 @@ void Home_Stepper_Cutter()
     STEPPER_CUT.runSpeed();
   }
   STEPPER_CUT.stop();
-  LOG(STEPPER_CUT.currentPosition());
   STEPPER_CUT.setCurrentPosition(0);
 }
 
@@ -461,7 +458,6 @@ void Center_Stepper_Cutter()
     STEPPER_CUT.runSpeed();
   }
   STEPPER_CUT.stop();
-  LOG(STEPPER_CUT.currentPosition());
   STEPPER_CUT.setCurrentPosition(0);
 }
 
@@ -492,12 +488,14 @@ void Brushless_Run(int Speed)
   if ((IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN)) and Appl_ButtonStopPress_xdu == false)
   {
     analogWrite(BRUSHLESS_SPEED_PIN, Speed);
+    GPIO_SET(BRUSHLESS_ENA_PIN , LOW);
   }
 }
 
 void Brushless_Off()
 {
   GPIO_SET(BRUSHLESS_SPEED_PIN, LOW);
+  GPIO_SET(BRUSHLESS_ENA_PIN , HIGH);
 }
 
 void Home_All()

@@ -19,7 +19,7 @@
 #include "stepper_control.h"
 
 /* Public defines ----------------------------------------------------- */
-#define BRUSHLESS_SPEED     (160)
+#define BRUSHLESS_SPEED     (40)
 #define TIME_CUTTER         (1000)
 
 /* Public enumerate/structure ----------------------------------------- */

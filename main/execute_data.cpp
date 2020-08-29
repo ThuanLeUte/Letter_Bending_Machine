@@ -242,15 +242,14 @@ void Execute_String(String Data_Input)
           {
             //Do nothing
           }
-          // SERIAL_DATA_MONITOR(Data_Input.substring(i, j));
-          LOG("Data: %s", Data_Input.substring(i, j));
+          SERIAL_DATA_MONITOR(Data_Input.substring(i, j));
           break;
         }
       }
     }
     else
     {
-      LOG("Data is incorrect");
+      // LOG("Data is incorrect");
     }
   }
 }
@@ -276,7 +275,8 @@ void Execute_Move(String Data_Input)
   StepForSmallMove = (Appl_DataLengthFloat_fdu32 / (float) LENGTH_OF_ONE_STEP);
 
   LOG("Holes hava to run: %d", Holes_HaveToRun_xdu32);
-  LOG("Remain end : %f", Appl_DataLengthFloatRemainEnd_fdu32);
+  LOG("Remain end :");
+  SERIAL_DATA_MONITOR(Appl_DataLengthFloatRemainEnd_fdu32);
   LOG("NumHolesFromAToB_xdu8: %d", Appl_NumHolesFromAToB_xdu8);
 
   // Excecute forward
@@ -516,7 +516,8 @@ void Execute_Cut(String Data_Input)
     Data_Angle_Float = Data_Angle_Float_Raw;
   }
 
-  LOG("Angle cut: %f", Data_Angle_Float);
+  LOG("Angle cut: ");
+  SERIAL_DATA_MONITOR(Data_Angle_Float);
 
   // Calculate step 
   Step = float(Data_Angle_Float * CUTTER_STEP_PER_DEGREE);
@@ -567,7 +568,8 @@ void Execute_Cut_First_End(String Data_Input, execute_type_t type)
     Data_Angle_Float = ((Data_Angle_Float_Raw - 45) / 2);
   }
 
-  LOG("Angle cut: %f", Data_Angle_Float);
+  LOG("Angle cut: ");
+  SERIAL_DATA_MONITOR(Data_Angle_Float);
 
   // Calculate angle cut
   Step = float(Data_Angle_Float * CUTTER_STEP_PER_DEGREE);
@@ -595,7 +597,7 @@ void Execute_Cut_First_End(String Data_Input, execute_type_t type)
 
     Cutter_Backward();                          // Backward Cut
 
-    m_wait_to_cutter_go_midle();                // Wait to cutter go midle
+    m_wait_for_cutter_go_out();                 // Wait to cutter go out
 
     m_button_stop_delay(TIME_CUTTER);
 
@@ -726,13 +728,13 @@ static void m_cutter_cut_in(void)
 
   Brushless_Run(BRUSHLESS_SPEED);       // Brushless quay
 
-  GPIO_SET(SOL_LIFTER_PIN, HIGH);       // Ha dao
+ GPIO_SET(SOL_LIFTER_PIN, HIGH);       // Ha dao
 
   m_button_stop_delay(2000);
 
   Cutter_Backward();                    // Backward Cut
 
-  DELAY(2000);
+  DELAY(1000);
 
   m_wait_to_cutter_go_midle();          // Wait to cutter go midle
 
@@ -744,7 +746,7 @@ static void m_cutter_cut_in(void)
 
   if (Appl_ButtonStopPress_xdu == true)
   {
-    GPIO_SET(SOL_CLAMPER_PIN, HIGH);    // Kep phoi
+   GPIO_SET(SOL_CLAMPER_PIN, HIGH);    // Kep phoi
   }
   else
   {
