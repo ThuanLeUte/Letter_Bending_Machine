@@ -48,6 +48,13 @@ void Home_All();
  * @attention     None
  * @return        None
  */
+ void Init_Home();
+/**
+ * @brief         Board init
+ * @param[in]     None
+ * @attention     None
+ * @return        None
+ */
 void Home_And_Center_Cutter();
 
 /**

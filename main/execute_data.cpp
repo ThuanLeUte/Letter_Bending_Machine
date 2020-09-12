@@ -18,9 +18,10 @@
 #include "bsp.h"
 
 /* Private defines ---------------------------------------------------- */
-#define CUTTER_STEP_PER_DEGREE      (120)
-#define LENGTH_OF_ONE_HOLE          (4.997)
-#define LENGTH_OF_ONE_STEP          (0.011090301)
+#define CUTTER_STEP_PER_DEGREE (240)
+#define LENGTH_OF_ONE_HOLE (4.998)
+//#define LENGTH_OF_ONE_STEP          (0.011090301)
+#define LENGTH_OF_ONE_STEP (0.01118976558)
 
 /* Private enumerate/structure ---------------------------------------- */
 /* Private macros ----------------------------------------------------- */
@@ -28,25 +29,24 @@
 /* Private variables -------------------------------------------------- */
 /* Private function prototypes ---------------------------------------- */
 static inline void m_wait_for_cutter_go_out(void);
+static inline void trigger_change(void);
 static inline void m_wait_to_cutter_go_midle(void);
 static inline void m_wait_to_cutter_go_in(void);
 static inline void m_button_stop_delay(uint16_t ms);
-static void m_cutter_cut_out(int step);
+static void m_cutter_cut_out(int32_t step);
 static void m_cutter_cut_in(void);
-
 
 /* Function definitions ----------------------------------------------- */
 int Execute_Manual(String Data_Input)
 {
   static uint32_t Length_Data;
-  
+
   // Analyze data receive from computer software
   Length_Data = Data_Input.length();
   String Command = Data_Input.substring(0, 2);
   String Data = Data_Input.substring(3, Length_Data);
-  
 
-  if (Command == "HA")      // Home move A
+  if (Command == "HA") // Home move A
   {
     Home_Move_A();
     return 1;
@@ -102,7 +102,7 @@ int Execute_Manual(String Data_Input)
     Brushless_Off();
     return 1;
   }
-  else if (Command == "KP") // 
+  else if (Command == "KP") //
   {
     GPIO_SET(SOL_CLAMPER_PIN, HIGH);
     return 1;
@@ -181,11 +181,11 @@ void Execute_String(String Data_Input)
   {
     // If data is correct
     if ((Data_Input.substring(i, i + 1) == "F") || (Data_Input.substring(i, i + 1) == "C") || (Data_Input.substring(i, i + 1) == "W") ||
-        (Data_Input.substring(i, i + 1) == "S") || (Data_Input.substring(i, i + 1) == "E") || (Data_Input.substring(i, i + 1) == "T") || 
+        (Data_Input.substring(i, i + 1) == "S") || (Data_Input.substring(i, i + 1) == "E") || (Data_Input.substring(i, i + 1) == "T") ||
         (Data_Input.substring(i, i + 1) == "Z"))
     {
       count++;
-      LOG("Count: %d",count);
+      LOG("Count: %d", count);
 
       // Loop for the command
       for (j = i + 1; j < j + 10; j++)
@@ -260,7 +260,10 @@ void Execute_Move(String Data_Input)
   static float Appl_DataLengthFloatRemainEnd_fdu32;
   static unsigned long Step;
   static unsigned long StepForSmallMove;
-
+  // disable motor cắt
+  GPIO_SET(OUT_8, LOW);
+  GPIO_SET(STEPPER_CUT_ENA_PIN, LOW);
+  delay(300);
   Appl_Forward_Trigger_xdu = true;
 
   Appl_FisrtPulse_xdu8 = 0;
@@ -268,13 +271,14 @@ void Execute_Move(String Data_Input)
   Appl_DataLengthFloat_fdu32 = Data_Input.toFloat();
   NumHolesAlreadyRun_xdu32 = 0;
 
-  Holes_HaveToRun_xdu32 = Appl_DataLengthFloat_fdu32 / (float) LENGTH_OF_ONE_HOLE;
-  Appl_DataLengthFloatRemainEnd_fdu32 = Appl_DataLengthFloat_fdu32 - (Holes_HaveToRun_xdu32 * (float) LENGTH_OF_ONE_HOLE);
+  Holes_HaveToRun_xdu32 = Appl_DataLengthFloat_fdu32 / (float)LENGTH_OF_ONE_HOLE;
+  Appl_DataLengthFloatRemainEnd_fdu32 = Appl_DataLengthFloat_fdu32 - (Holes_HaveToRun_xdu32 * (float)LENGTH_OF_ONE_HOLE);
 
-  Step = (Appl_DataLengthFloatRemainEnd_fdu32 / (float) LENGTH_OF_ONE_STEP);
-  StepForSmallMove = (Appl_DataLengthFloat_fdu32 / (float) LENGTH_OF_ONE_STEP);
-
-  LOG("Holes hava to run: %d", Holes_HaveToRun_xdu32);
+  Step = (Appl_DataLengthFloatRemainEnd_fdu32 / (float)LENGTH_OF_ONE_STEP);
+  StepForSmallMove = (Appl_DataLengthFloat_fdu32 / (float)LENGTH_OF_ONE_STEP);
+  LOG("length: %d", Appl_DataLengthFloat_fdu32);
+  SERIAL_DATA_MONITOR(Appl_DataLengthFloat_fdu32);
+  LOG("Holes have to run: %d", Holes_HaveToRun_xdu32);
   LOG("Remain end :");
   SERIAL_DATA_MONITOR(Appl_DataLengthFloatRemainEnd_fdu32);
   LOG("NumHolesFromAToB_xdu8: %d", Appl_NumHolesFromAToB_xdu8);
@@ -282,20 +286,23 @@ void Execute_Move(String Data_Input)
   // Excecute forward
   if (Appl_DataLengthFloat_fdu32 > 0)
   {
-    if ((Appl_DataLengthIsRemain_xdu) or            // Check data is remain
-        (IS_SENSOR_DETECTED(SS1_MOVE_HOME_A_PIN)))  // Sensor is not in hole
+    if ((Appl_DataLengthIsRemain_xdu) or           // Check data is remain
+        (IS_SENSOR_DETECTED(SS1_MOVE_HOME_A_PIN))) // Sensor is not in hole
     {
+      LOG("Case 1");
       if (Appl_NumHolesFromAToB_xdu8 >= 43)
       {
-        GPIO_SET(SOL_CLAMPER_PIN, HIGH);            // Kẹp cắt
+        LOG("Case 2");
+
+        GPIO_SET(SOL_CLAMPER_PIN, HIGH); // Kẹp cắt
 
         DELAY(1000);
 
-        GPIO_SET(SOL_CLAMP_FEEDER_PIN, LOW);        // Nhả kẹp kéo
+        GPIO_SET(SOL_CLAMP_FEEDER_PIN, LOW); // Nhả kẹp kéo
 
         DELAY(500);
 
-        Home_Move_A();                              // Home A
+        Home_Move_A(); // Home A
 
         Appl_NumHolesFromAToB_xdu8 = 0;
         Forward_Move_First();
@@ -303,22 +310,31 @@ void Execute_Move(String Data_Input)
 
         LOG("Forward starting");
 
-        GPIO_SET(SOL_CLAMP_FEEDER_PIN, HIGH);       // Kep phoi
+        GPIO_SET(SOL_CLAMP_FEEDER_PIN, HIGH); // Kep phoi
         m_button_stop_delay(500);
 
-        GPIO_SET(SOL_CLAMPER_PIN, LOW);             // Tha cat
+        GPIO_SET(SOL_CLAMPER_PIN, LOW); // Tha cat
         m_button_stop_delay(300);
-
       }
       else
       {
+        LOG("Case 3");
+
         if (Appl_DataLengthFloat_fdu32 > 0 and Appl_DataLengthFloat_fdu32 < 50 and (Appl_NumHolesFromAToB_xdu8 + Holes_HaveToRun_xdu32) < 43)
         {
+          LOG("Case 4");
+          Appl_DataLengthIsRemain_xdu = true;
           LOG("Forward starting");
-          GPIO_SET(SOL_CLAMP_FEEDER_PIN, HIGH);     // Kep phoi
+          if (Appl_NumHolesFromAToB_xdu8 == 0)
+          {
+            GPIO_SET(SOL_CLAMP_FEEDER_PIN, LOW);
+            delay(200);
+            Forward_Move_First();
+          }
+          GPIO_SET(SOL_CLAMP_FEEDER_PIN, HIGH); // Kep phoi
           m_button_stop_delay(500);
 
-          GPIO_SET(SOL_CLAMPER_PIN, LOW);           // Tha cat
+          GPIO_SET(SOL_CLAMPER_PIN, LOW); // Tha cat
           m_button_stop_delay(300);
 
           Forward_Move(StepForSmallMove);
@@ -326,19 +342,21 @@ void Execute_Move(String Data_Input)
         }
         else
         {
-          GPIO_SET(SOL_CLAMPER_PIN, HIGH);          // Kep cat
+          LOG("Case 5");
+
+          GPIO_SET(SOL_CLAMPER_PIN, HIGH); // Kep cat
           m_button_stop_delay(300);
 
-          GPIO_SET(SOL_CLAMP_FEEDER_PIN, LOW);      // Tha phoi
+          GPIO_SET(SOL_CLAMP_FEEDER_PIN, LOW); // Tha phoi
           m_button_stop_delay(500);
 
           Forward_Move_1Step();
           Appl_NumHolesFromAToB_xdu8++;
           LOG("Forward starting");
-          GPIO_SET(SOL_CLAMP_FEEDER_PIN, HIGH);     // Kep phoi
+          GPIO_SET(SOL_CLAMP_FEEDER_PIN, HIGH); // Kep phoi
           m_button_stop_delay(500);
 
-          GPIO_SET(SOL_CLAMPER_PIN, LOW);           // Tha cat
+          GPIO_SET(SOL_CLAMPER_PIN, LOW); // Tha cat
           m_button_stop_delay(300);
         }
       }
@@ -347,31 +365,38 @@ void Execute_Move(String Data_Input)
     {
       if (Appl_DataLengthFloat_fdu32 > 0 and Appl_DataLengthFloat_fdu32 < 50 and (Appl_NumHolesFromAToB_xdu8 + Holes_HaveToRun_xdu32) < 43)
       {
+        LOG("Case 6");
+        Appl_DataLengthIsRemain_xdu = true;
         LOG("Forward starting");
+        if (Appl_NumHolesFromAToB_xdu8 == 0)
+        {
+          GPIO_SET(SOL_CLAMP_FEEDER_PIN, LOW);
+          delay(200);
+          Forward_Move_First();
+        }
+        GPIO_SET(SOL_CLAMP_FEEDER_PIN, HIGH); // Kep phoi
+        m_button_stop_delay(300);
 
-        GPIO_SET(SOL_CLAMP_FEEDER_PIN, HIGH);       // Kep phoi
-        m_button_stop_delay(500);
-
-        GPIO_SET(SOL_CLAMPER_PIN, LOW);             // Tha cat
+        GPIO_SET(SOL_CLAMPER_PIN, LOW); // Tha cat
         m_button_stop_delay(300);
 
         Forward_Move(StepForSmallMove);
         return;
       }
-      GPIO_SET(SOL_CLAMPER_PIN, LOW);               // Tha cat
+      GPIO_SET(SOL_CLAMPER_PIN, LOW); // Tha cat
       m_button_stop_delay(300);
     }
 
     // Run all number of holes have to run
-    while ((NumHolesAlreadyRun_xdu32 < Holes_HaveToRun_xdu32) and 
+    while ((NumHolesAlreadyRun_xdu32 < Holes_HaveToRun_xdu32) and
            (Appl_ButtonStopPress_xdu == false))
     {
       if (Appl_NumHolesFromAToB_xdu8 >= 44 or IS_SENSOR_DETECTED(SS2_MOVE_HOME_B_PIN))
       {
         DELAY(500);
-        GPIO_SET(SOL_CLAMPER_PIN, HIGH);          // Kep cat
+        GPIO_SET(SOL_CLAMPER_PIN, HIGH); // Kep cat
         DELAY(500);
-        GPIO_SET(SOL_CLAMP_FEEDER_PIN, LOW);      // Tha phoi
+        GPIO_SET(SOL_CLAMP_FEEDER_PIN, LOW); // Tha phoi
         DELAY(300);
         Home_Move_A();
         DELAY(300);
@@ -380,11 +405,11 @@ void Execute_Move(String Data_Input)
         Forward_Move_First();
         Appl_NumHolesFromAToB_xdu8++;
 
-        GPIO_SET(SOL_CLAMP_FEEDER_PIN, HIGH);     // Kep phoi
+        GPIO_SET(SOL_CLAMP_FEEDER_PIN, HIGH); // Kep phoi
 
         m_button_stop_delay(500);
 
-        GPIO_SET(SOL_CLAMPER_PIN, LOW);           // Tha cat
+        GPIO_SET(SOL_CLAMPER_PIN, LOW); // Tha cat
         m_button_stop_delay(300);
       }
       else
@@ -423,7 +448,7 @@ void Execute_Move(String Data_Input)
       DELAY(300);
 
       Home_Move_A();
-      
+
       DELAY(300);
 
       Appl_NumHolesFromAToB_xdu8 = 0;
@@ -466,7 +491,7 @@ void Execute_Move(String Data_Input)
     }
     else
     {
-      while (Step_Remain != 0 )
+      while (Step_Remain != 0)
       {
         GPIO_SET(SOL_CLAMP_FEEDER_PIN, LOW);
         DELAY(1000);
@@ -486,14 +511,20 @@ void Execute_Move(String Data_Input)
     }
   }
   Appl_Forward_Trigger_xdu = false;
+  //enable motor cắt
+  GPIO_SET(OUT_8, HIGH);
+  delay(300);
+  GPIO_SET(STEPPER_CUT_ENA_PIN, HIGH);
 }
 
 void Execute_Cut(String Data_Input)
 {
   static float Data_Angle_Float_Raw;
   static float Data_Angle_Float;
-  static int Step;
-
+  static int32_t Step;
+  GPIO_SET(OUT_8, HIGH);
+  delay(300);
+  GPIO_SET(STEPPER_CUT_ENA_PIN, HIGH);
   Data_Angle_Float_Raw = (Data_Input.toFloat());
 
   // Calculate Angle cut
@@ -519,31 +550,38 @@ void Execute_Cut(String Data_Input)
   LOG("Angle cut: ");
   SERIAL_DATA_MONITOR(Data_Angle_Float);
 
-  // Calculate step 
+  // Calculate step
   Step = float(Data_Angle_Float * CUTTER_STEP_PER_DEGREE);
-
-  LOG("Step: %d", Step);
 
   if ((Step >= 0) and (Appl_ButtonStopPress_xdu == false))
   {
+    LOG("CUT OUT");
+    LOG("Step cut out: %d", Step);
     m_cutter_cut_out(Step);
   }
   else if ((Step < 0) and (Appl_ButtonStopPress_xdu == false))
   {
+    LOG("CUT IN");
+    LOG("Step cut in: %d", Step);
     m_cutter_cut_in();
   }
   else
   {
     // Do nothing
   }
+  GPIO_SET(OUT_8, LOW);
+  delay(300);
+  GPIO_SET(STEPPER_CUT_ENA_PIN, LOW);
 }
 
 void Execute_Cut_First_End(String Data_Input, execute_type_t type)
 {
   static float Data_Angle_Float_Raw;
   static float Data_Angle_Float;
-  static int Step;
-
+  static int32_t Step;
+  GPIO_SET(OUT_8, HIGH);
+  delay(300);
+  GPIO_SET(STEPPER_CUT_ENA_PIN, HIGH);
   Data_Angle_Float_Raw = (Data_Input.toFloat());
 
   // Calculate angle cut
@@ -555,7 +593,7 @@ void Execute_Cut_First_End(String Data_Input, execute_type_t type)
   else if (Data_Angle_Float_Raw > 45)
   {
     Data_Angle_Float = ((Data_Angle_Float_Raw - 45) / 2);
-    
+
     // Limit angle cut to 40 degrre
     if (Data_Angle_Float >= 40)
     {
@@ -576,49 +614,53 @@ void Execute_Cut_First_End(String Data_Input, execute_type_t type)
 
   if (Appl_ButtonStopPress_xdu == false)
   {
-    GPIO_SET(SOL_CLAMPER_PIN, HIGH);            // Kep phoi
+    GPIO_SET(SOL_CLAMPER_PIN, HIGH); // Kep phoi
 
-    m_button_stop_delay(1000);
-    
+    m_button_stop_delay(800);
+
     if (type == EXECUTE_FIRST)
     {
-      Angle_Cut(-Step);                         // Xoay dao
+      Angle_Cut(Step); // Xoay dao
     }
     else
     {
-      Angle_Cut(Step);                          // Xoay dao
+      Angle_Cut(-Step); // Xoay dao
     }
 
-    Brushless_Run(BRUSHLESS_SPEED);             // Brushless quay
+    Brushless_Run(BRUSHLESS_SPEED); // Brushless quay
 
-    GPIO_SET(SOL_LIFTER_PIN, HIGH);             // Ha dao
+    GPIO_SET(SOL_LIFTER_PIN, HIGH); // Ha dao
 
-    m_button_stop_delay(2000);
+    m_button_stop_delay(1500);
 
-    Cutter_Backward();                          // Backward Cut
+    Cutter_Backward(); // Backward Cut
 
-    m_wait_for_cutter_go_out();                 // Wait to cutter go out
+    trigger_change();
+
+    m_wait_for_cutter_go_out(); // Wait to cutter go out
 
     m_button_stop_delay(TIME_CUTTER);
 
-    Cutter_Forward();                           // Forward Cut
-    
-    m_wait_to_cutter_go_in();                   // Wait to cutter go in
+    Cutter_Forward(); // Forward Cut
 
-    Brushless_Off();                            // Brushless off
+    delay(500);
+
+    m_wait_to_cutter_go_in(); // Wait to cutter go in
+
+    Brushless_Off(); // Brushless off
 
     if (type == EXECUTE_FIRST)
     {
-      Angle_Cut(Step);                          // Xoay dao
+      Angle_Cut(-Step); // Xoay dao
     }
     else
     {
-      Angle_Cut(-Step);                         // Xoay dao
+      Angle_Cut(Step); // Xoay dao
     }
 
     if (Appl_ButtonStopPress_xdu == true)
     {
-      GPIO_SET(SOL_CLAMPER_PIN, HIGH);          // Kep  phoi
+      GPIO_SET(SOL_CLAMPER_PIN, HIGH); // Kep  phoi
     }
     else
     {
@@ -629,15 +671,18 @@ void Execute_Cut_First_End(String Data_Input, execute_type_t type)
   {
     // Do nothing
   }
+  GPIO_SET(OUT_8, LOW);
+  delay(300);
+  GPIO_SET(STEPPER_CUT_ENA_PIN, LOW);
 }
 
 /* Private function definitions ---------------------------------------- */
 static inline void m_wait_for_cutter_go_out(void)
 {
-  while (1)  // Wait for cutter go out
+  while (1) // Wait for cutter go out
   {
-    if((IS_SENSOR_NOT_DETECTED(SS4_END_STROKE_BACK_PIN)) and  // Sensor back is not detected
-       (IS_SENSOR_DETECTED(SS7_END_STROKE_FRONT_PIN)))        // Sensor front is detected
+    if ((IS_SENSOR_NOT_DETECTED(SS4_END_STROKE_BACK_PIN)) and // Sensor back is not detected
+        (IS_SENSOR_DETECTED(SS7_END_STROKE_FRONT_PIN)))       // Sensor front is detected
     {
       break;
     }
@@ -647,13 +692,27 @@ static inline void m_wait_for_cutter_go_out(void)
     }
   }
 }
-
+static inline void trigger_change(void)
+{
+  while (1) // Wait for cutter go out of 2 sensors
+  {
+    if ((IS_SENSOR_NOT_DETECTED(SS4_END_STROKE_BACK_PIN)) and // Sensor back is detected
+        (IS_SENSOR_NOT_DETECTED(SS7_END_STROKE_FRONT_PIN)))   // Sensor front is not detected
+    {
+      break;
+    }
+    if (Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
+    {
+      return;
+    }
+  }
+}
 static inline void m_wait_to_cutter_go_midle(void)
 {
-  while (1)  // Wait for cutter go midle
+  while (1) // Wait for cutter go midle
   {
-    if((IS_SENSOR_DETECTED(SS4_END_STROKE_BACK_PIN)) and    // Sensor back is detected
-       (IS_SENSOR_NOT_DETECTED(SS7_END_STROKE_FRONT_PIN)))  // Sensor front is not detected
+    if ((IS_SENSOR_DETECTED(SS4_END_STROKE_BACK_PIN)) and   // Sensor back is detected
+        (IS_SENSOR_NOT_DETECTED(SS7_END_STROKE_FRONT_PIN))) // Sensor front is not detected
     {
       break;
     }
@@ -666,10 +725,10 @@ static inline void m_wait_to_cutter_go_midle(void)
 
 static inline void m_wait_to_cutter_go_in(void)
 {
-  while (1)  // Wait for cutter go in
+  while (1) // Wait for cutter go in
   {
-    if ((IS_SENSOR_DETECTED(SS4_END_STROKE_BACK_PIN)) and  // Sensor back is detected 
-        (IS_SENSOR_DETECTED(SS7_END_STROKE_FRONT_PIN)))    // Sensor front is not detected
+    if ((IS_SENSOR_DETECTED(SS4_END_STROKE_BACK_PIN)) and // Sensor back is detected
+        (IS_SENSOR_DETECTED(SS7_END_STROKE_FRONT_PIN)))   // Sensor front is not detected
     {
       break;
     }
@@ -680,39 +739,50 @@ static inline void m_wait_to_cutter_go_in(void)
   }
 }
 
-static void m_cutter_cut_out(int step)
+static void m_cutter_cut_out(int32_t step)
 {
-  GPIO_SET(SOL_CLAMPER_PIN, HIGH);      // Kep phoi
+
+  GPIO_SET(SOL_CLAMPER_PIN, HIGH); // Kep phoi
+
+  Brushless_Run(BRUSHLESS_SPEED); // Brushless quay
 
   m_button_stop_delay(1000);
 
-  Angle_Cut(step);                      // Xoay dao
+  Angle_Cut(step); // Xoay dao
 
-  Brushless_Run(BRUSHLESS_SPEED);       // Brushless quay
+  GPIO_SET(SOL_LIFTER_PIN, HIGH); // Ha dao
+  if (step < 400)
+  {
+    m_button_stop_delay(1500);
+  }
+  else
+  {
+    m_button_stop_delay(1000);
+  }
 
-  GPIO_SET(SOL_LIFTER_PIN, HIGH);       // Ha dao
+  Cutter_Backward(); // Backward Cut
 
-  m_button_stop_delay(2000);
+  trigger_change();
 
-  Cutter_Backward();                    // Backward Cut
-
-  m_wait_for_cutter_go_out();           // Wait to cutter go out
+  m_wait_for_cutter_go_out(); // Wait to cutter go out
 
   m_button_stop_delay(TIME_CUTTER);
-  
-  Angle_Cut(-2 * step);                 // Xoay dao
 
-  Cutter_Forward();                     // Forward Cut
+  Angle_Cut(-2 * step); // Xoay dao
 
-  m_wait_to_cutter_go_in();             // Wait to cutter go in
+  m_button_stop_delay(400);
 
-  Brushless_Off();                      // Brushless off
+  Cutter_Forward(); // Forward Cut
 
-  Angle_Cut(step);                      // Xoay dao
+  m_wait_to_cutter_go_in(); // Wait to cutter go in
+
+  Brushless_Off(); // Brushless off
+
+  Angle_Cut(step); // Xoay dao
 
   if (Appl_ButtonStopPress_xdu == true)
   {
-    GPIO_SET(SOL_CLAMPER_PIN, HIGH);    // Kep phoi
+    GPIO_SET(SOL_CLAMPER_PIN, HIGH); // Kep phoi
   }
   else
   {
@@ -722,31 +792,25 @@ static void m_cutter_cut_out(int step)
 
 static void m_cutter_cut_in(void)
 {
-  GPIO_SET(SOL_CLAMPER_PIN, HIGH);      // Kep phoi
+  GPIO_SET(SOL_CLAMPER_PIN, HIGH); // Kep phoi
 
-  m_button_stop_delay(1000);
+  GPIO_SET(SOL_LIFTER_PIN, HIGH); // Ha dao
 
-  Brushless_Run(BRUSHLESS_SPEED);       // Brushless quay
-
- GPIO_SET(SOL_LIFTER_PIN, HIGH);       // Ha dao
+  Brushless_Run(BRUSHLESS_SPEED); // Brushless quay
 
   m_button_stop_delay(2000);
 
-  Cutter_Backward();                    // Backward Cut
+  Cutter_Backward(); // Backward Cut
+  trigger_change();
+  m_wait_to_cutter_go_midle(); // Wait to cutter go midle
+  Cutter_Forward();            // Forward Cut
+  m_wait_to_cutter_go_in();    // Wait to cutter go in
 
-  DELAY(1000);
-
-  m_wait_to_cutter_go_midle();          // Wait to cutter go midle
-
-  Cutter_Forward();                     // Forward Cut
-
-  m_wait_to_cutter_go_in();             // Wait to cutter go in
-
-  Brushless_Off();                      // Brushless off
+  Brushless_Off(); // Brushless off
 
   if (Appl_ButtonStopPress_xdu == true)
   {
-   GPIO_SET(SOL_CLAMPER_PIN, HIGH);    // Kep phoi
+    GPIO_SET(SOL_CLAMPER_PIN, HIGH); // Kep phoi
   }
   else
   {
@@ -764,12 +828,10 @@ static inline void m_button_stop_delay(uint16_t ms)
 
 static void m_excecute_forward(void)
 {
-
 }
 
 static void m_excecute_backward(void)
 {
-
 }
 
 /* End of file -------------------------------------------------------- */

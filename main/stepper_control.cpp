@@ -17,7 +17,8 @@
 #include "damos_ram.h"
 
 /* Private defines ---------------------------------------------------- */
-#define MOVE_STEPPER_SPEED_HOME     (10000)
+//#define MOVE_STEPPER_SPEED_HOME     (10000)
+#define MOVE_STEPPER_SPEED_HOME     (30000)
 #define MOVE_STEPPER_SPEED          (10000)
 
 /* Private enumerate/structure ---------------------------------------- */
@@ -32,12 +33,12 @@ AccelStepper STEPPER_CUT(AccelStepper::DRIVER, STEPPER_CUT_STEP_PIN, STEPPER_CUT
 void Home_Move_A()
 {
   STEPPER_MOVE.moveTo(-50000);
-
   // Wait untill sensor A detected or button stop pressed
   while (STEPPER_MOVE.currentPosition() != -50000 and 
         (IS_SENSOR_NOT_DETECTED(SS1_MOVE_HOME_A_PIN)) and 
         (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN)))
   {
+    //STEPPER_MOVE.setAcceleration(20000);
     STEPPER_MOVE.setSpeed(-MOVE_STEPPER_SPEED_HOME);
     STEPPER_MOVE.runSpeed();
   }
@@ -61,9 +62,10 @@ void Home_Move_B()
         (IS_SENSOR_NOT_DETECTED(SS2_MOVE_HOME_B_PIN)) and 
         (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN)))
   {
-    STEPPER_MOVE.setSpeed(MOVE_STEPPER_SPEED_HOME);
-    STEPPER_MOVE.runSpeed();
-
+    //STEPPER_MOVE.setAcceleration(20000);
+    STEPPER_MOVE.setMaxSpeed(MOVE_STEPPER_SPEED_HOME);
+    //STEPPER_MOVE.runSpeed();
+    STEPPER_MOVE.moveTo(20000);
     // Increase number of Holes already run
     if (IS_SENSOR_DETECTED(SS6_HOLES_PIN))
     {
@@ -83,12 +85,12 @@ void Home_Move_B()
   STEPPER_MOVE.stop();
   STEPPER_MOVE.setCurrentPosition(0);
   NumHolesAlreadyRun_xdu32 = 0;
+  
 }
 
 void Forward_Move(unsigned long Step_Remain)
 {
   static bool Flag_Pre;
-
   // Wait untill reach positin and button stop is pressed
   while ((STEPPER_MOVE.currentPosition() != Step_Remain)  and
         (IS_SENSOR_NOT_DETECTED(SS2_MOVE_HOME_B_PIN))     and
@@ -143,7 +145,7 @@ void Forward_Move_First()
       {
         if ((IS_SENSOR_NOT_DETECTED(SS6_HOLES_PIN)))
         {
-          if (STEPPER_MOVE.currentPosition() >= 400)
+         if (STEPPER_MOVE.currentPosition() >= 400 )
           {
             NumHole_Internal++;
             Flag_Pre = 0;
@@ -151,7 +153,7 @@ void Forward_Move_First()
           }
           else
           {
-            LOG("Loi cam bien");
+            LOG("Loi cam bien 2");
           }
         }
       }
@@ -165,6 +167,7 @@ void Forward_Move_1Step()
 {
   static bool Flag_Pre;
   static int NumHole_Internal;
+  LOG("Forward_Move_1Step");
   NumHole_Internal = 0;
   while (STEPPER_MOVE.currentPosition() != 100000 and (IS_SENSOR_NOT_DETECTED(SS2_MOVE_HOME_B_PIN)) and (Appl_NoMaterial_xdu == false) and (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN)) and Appl_ButtonStopPress_xdu == false and NumHole_Internal != 1)
   {
@@ -198,6 +201,8 @@ int Forward_Move_Holes(int Holes)
   static int NumHole_Internal;
   static int Speed = 1000;
   static int Appl_NumHolesFromAToB_Pre_xdu8;
+  int32_t timer1;
+  int32_t timercount;
   NumHole_Internal = 0;
   while (STEPPER_MOVE.currentPosition() != 100000 and (IS_SENSOR_NOT_DETECTED(SS2_MOVE_HOME_B_PIN)) and (Appl_ButtonPausePress_1_xdu == false) and (Appl_NoMaterial_xdu == false) and (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN)) and Appl_ButtonStopPress_xdu == false and NumHole_Internal != Holes and Appl_NumHolesFromAToB_xdu8 < 44)
   {
@@ -239,18 +244,20 @@ int Forward_Move_Holes(int Holes)
       STEPPER_MOVE.setSpeed(MOVE_STEPPER_SPEED);
       STEPPER_MOVE.runSpeed();
     }
+
     if (IS_SENSOR_DETECTED(SS6_HOLES_PIN))
     {
       Flag_Pre = 1;
     }
     else
     {
+      STEPPER_MOVE.runSpeed();
       if ((Flag_Pre == 1) and (IS_SENSOR_NOT_DETECTED(SS6_HOLES_PIN)))
       {
         if ((IS_SENSOR_NOT_DETECTED(SS6_HOLES_PIN)))
         {
           Appl_FisrtPulse_xdu8 = STEPPER_MOVE.currentPosition();
-          if (Appl_FisrtPulse_xdu8 - Appl_LastPulse_xdu8 >= 400)
+          if (Appl_FisrtPulse_xdu8 - Appl_LastPulse_xdu8 >= 400) 
           {
             NumHole_Internal++;
             Appl_NumHolesFromAToB_xdu8++;
@@ -270,14 +277,14 @@ int Forward_Move_Holes(int Holes)
             }
             else
             {
-              LOG("Loi cam bien");
+              LOG("Loi cam bien 1");
             }
           }
         }
       }
     }
 
-    if (IS_SENSOR_NOT_DETECTED(SS8_MATERIAL_BACK_PIN))
+    if (IS_MATERIAL_NOT_DETECTED(SS8_MATERIAL_BACK_PIN))
     {
       if (Appl_NoMaterialFirstCallCapture_xdu == 0)
       {
@@ -307,7 +314,7 @@ int Forward_Move_Holes(int Holes)
 
   if (IS_SENSOR_DETECTED(SS2_MOVE_HOME_B_PIN))
   {
-    if (IS_SENSOR_NOT_DETECTED(SS8_MATERIAL_BACK_PIN))
+    if (IS_MATERIAL_NOT_DETECTED(SS8_MATERIAL_BACK_PIN))
     {
       if (Appl_NoMaterial_xdu == false)
       {
@@ -319,9 +326,10 @@ int Forward_Move_Holes(int Holes)
   }
   if (Appl_NoMaterial_xdu == true)
   {
-    if (IS_SENSOR_DETECTED(SS8_MATERIAL_BACK_PIN))
+    if (IS_MATERIAL_DETECTED(SS8_MATERIAL_BACK_PIN))
     {
-      if (IS_BUTTON_NOT_PRESSED(BUTTON_START_PIN))
+      //if (IS_BUTTON_NOT_PRESSED(BUTTON_START_PIN))
+      if (IS_BUTTON_PRESSED(BUTTON_START_PIN))
       {
         LOG("start press");
         Appl_NoMaterial_xdu = false;
@@ -367,7 +375,8 @@ unsigned long Backward_Move(unsigned long Step_Remain)
   STEPPER_MOVE.moveTo(-Step_Remain);
   while (STEPPER_MOVE.currentPosition() != -Step_Remain and (IS_SENSOR_NOT_DETECTED(SS1_MOVE_HOME_A_PIN)) and (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN)) and Appl_ButtonStopPress_xdu == false)
   {
-    STEPPER_MOVE.setSpeed(-10000);
+    //STEPPER_MOVE.setSpeed(-10000);
+    STEPPER_MOVE.setSpeed(-18000);
     STEPPER_MOVE.runSpeed();
     if (IS_SENSOR_DETECTED(SS6_HOLES_PIN))
     {
@@ -442,6 +451,7 @@ void Home_Stepper_Cutter()
   STEPPER_CUT.moveTo(15000);
   while (STEPPER_CUT.currentPosition() != 15000 and (IS_SENSOR_NOT_DETECTED(SS3_CUT_HOME_PIN)))
   {
+    //STEPPER_CUT.setSpeed(2000);
     STEPPER_CUT.setSpeed(2000);
     STEPPER_CUT.runSpeed();
   }
@@ -454,7 +464,9 @@ void Center_Stepper_Cutter()
   STEPPER_CUT.moveTo(-9040);
   while (STEPPER_CUT.currentPosition() != -9040)
   {
-    STEPPER_CUT.setSpeed(-2000);
+    //STEPPER_CUT.setSpeed(-2000);
+    
+    STEPPER_CUT.setSpeed(-3000);
     STEPPER_CUT.runSpeed();
   }
   STEPPER_CUT.stop();
@@ -466,11 +478,13 @@ void Angle_Cut(int Step_Remain)
   static int Speed;
   if (Step_Remain > 0)
   {
-    Speed = 2000;
+   // Speed = 2000;
+   Speed = 12000;
   }
   else
   {
-    Speed = -2000;
+   // Speed = -2000;
+    Speed = -12000;
   }
 
   STEPPER_CUT.moveTo(Step_Remain);
@@ -497,12 +511,26 @@ void Brushless_Off()
   GPIO_SET(BRUSHLESS_SPEED_PIN, LOW);
   GPIO_SET(BRUSHLESS_ENA_PIN , HIGH);
 }
-
+void Init_Home()
+{
+  GPIO_SET(SOL_CLAMP_FEEDER_PIN, HIGH);
+  delay(500);
+  GPIO_SET(SOL_CLAMP_FEEDER_PIN, LOW);
+  delay(500);
+  GPIO_SET(SOL_CLAMPER_PIN, HIGH);
+  delay(500);
+  GPIO_SET(SOL_CLAMPER_PIN, LOW);
+  Appl_ButtonStopPress_xdu = false;
+  Appl_FinishStateFirstCall_xdu = true;
+}
 void Home_All()
 {
   GPIO_SET(MATERIAL_STATUS, LOW);
+  GPIO_SET(OUT_8,HIGH);
+  delay(100);
   STEPPER_MOVE.setEnablePin(STEPPER_MOVE_ENA_PIN);
-  STEPPER_CUT.setEnablePin(STEPPER_CUT_ENA_PIN);
+  //STEPPER_CUT.setEnablePin(STEPPER_CUT_ENA_PIN);
+  GPIO_SET(STEPPER_CUT_ENA_PIN,HIGH);
   GPIO_SET(SOL_CLAMP_FEEDER_PIN, LOW);
   Home_Move_A();
   Cutter_Forward();                                 // Forward Cut
@@ -512,9 +540,11 @@ void Home_All()
   Home_Stepper_Cutter();
   DELAY(200);
   Center_Stepper_Cutter();
+  GPIO_SET(STEPPER_CUT_ENA_PIN,LOW);
   GPIO_SET(SOL_CLAMPER_PIN, LOW);
   Appl_ButtonStopPress_xdu = false;
   Appl_FinishStateFirstCall_xdu = true;
+  GPIO_SET(OUT_8,LOW);
 }
 
 void Home_And_Center_Cutter()
@@ -528,9 +558,10 @@ void stepper_setup(void)
 {
   STEPPER_MOVE.setEnablePin(STEPPER_MOVE_ENA_PIN);
   STEPPER_MOVE.setMaxSpeed(100000);
-
+  //STEPPER_MOVE.setAcceleration(2000);
   STEPPER_CUT.setEnablePin(STEPPER_CUT_ENA_PIN);
   STEPPER_CUT.setMaxSpeed(100000);
+  STEPPER_CUT.setAcceleration(900);
 }
 
 /* End of file -------------------------------------------------------- */

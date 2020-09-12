@@ -46,17 +46,30 @@ void setup()
 {
   bsp_init();        // Board support package init
   stepper_setup();   // Stepper setup
+  GPIO_SET(BRUSHLESS_ENA_PIN , HIGH);
+  
 }
 
 void loop()
 {
+
+  
   switch (Appl_SystemState_xdu8)
   {
   case SYS_INIT_STATE:
   {
-    Home_All();                     // Home Cut and Move
-    init_variables();               // Init variables
+    static bool first_call = true;
+    if (first_call == true)
+    {
+      Init_Home();
+      first_call = false;
+    }
+    else
+    {
+      Home_All(); // Home Cut and Move
+    }
 
+    init_variables();               // Init variables
     DATA_SEND_TO_PC(RES_READY_RECEIVE);
     FSM_UPDATE_STATE(SYS_RECIEVE_AND_RUNNING_STATE);
     break;
@@ -180,6 +193,7 @@ void bsp_pause_push(void)
 
 void bsp_start_push(void)
 {
+  LOG("Nhan nut Start");
   if (Appl_ButtonPausePress_xdu == true)
   {
     Appl_ButtonStartPress_xdu = true;
