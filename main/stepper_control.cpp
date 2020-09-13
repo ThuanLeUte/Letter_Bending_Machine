@@ -33,12 +33,12 @@ AccelStepper STEPPER_CUT(AccelStepper::DRIVER, STEPPER_CUT_STEP_PIN, STEPPER_CUT
 void Home_Move_A()
 {
   STEPPER_MOVE.moveTo(-50000);
+
   // Wait untill sensor A detected or button stop pressed
-  while (STEPPER_MOVE.currentPosition() != -50000 and 
+  while (STEPPER_MOVE.currentPosition() != -50000     and 
         (IS_SENSOR_NOT_DETECTED(SS1_MOVE_HOME_A_PIN)) and 
         (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN)))
   {
-    //STEPPER_MOVE.setAcceleration(20000);
     STEPPER_MOVE.setSpeed(-MOVE_STEPPER_SPEED_HOME);
     STEPPER_MOVE.runSpeed();
   }
@@ -58,14 +58,13 @@ void Home_Move_B()
   STEPPER_MOVE.moveTo(50000);
   
   // Wait untill sensor B detected or button stop pressed
-  while (STEPPER_MOVE.currentPosition() != 50000 and 
+  while (STEPPER_MOVE.currentPosition() != 50000      and 
         (IS_SENSOR_NOT_DETECTED(SS2_MOVE_HOME_B_PIN)) and 
         (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN)))
   {
-    //STEPPER_MOVE.setAcceleration(20000);
     STEPPER_MOVE.setMaxSpeed(MOVE_STEPPER_SPEED_HOME);
-    //STEPPER_MOVE.runSpeed();
     STEPPER_MOVE.moveTo(20000);
+
     // Increase number of Holes already run
     if (IS_SENSOR_DETECTED(SS6_HOLES_PIN))
     {
@@ -85,12 +84,12 @@ void Home_Move_B()
   STEPPER_MOVE.stop();
   STEPPER_MOVE.setCurrentPosition(0);
   NumHolesAlreadyRun_xdu32 = 0;
-  
 }
 
 void Forward_Move(unsigned long Step_Remain)
 {
   static bool Flag_Pre;
+
   // Wait untill reach positin and button stop is pressed
   while ((STEPPER_MOVE.currentPosition() != Step_Remain)  and
         (IS_SENSOR_NOT_DETECTED(SS2_MOVE_HOME_B_PIN))     and
@@ -127,11 +126,12 @@ void Forward_Move_First()
   static int NumHole_Internal;
   NumHole_Internal = 0;
 
-  while ((STEPPER_MOVE.currentPosition() != 100000)   and (IS_SENSOR_NOT_DETECTED(SS2_MOVE_HOME_B_PIN))       and 
-  (Appl_NoMaterial_xdu == false)                      and 
-  (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN))            and 
-  (Appl_ButtonStopPress_xdu == false)                 and 
-  (NumHole_Internal != 1))
+  while ((STEPPER_MOVE.currentPosition() != 100000)          and 
+         (IS_SENSOR_NOT_DETECTED(SS2_MOVE_HOME_B_PIN))       and 
+         (Appl_NoMaterial_xdu == false)                      and 
+         (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN))            and 
+         (Appl_ButtonStopPress_xdu == false)                 and 
+         (NumHole_Internal != 1))
   {
     STEPPER_MOVE.setSpeed(3000);
     STEPPER_MOVE.runSpeed();
@@ -169,7 +169,13 @@ void Forward_Move_1Step()
   static int NumHole_Internal;
   LOG("Forward_Move_1Step");
   NumHole_Internal = 0;
-  while (STEPPER_MOVE.currentPosition() != 100000 and (IS_SENSOR_NOT_DETECTED(SS2_MOVE_HOME_B_PIN)) and (Appl_NoMaterial_xdu == false) and (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN)) and Appl_ButtonStopPress_xdu == false and NumHole_Internal != 1)
+
+  while (STEPPER_MOVE.currentPosition() != 100000       and
+        (IS_SENSOR_NOT_DETECTED(SS2_MOVE_HOME_B_PIN))   and
+        (Appl_NoMaterial_xdu == false)                  and
+        (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN))        and
+        (Appl_ButtonStopPress_xdu == false)             and
+        (NumHole_Internal != 1))
   {
     STEPPER_MOVE.setSpeed(3000);
     STEPPER_MOVE.runSpeed();
@@ -204,7 +210,15 @@ int Forward_Move_Holes(int Holes)
   int32_t timer1;
   int32_t timercount;
   NumHole_Internal = 0;
-  while (STEPPER_MOVE.currentPosition() != 100000 and (IS_SENSOR_NOT_DETECTED(SS2_MOVE_HOME_B_PIN)) and (Appl_ButtonPausePress_1_xdu == false) and (Appl_NoMaterial_xdu == false) and (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN)) and Appl_ButtonStopPress_xdu == false and NumHole_Internal != Holes and Appl_NumHolesFromAToB_xdu8 < 44)
+  
+  while ((STEPPER_MOVE.currentPosition() != 100000)       and
+         (IS_SENSOR_NOT_DETECTED(SS2_MOVE_HOME_B_PIN))    and
+         (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN))         and
+         (Appl_ButtonPausePress_1_xdu == false)           and
+         (Appl_NoMaterial_xdu == false)                   and
+         (Appl_ButtonStopPress_xdu == false)              and
+         (NumHole_Internal != Holes)                      and
+         (Appl_NumHolesFromAToB_xdu8 < 44))
   {
     if (Appl_NumHolesFromAToB_xdu8 == 42 or (NumHole_Internal == (Holes - 2)) or Appl_NumHolesFromAToB_xdu8 == 1)
     {
@@ -328,7 +342,6 @@ int Forward_Move_Holes(int Holes)
   {
     if (IS_MATERIAL_DETECTED(SS8_MATERIAL_BACK_PIN))
     {
-      //if (IS_BUTTON_NOT_PRESSED(BUTTON_START_PIN))
       if (IS_BUTTON_PRESSED(BUTTON_START_PIN))
       {
         LOG("start press");
@@ -364,6 +377,7 @@ int Forward_Move_Holes(int Holes)
   }
   else
   {
+    // Do nothing
   }
   return NumHole_Internal;
 }
@@ -373,7 +387,11 @@ unsigned long Backward_Move(unsigned long Step_Remain)
   static bool Flag_Pre;
   LOG(Step_Remain);
   STEPPER_MOVE.moveTo(-Step_Remain);
-  while (STEPPER_MOVE.currentPosition() != -Step_Remain and (IS_SENSOR_NOT_DETECTED(SS1_MOVE_HOME_A_PIN)) and (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN)) and Appl_ButtonStopPress_xdu == false)
+
+  while ((STEPPER_MOVE.currentPosition() != -Step_Remain)   and
+         (IS_SENSOR_NOT_DETECTED(SS1_MOVE_HOME_A_PIN))      and
+         (IS_BUTTON_NOT_PRESSED(BUTTON_STOP_PIN))           and
+         (Appl_ButtonStopPress_xdu == false))
   {
     //STEPPER_MOVE.setSpeed(-10000);
     STEPPER_MOVE.setSpeed(-18000);
@@ -451,7 +469,6 @@ void Home_Stepper_Cutter()
   STEPPER_CUT.moveTo(15000);
   while (STEPPER_CUT.currentPosition() != 15000 and (IS_SENSOR_NOT_DETECTED(SS3_CUT_HOME_PIN)))
   {
-    //STEPPER_CUT.setSpeed(2000);
     STEPPER_CUT.setSpeed(2000);
     STEPPER_CUT.runSpeed();
   }
@@ -464,8 +481,6 @@ void Center_Stepper_Cutter()
   STEPPER_CUT.moveTo(-9040);
   while (STEPPER_CUT.currentPosition() != -9040)
   {
-    //STEPPER_CUT.setSpeed(-2000);
-    
     STEPPER_CUT.setSpeed(-3000);
     STEPPER_CUT.runSpeed();
   }
@@ -533,8 +548,8 @@ void Home_All()
   GPIO_SET(STEPPER_CUT_ENA_PIN,HIGH);
   GPIO_SET(SOL_CLAMP_FEEDER_PIN, LOW);
   Home_Move_A();
-  Cutter_Forward();                                 // Forward Cut
-  while (IS_SENSOR_NOT_DETECTED(SS4_END_STROKE_BACK_PIN)) // Wait to cutter go in
+  Cutter_Forward();                                         // Forward Cut
+  while (IS_SENSOR_NOT_DETECTED(SS4_END_STROKE_BACK_PIN))   // Wait to cutter go in
   {
   }
   Home_Stepper_Cutter();
@@ -558,10 +573,8 @@ void stepper_setup(void)
 {
   STEPPER_MOVE.setEnablePin(STEPPER_MOVE_ENA_PIN);
   STEPPER_MOVE.setMaxSpeed(100000);
-  //STEPPER_MOVE.setAcceleration(2000);
   STEPPER_CUT.setEnablePin(STEPPER_CUT_ENA_PIN);
   STEPPER_CUT.setMaxSpeed(100000);
-  STEPPER_CUT.setAcceleration(900);
 }
 
 /* End of file -------------------------------------------------------- */
