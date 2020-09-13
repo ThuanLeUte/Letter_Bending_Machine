@@ -20,7 +20,7 @@
 
 /* Public defines ----------------------------------------------------- */
 #define BRUSHLESS_SPEED     (40)
-#define TIME_CUTTER         (1000)
+#define TIME_CUTTER         (600)
 
 /* Public enumerate/structure ----------------------------------------- */
 /**

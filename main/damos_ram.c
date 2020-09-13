@@ -53,4 +53,3 @@ bool Appl_NoMaterialFirstCallCapture_xdu = false;
 /* Function definitions ----------------------------------------------- */
 
 /* End of file -------------------------------------------------------- */
-

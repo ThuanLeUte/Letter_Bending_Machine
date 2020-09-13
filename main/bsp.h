@@ -10,6 +10,7 @@
  * @example    None
  */
 
+
 /* Define to prevent recursive inclusion ------------------------------ */
 #ifndef __BSP_H
 #define __BSP_H
@@ -25,7 +26,7 @@
 #define SS4_END_STROKE_BACK_PIN           (SS4)
 
 #define SS3_CUT_HOME_PIN                  (SS5)
-#define SS8_MATERIAL_BACK_PIN             (SS6)
+#define SS8_MATERIAL_BACK_PIN             (SS8)
 #define SS6_HOLES_PIN                     (SS7)
 
 #define BUTTON_START_PIN                  (BT1)
@@ -38,7 +39,7 @@
 #define SOL_CLAMPER_PIN                   (OUT_5)
 
 #define SOL_SLIDE_FORWARD_PIN             (OUT_5)
-#define MATERIAL_STATUS                   (OUT_6)
+#define MATERIAL_STATUS                   (OUT_7)
 
 #define STEPPER_MOVE_ENA_PIN              (OP1)
 #define STEPPER_MOVE_DIR_PIN              (OP2)
@@ -49,7 +50,7 @@
 #define STEPPER_CUT_STEP_PIN              (OP7)
 
 #define BRUSHLESS_SPEED_PIN               (OP8)
-#define BRUSHLESS_ENA_PIN                 (OP9)
+#define BRUSHLESS_ENA_PIN                 (OP4)
 
 /* Public enumerate/structure ----------------------------------------- */
 typedef enum
@@ -70,6 +71,9 @@ data_respond_pc_t;
 /* Public macros ------------------------------------------------------ */
 #define IS_SENSOR_DETECTED(sensor)            (digitalRead(sensor) == 0)
 #define IS_SENSOR_NOT_DETECTED(sensor)        (digitalRead(sensor) == 1)
+
+#define IS_MATERIAL_DETECTED(sensor)          (digitalRead(sensor) == 1)
+#define IS_MATERIAL_NOT_DETECTED(sensor)      (digitalRead(sensor) == 0)
 
 #define IS_BUTTON_PRESSED(button)             (digitalRead(button) == 1)
 #define IS_BUTTON_NOT_PRESSED(button)         (digitalRead(button) == 0)
