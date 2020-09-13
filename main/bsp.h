@@ -10,7 +10,6 @@
  * @example    None
  */
 
-
 /* Define to prevent recursive inclusion ------------------------------ */
 #ifndef __BSP_H
 #define __BSP_H
