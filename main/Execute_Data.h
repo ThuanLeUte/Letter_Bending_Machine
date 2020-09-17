@@ -337,6 +337,7 @@ void Execute_Forward(String Data_Input)
       {
         if (Appl_DataLengthFloat_fdu32 > 0 and Appl_DataLengthFloat_fdu32 < 50 and (Appl_NumHolesFromAToB_xdu8 + Holes_HaveToRun_xdu32) < 43)
         {
+          Appl_DataLengthIsRemain_xdu = true;
           Serial.println("Forward starting");
           digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH); // Kep phoi
           if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
@@ -383,6 +384,7 @@ void Execute_Forward(String Data_Input)
     {
       if (Appl_DataLengthFloat_fdu32 > 0 and Appl_DataLengthFloat_fdu32 < 50 and (Appl_NumHolesFromAToB_xdu8 + Holes_HaveToRun_xdu32) < 43)
       {
+        Appl_DataLengthIsRemain_xdu = true;
         Serial.println("Forward starting");
         digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH); // Kep phoi
         if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
