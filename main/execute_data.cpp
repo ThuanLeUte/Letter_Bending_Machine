@@ -264,9 +264,7 @@ void Execute_Move(String Data_Input)
   static unsigned long Step;
   static unsigned long StepForSmallMove;
   // disable motor cắt
-  GPIO_SET(OUT_8, LOW);
   GPIO_SET(STEPPER_CUT_ENA_PIN, LOW);
-  delay(300);
   Appl_Forward_Trigger_xdu = true;
 
   Appl_FisrtPulse_xdu8 = 0;
@@ -426,8 +424,6 @@ void Execute_Move(String Data_Input)
   }
   Appl_Forward_Trigger_xdu = false;
   //enable motor cắt
-  GPIO_SET(OUT_8, HIGH);
-  delay(300);
   GPIO_SET(STEPPER_CUT_ENA_PIN, HIGH);
 }
 
@@ -436,8 +432,6 @@ void Execute_Cut(String Data_Input)
   static float Data_Angle_Float_Raw;
   static float Data_Angle_Float;
   static int32_t Step;
-  GPIO_SET(OUT_8, HIGH);
-  delay(300);
   GPIO_SET(STEPPER_CUT_ENA_PIN, HIGH);
   Data_Angle_Float_Raw = (Data_Input.toFloat());
 
@@ -451,9 +445,9 @@ void Execute_Cut(String Data_Input)
     Data_Angle_Float = ((Data_Angle_Float_Raw - 45) / 2);
 
     // Limit angle cut to 40 degrre
-    if (Data_Angle_Float >= 40)
+    if (Data_Angle_Float >= 37)
     {
-      Data_Angle_Float = 40;
+      Data_Angle_Float = 37;
     }
   }
   else
@@ -483,8 +477,6 @@ void Execute_Cut(String Data_Input)
   {
     // Do nothing
   }
-  GPIO_SET(OUT_8, LOW);
-  delay(300);
   GPIO_SET(STEPPER_CUT_ENA_PIN, LOW);
 }
 
@@ -595,7 +587,7 @@ static inline void m_wait_for_cutter_go_out(void)
 {
   while (1) // Wait for cutter go out
   {
-    if ((IS_SENSOR_NOT_DETECTED(SS4_END_STROKE_BACK_PIN)) and   // Sensor back is not detected
+    if ((IS_SENSOR_DETECTED(SS4_END_STROKE_BACK_PIN)) and   // Sensor back is detected
         (IS_SENSOR_DETECTED(SS7_END_STROKE_FRONT_PIN)))         // Sensor front is detected
     {
       break;
@@ -610,11 +602,11 @@ static inline void trigger_change(void)
 {
   while (1) // Wait for cutter go out of 2 sensors
   {
-    if ((IS_SENSOR_NOT_DETECTED(SS4_END_STROKE_BACK_PIN)) and   // Sensor back is detected
-        (IS_SENSOR_NOT_DETECTED(SS7_END_STROKE_FRONT_PIN)))     // Sensor front is not detected
-    {
+     if ((IS_SENSOR_NOT_DETECTED(SS4_END_STROKE_BACK_PIN)) and     // Sensor back is detected
+        (IS_SENSOR_NOT_DETECTED(SS7_END_STROKE_FRONT_PIN)))   // Sensor front is not detected
+     {
       break;
-    }
+      }
     if (Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
     {
       return;
@@ -625,8 +617,7 @@ static inline void m_wait_to_cutter_go_midle(void)
 {
   while (1) // Wait for cutter go midle
   {
-    if ((IS_SENSOR_DETECTED(SS4_END_STROKE_BACK_PIN)) and     // Sensor back is detected
-        (IS_SENSOR_NOT_DETECTED(SS7_END_STROKE_FRONT_PIN)))   // Sensor front is not detected
+    if (IS_SENSOR_DETECTED(SS7_END_STROKE_FRONT_PIN))   // Sensor FRONT is detected
     {
       break;
     }
@@ -641,9 +632,8 @@ static inline void m_wait_to_cutter_go_in(void)
 {
   while (1) // Wait for cutter go in
   {
-    if ((IS_SENSOR_DETECTED(SS4_END_STROKE_BACK_PIN)) and   // Sensor back is detected
-        (IS_SENSOR_DETECTED(SS7_END_STROKE_FRONT_PIN)))     // Sensor front is not detected
-    {
+    if (IS_SENSOR_DETECTED(SS4_END_STROKE_BACK_PIN))   // Sensor back is detected
+     {
       break;
     }
     if (Appl_ButtonStopPress_xdu == true or Appl_SystemState_xdu8 == SYS_INIT_STATE)
@@ -676,9 +666,7 @@ static void m_cutter_cut_out(int32_t step)
 
   Cutter_Backward();                  // Backward Cut
 
-  trigger_change();
-
-  m_wait_for_cutter_go_out();         // Wait to cutter go out
+  m_wait_for_cutter_go_out();         // Wait to cutter go out to end stroke (detect 2 sensors)
 
   m_button_stop_delay(TIME_CUTTER);
 
@@ -686,9 +674,10 @@ static void m_cutter_cut_out(int32_t step)
 
   m_button_stop_delay(400);
 
-  Cutter_Forward();                   // Forward Cut
+  Cutter_Forward();                   // Forward Cut - Set pin
 
-  m_wait_to_cutter_go_in();           // Wait to cutter go in
+  trigger_change();                   // Trigger 2 sensor OFF
+  m_wait_to_cutter_go_in();           // Wait to cutter go in - detect BACK sensor
 
   Brushless_Off();                    // Brushless off
 
@@ -715,9 +704,8 @@ static void m_cutter_cut_in(void)
   m_button_stop_delay(2000);
 
   Cutter_Backward();                  // Backward Cut
-  trigger_change();
-  m_wait_to_cutter_go_midle();        // Wait to cutter go midle
-  Cutter_Forward();                   // Forward Cut
+  m_wait_to_cutter_go_midle();        // Wait to cutter go midle - detect sensor FRONT
+  Cutter_Forward();                   // Forward Cut - SET PIN
   m_wait_to_cutter_go_in();           // Wait to cutter go in
 
   Brushless_Off();                    // Brushless off

@@ -478,10 +478,10 @@ void Home_Stepper_Cutter()
 
 void Center_Stepper_Cutter()
 {
-  STEPPER_CUT.moveTo(-9040);
-  while (STEPPER_CUT.currentPosition() != -9040)
+  STEPPER_CUT.moveTo(-10500);
+  while (STEPPER_CUT.currentPosition() != -10500)
   {
-    STEPPER_CUT.setSpeed(-3000);
+    STEPPER_CUT.setSpeed(-4000);
     STEPPER_CUT.runSpeed();
   }
   STEPPER_CUT.stop();
@@ -541,10 +541,7 @@ void Init_Home()
 void Home_All()
 {
   GPIO_SET(MATERIAL_STATUS, LOW);
-  GPIO_SET(OUT_8,HIGH);
-  delay(100);
   STEPPER_MOVE.setEnablePin(STEPPER_MOVE_ENA_PIN);
-  //STEPPER_CUT.setEnablePin(STEPPER_CUT_ENA_PIN);
   GPIO_SET(STEPPER_CUT_ENA_PIN,HIGH);
   GPIO_SET(SOL_CLAMP_FEEDER_PIN, LOW);
   Home_Move_A();
@@ -559,8 +556,7 @@ void Home_All()
   GPIO_SET(SOL_CLAMPER_PIN, LOW);
   Appl_ButtonStopPress_xdu = false;
   Appl_FinishStateFirstCall_xdu = true;
-  GPIO_SET(OUT_8,LOW);
-}
+  }
 
 void Home_And_Center_Cutter()
 {
