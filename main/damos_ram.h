@@ -18,11 +18,8 @@
 #include "Arduino.h"
 
 /* Public defines ----------------------------------------------------- */
-
 /* Public enumerate/structure ----------------------------------------- */
-
 /* Public macros ------------------------------------------------------ */
-
 /* Public variables --------------------------------------------------- */
 extern float Appl_LengthToAlarm_B_fdu32;
 extern float Appl_LengthToAlarm_A_fdu32;
@@ -30,7 +27,7 @@ extern float Appl_LengthToAlarm_fdu32;
 
 extern uint32_t Appl_FisrtPulse_xdu8;
 extern uint32_t Appl_LastPulse_xdu8;
-extern uint32_t NumHoles_AlreadyRun_xdu32;
+extern uint32_t NumHolesAlreadyRun_xdu32;
 extern uint32_t Holes_HaveToRun_xdu32;
 
 extern uint8_t Appl_NumHolesFromAToB_xdu8;
@@ -44,7 +41,6 @@ extern bool Appl_ButtonPausePress_xdu;
 extern bool Appl_ButtonPausePress_1_xdu;
 extern bool Appl_ButtonStopPress_xdu;
 extern bool Appl_FinishStateFirstCall_xdu;
-extern bool Appl_EmergencyHold_xdu;
 extern bool Appl_NoMaterialFirstCallCapture_xdu;
 
 extern bool Appl_DataLengthIsRemain_xdu;

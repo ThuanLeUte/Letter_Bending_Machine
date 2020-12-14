@@ -1,0 +1,27 @@
+@startuml
+state "Init state" as init
+idle: Init and Homming system
+
+state "Recieve and running state" as running_state
+running_state: Wait data and execute data
+
+state "Finish letter state" as finish_letter
+finish_letter: Finish all letters state
+
+state "Finish state" as finish
+finish: Finish one letter state
+
+state "Stop press" as stop_press
+stop_press: Button stop press
+
+[*] -> init : Ready
+init --> running_state : Init and homimg finished
+
+running_state --> finish_letter : Finish all letter
+finish_letter --> running_state : Start button pressed
+finish_letter --> stop_press : Stop button pressed
+
+finish --> running_state : Start button pressed
+finish --> stop_press : Stop button pressed
+
+@enduml

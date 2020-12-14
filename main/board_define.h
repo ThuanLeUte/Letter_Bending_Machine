@@ -5,7 +5,7 @@
  * @version    1.0.0
  * @date       2020-08-01
  * @author     ThuanLe
- * @brief      Board define
+ * @brief      Board defination
  * @note       None
  * @example    None
  */
@@ -15,7 +15,6 @@
 #define __BOARD_DEFINE_H
 
 /* Includes ----------------------------------------------------------- */
-
 /* Public defines ----------------------------------------------------- */
 #define OUT_1                   (61)
 #define OUT_2                   (60)
@@ -35,11 +34,11 @@
 #define SS7                     (10)
 #define SS8                     (11)
 
-#define BT1                     (18)
-#define BT2                     (19)
-#define BT3                     (20)
-#define BT4                     (21)
-#define BT5                     (2)
+#define BT1                     (18)    // Interrupt 5
+#define BT2                     (19)    // Interrupt 4
+#define BT3                     (20)    // Interrupt 3
+#define BT4                     (21)    // Interrupt 2
+#define BT5                     (2)     // Interrupt 0
 
 #define OP1                     (34)
 #define OP2                     (35)
@@ -54,13 +53,16 @@
 #define BUZZER                  (30)
 
 /* Public enumerate/structure ----------------------------------------- */
-
 /* Public macros ------------------------------------------------------ */
-
 /* Public variables --------------------------------------------------- */
-
-/* Public function definition ----------------------------------------- */
-void Board_Setup();
+/* Public function prototypes ----------------------------------------- */
+/**
+ * @brief         Board init
+ * @param[in]     None
+ * @attention     None
+ * @return        None
+ */
+void board_define_init(void);
 
 #endif // __BOARD_DEFINE_H
 
