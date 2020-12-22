@@ -16,19 +16,6 @@
 /* Includes ----------------------------------------------------------- */
 /* Public defines ----------------------------------------------------- */
 /* Public enumerate/structure ----------------------------------------- */
-/**
- * @brief State Machine enum
- */
-enum StateMachine
-{
-  SYS_INIT_STATE = 0,
-  SYS_RECIEVE_AND_RUNNING_STATE,
-  SYS_FINISH_LETTER_STATE,
-  SYS_FINISH_STATE,
-  SYS_STOP_BUTTON_PRESS_STATE,
-  SYS_STATE_CNT
-};
-
 /* Public macros ------------------------------------------------------ */
 /* Public variables --------------------------------------------------- */
 /* Public function prototypes ----------------------------------------- */

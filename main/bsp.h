@@ -53,21 +53,6 @@
 #define BRUSHLESS_ENA_PIN                 (OP4)
 
 /* Public enumerate/structure ----------------------------------------- */
-typedef enum
-{
-  RES_EXCECUTE_SUCCESS = 1,
-  RES_COMMAND_STOP     = 2,
-  RES_COMMAND_PAUSE    = 3,
-  RES_COMMAND_START    = 4,
-  RES_COMMAND_HOMING   = 6,
-  RES_READY_RECEIVE    = 7,
-  RES_LETTER_FINISHED  = 8,
-  RES_CONNECTED        = 10,
-  RES_NO_MATERIAL      = 11,
-  RES_START            = 13
-}
-data_respond_pc_t;
-
 /* Public macros ------------------------------------------------------ */
 #define IS_SENSOR_DETECTED(sensor)            (digitalRead(sensor) == 0)
 #define IS_SENSOR_NOT_DETECTED(sensor)        (digitalRead(sensor) == 1)
@@ -97,30 +82,6 @@ extern String g_uart_data_receive;
  * @return        None
  */
 void bsp_init(void);
-
-/**
- * @brief         Stop button interrupt
- * @param[in]     None
- * @attention     None
- * @return        None
- */
-void bsp_stop_push(void);
-
-/**
- * @brief         Pause button interrupt
- * @param[in]     None
- * @attention     None
- * @return        None
- */
-void bsp_pause_push(void);
-
-/**
- * @brief         Start button interrupt
- * @param[in]     None
- * @attention     None
- * @return        None
- */
-void bsp_start_push(void);
 
 /**
  * @brief         Receive date from uart
