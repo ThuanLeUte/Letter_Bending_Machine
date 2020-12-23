@@ -1,266 +1,356 @@
-/**
- * @file       main.c
- * @copyright  Copyright (C) 2020 ThuanLe. All rights reserved.
- * @license    This project is released under the ThuanLe License.
- * @version    1.0.0
- * @date       2020-08-14
- * @author     Thuan Le
- * @brief      Main file
- * @note       None
- * @example    None
- */
 
-/* Includes ----------------------------------------------------------- */
+
 #include <avr/wdt.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
-
-#include "bsp.h"
-#include "stepper_control.h"
-#include "execute_data.h"
+#
+#include "Stepper_Control.h"
+#include "Execute_Data.h"
+#include "UART_Communication.h"
 #include "main.h"
-#include "damos_ram.h"
 
-/* Private defines ---------------------------------------------------- */
-/* Private enumerate/structure ---------------------------------------- */
-/* Private macros ----------------------------------------------------- */
-#define FSM_UPDATE_STATE(new_state)           \
-do                                            \
-{                                             \
-  if (new_state < SYS_STATE_CNT){             \
-    Appl_SystemState_xdu8 = new_state;        \
-    LOG("[FSM] new state: %s", #new_state);   \
-  }                                           \
-} while (0);                                  \
+//-------------------STEPPER_MOVE (11)--------------//
+/*
 
-/* Public variables --------------------------------------------------- */
-/* Private variables -------------------------------------------------- */
-/* Private function prototypes ---------------------------------------- */
-static inline void init_variables(void);
-static inline void Stop();
-static inline void Start();
-static inline void Pause();
+  Micro-Stepp:800 step/vòng
+  Speed: 7000=> 17.5 vòng/giây.
+  Ti so: 1/18 => Speed = 0.972 vong/giay
+  Run: 7200 step => 1 vòng
+*/
+*/ version này cho máy ở Cityo Ad
+//-------------------STEPPER_CUT (12)--------------//
+/*
+  Micro-Stepp:400 step/vòng
+  1000=> 2.5 vong/s
+  ti so => 0.07 vong
+  0.7 vong/s
+  Speed: 7000=> 17.5 vòng/giây.
+  Ti so: 1/36 => Speed = 0.486 vong/giay
+  Run: 14400 => 1 vòng =>360
+  Run 43200 > 1 vong lon =>360
+  1 do => 120 step
+  Center to Home: 42 do 
+*/
 
-/* Function definitions ----------------------------------------------- */
 void setup()
 {
-  bsp_init();        // Board support package init
-  stepper_setup();   // Stepper setup
-  GPIO_SET(BRUSHLESS_ENA_PIN , HIGH);
-  
+  Board_Setup();
+  Serial.begin(115200);
+  Serial2.begin(115200);
+  Serial3.begin(115200);
+
+  STEPPER_MOVE.setEnablePin(STEPPER_MOVE_ENA_PIN);
+  STEPPER_MOVE.setMaxSpeed(100000);
+
+  STEPPER_CUT.setEnablePin(STEPPER_CUT_ENA_PIN);
+  STEPPER_CUT.setMaxSpeed(100000);
+  digitalWrite(BRUSHLESS_ENA_PIN, HIGH);
+  //
+  //  attachInterrupt(2, Pause_Push, FALLING);    // Pin 21 Push go to LOW
+  //  attachInterrupt(3, Emergency_Push, RISING); // Pin 20 Push go to HIGH
+  //  attachInterrupt(4, Stop_Push, RISING);      // Pin 19 Push go to HIGH
+  //  attachInterrupt(5, Start_Push, FALLING);    // Pin 18 Push go to LOW
+
+  // initialize Timer1
+  //  cli();      // disable global interrupts
+  //  TCCR1A = 0; // set entire TCCR1A register to 0
+  //  TCCR1B = 0; // same for TCCR1B
+  //
+  //  // set compare match register to desired timer count:
+  //  OCR1A = 15624;
+  //  // turn on CTC mode:
+  //  TCCR1B |= (1 << WGM12);
+  //  // Set CS10 and CS12 bits for 1024 prescaler:
+  //  TCCR1B |= (1 << CS10);
+  //  TCCR1B |= (1 << CS12);
+  //  // enable timer compare interrupt:
+  //  TIMSK1 |= (1 << OCIE1A);
+  //  // enable global interrupts:
+  //  sei();
+  Appl_SystemState_xdu8 = INIT_STATE;
 }
-
-void loop()
+void InitVariables()
 {
-
-  
-  switch (Appl_SystemState_xdu8)
-  {
-  case SYS_INIT_STATE:
-  {
-    static bool first_call = true;
-    if (first_call == true)
-    {
-      Init_Home();
-      first_call = false;
-    }
-    else
-    {
-      Home_All(); // Home Cut and Move
-    }
-
-    init_variables();               // Init variables
-    DATA_SEND_TO_PC(RES_READY_RECEIVE);
-    FSM_UPDATE_STATE(SYS_RECIEVE_AND_RUNNING_STATE);
-    break;
-  }
-
-  case SYS_RECIEVE_AND_RUNNING_STATE:
-  {
-    bsp_uart_receive();             // Wait data from PC
-
-    // Finish of transfer data from PC to device
-    if (Appl_FinishTransfer_xdu == true)
-    {
-      DATA_SEND_TO_PC(RES_LETTER_FINISHED);
-      FSM_UPDATE_STATE(SYS_FINISH_STATE);
-    }
-
-    // Button stop pressed
-    if (Appl_ButtonStopPress_xdu == true)
-    {
-      FSM_UPDATE_STATE(SYS_STOP_BUTTON_PRESS_STATE)
-    }
-    break;
-  }
-
-  case SYS_FINISH_LETTER_STATE:
-  {
-    GPIO_SET(MATERIAL_STATUS, HIGH);    // Buzzer on
-
-    // Button start pressed
-    if (IS_BUTTON_PRESSED(BUTTON_START_PIN))
-    {
-      GPIO_SET(MATERIAL_STATUS, LOW);
-      LOG("Start press");
-      Execute_Move("-200");
-      DATA_SEND_TO_PC(RES_EXCECUTE_SUCCESS);
-      FSM_UPDATE_STATE(SYS_RECIEVE_AND_RUNNING_STATE);
-    }
-
-    // Button stop pressed
-    if (Appl_ButtonStopPress_xdu == true)
-    {
-      FSM_UPDATE_STATE(SYS_STOP_BUTTON_PRESS_STATE);
-    }
-
-    break;
-  }
-  case SYS_FINISH_STATE:
-  {
-    if (Appl_FinishStateFirstCall_xdu == true)
-    {
-      GPIO_SET(MATERIAL_STATUS, HIGH);
-      DELAY(2000);
-      GPIO_SET(MATERIAL_STATUS, LOW);
-      Appl_FinishStateFirstCall_xdu = false;
-    }
-
-    if (IS_BUTTON_PRESSED(BUTTON_START_PIN))
-    {
-      Appl_FinishStateFirstCall_xdu = false;
-      Appl_FinishTransfer_xdu = false;
-      DATA_SEND_TO_PC(RES_COMMAND_HOMING);
-      FSM_UPDATE_STATE(SYS_INIT_STATE);
-    }
-
-    if (Appl_ButtonStopPress_xdu == true)
-    {
-      Appl_FinishStateFirstCall_xdu = false;
-      Appl_FinishTransfer_xdu = false;
-      FSM_UPDATE_STATE(SYS_STOP_BUTTON_PRESS_STATE);
-    }
-
-    break;
-  }
-  case SYS_STOP_BUTTON_PRESS_STATE:
-  {
-    DELAY(1000);
-    DATA_SEND_TO_PC(RES_COMMAND_HOMING);
-    FSM_UPDATE_STATE(SYS_INIT_STATE);
-
-    break;
-  }
-  
-  default:
-    break;
-  }
-}
-
-void bsp_stop_push(void)
-{
-  NumHolesAlreadyRun_xdu32 = 0;
-  Stop();
-  Appl_ButtonStopPress_xdu = true;
-  Appl_ButtonStartPress_xdu = false;
-  Appl_StartRunning_xdu = false;
-}
-
-void bsp_pause_push(void)
-{
-  if (Appl_NoMaterial_xdu == false)
-  {
-    if (Appl_StartRunning_xdu == true and Appl_ButtonStopPress_xdu == false)
-    {
-      Pause();
-      Appl_ButtonPausePress_xdu = true;
-      Appl_ButtonPausePress_1_xdu = true;
-      Appl_StartRunning_xdu = false;
-      Appl_PauseTrigger_xdu = true;
-    }
-    else
-    {
-      LOG("Machine not start");
-    }
-  }
-  else
-  {
-    GPIO_SET(MATERIAL_STATUS, LOW);
-    GPIO_SET(SOL_CLAMP_FEEDER_PIN, LOW);
-    LOG("Tắt còi");
-  }
-}
-
-void bsp_start_push(void)
-{
-  LOG("Nhan nut Start");
-  if (Appl_ButtonPausePress_xdu == true)
-  {
-    Appl_ButtonStartPress_xdu = true;
-    if (Appl_Forward_Trigger_xdu == true)
-    {
-      DATA_SEND_TO_PC(RES_START);
-    }
-    else
-    {
-      Start();
-    }
-    Appl_ButtonPausePress_xdu = false;
-    Appl_ButtonStopPress_xdu = false;
-  }
-  else
-  {
-    LOG("Pause not press");
-  }
-}
-
-/* Private function  -------------------------------------------------- */
-/**
- * @brief         Init variables
- * @param[in]     None
- * @attention     None
- * @return        None
- */
-static inline void init_variables(void)
-{
-  NumHolesAlreadyRun_xdu32 = 0;
+  delay(20);
+  digitalWrite(OP4, HIGH);
   Appl_NumHolesFromAToB_xdu8 = 0;
-  g_uart_data_receive = "";
+  data_software = "";
   Appl_NoMaterial_xdu = false;
   Appl_NoMaterialFirstCallCapture_xdu = false;
   Appl_Second_xdu8 = 0;
   Appl_CutterBackwardTrigger_xdu = false;
   Appl_Forward_Trigger_xdu = false;
+  hole_index = 0;
+  du_truoc = 0;
+  data_index = 0;
+  auto_data_received = false;
+  Appl_ButtonStopPress_xdu = false;
+  Appl_EmergencyHold_xdu = false;
+  auto_receiving = false;
+}
+void loop()
+{
+  if (Appl_SystemState_xdu8 == INIT_STATE)
+  {
+    Serial2.println("LOG --------------Turned to INIT STATE...--------------");
+    InitVariables();
+    digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH);
+    delay(400);
+    digitalWrite(SOL_CLAMP_FEEDER_PIN, LOW);
+    delay(400);
+    digitalWrite(SOL_CLAMPER_PIN, HIGH);
+    delay(400);
+    digitalWrite(SOL_CLAMPER_PIN, LOW);
+    delay(400);
+    digitalWrite(BRUSHLESS_SPEED_PIN, LOW);
+    digitalWrite(BRUSHLESS_ENA_PIN, HIGH);
+    Serial2.println("LOG Initialize Done");
+    delay(100);
+    Serial2.println(7);
+    info_receive = false;
+    home_done = false;
+    Serial2.println("HFAIL");
+    Serial2.println("LOG Home not yet");
+    Appl_SystemState_xdu8 = RECIEVE_AND_RUNNING_STATE;
+  }
+  else if (Appl_SystemState_xdu8 == RECIEVE_AND_RUNNING_STATE)
+  {
+    if (info_receive == false)
+    {
+      Serial2.println("LOG ------ Turned to RECEIVE STATE.WAIT TO RECEIVE DATA........ ---------------");
+      info_receive = true;
+    }
+    if (digitalRead(BUTTON_STOP_PIN) == 1)
+    {
+      Serial2.println(2); // nhấn stop
+      Appl_ButtonStopPress_xdu = true;
+      info_stop = true;
+    }
+    if (digitalRead(BUTTON_EMERGENCY_PIN) == 1)
+    {
+      Appl_EmergencyHold_xdu = true;
+      Serial2.println(5);      
+    }
+    Recive_Data();
+    if (auto_data_received == true)
+    {
+      Serial2.println("LOG Starting");
+      Appl_StartRunning_xdu = true;
+      Appl_ButtonStopPress_xdu = false;
+      digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH);
+      Serial2.println("LOG Excuting data auto");
+      cut_and_excute();
+      auto_data_received = false;
+    }
+    if (Appl_ButtonStopPress_xdu == true)
+    {
+      Appl_SystemState_xdu8 = STOP_BUTTON_PRESS_STATE;    
+    }
+    else if (Appl_EmergencyHold_xdu == true)
+    {
+      Appl_SystemState_xdu8 = EMERGENCY_STATE;
+      Serial2.println(5);
+    }
+  }
+  else if (Appl_SystemState_xdu8 == FINISH_LETTER_STATE)
+  {
+    info_receive = false;
+    Serial2.println("LOG --------------Turned to FINISH LETTER STATE...--------------");    
+    if (buzzer_needed == true)
+    {
+      digitalWrite(MATERIAL_STATUS, HIGH);
+      delay(1500);
+      digitalWrite(MATERIAL_STATUS, LOW);
+    }
+    else
+    {
+      delay(1000);
+    }
+    home_done = false;
+    Home_All();
+    if (Appl_EmergencyHold_xdu == false or Appl_ButtonStopPress_xdu == false)
+    {
+      home_done = true;
+    }    
+    delay(500);
+    Serial2.println("LOG Send waiting START signal state to machine"); // gửi trạng thái chờ lên máy
+    Serial2.println(55); // gửi trạng thái chờ lên máy
+    bool info3 = false;
+    while (digitalRead(BUTTON_START_PIN) == 1)
+    {
+      if (info3 == false)
+      {
+        Serial2.println("LOG Wait press Start...");
+        info3 = true;
+      }
+      if (digitalRead(BUTTON_EMERGENCY_PIN) == 1)
+      {
+        STEPPER_MOVE.stop();
+        Appl_EmergencyHold_xdu = true;  
+        break;
+      }
+      if (digitalRead(BUTTON_STOP_PIN) == 1)
+      {
+        Serial2.println(2); // nhấn stop
+        STEPPER_MOVE.stop();
+        Appl_ButtonStopPress_xdu = true;
+        Serial2.println(6);
+        break;
+      }
+    }
+    if (Appl_ButtonStopPress_xdu == false and Appl_EmergencyHold_xdu == false)
+    {
+      Serial2.println(4); // gửi tín hiệu nhấn start lên
+      Serial2.println("LOG Gui NEXT len PC");
+      delay(100);
+      Serial2.println("NEXT");
+      delay(100);
+      Serial2.println("N");
+      Appl_SystemState_xdu8 = RECIEVE_AND_RUNNING_STATE; 
+    }
+    else if (Appl_ButtonStopPress_xdu == true)
+    {
+//      Serial2.println(2); // nhấn stop
+      Appl_SystemState_xdu8 = STOP_BUTTON_PRESS_STATE;      
+    }
+    else if (Appl_EmergencyHold_xdu == true)
+    {
+      Appl_SystemState_xdu8 = EMERGENCY_STATE;
+      Serial2.println(5); // nhấn emg
+    }
+  }
+  else if (Appl_SystemState_xdu8 == FINISH_STATE)
+  {
+    info_receive = false;
+    Serial2.println("LOG --------------Turned to FINISH ALL LETTER STATE--------------");
+    
+    if (Appl_ButtonStopPress_xdu == true)
+    {
+      Appl_FinishStateFirstCall_xdu = false;
+      Appl_FinishTransfer_xdu = false;
+      Appl_SystemState_xdu8 = STOP_BUTTON_PRESS_STATE;
+    }
+    else if (Appl_EmergencyHold_xdu == true)
+    {
+      Appl_SystemState_xdu8 = EMERGENCY_STATE;
+      Serial2.println(5);
+    }
+    else
+    {
+      Serial2.println("LOG Send finished letter state to PC");
+      Serial2.println(8);
+      if (buzzer_needed == true)
+      {
+        digitalWrite(MATERIAL_STATUS, HIGH);
+        delay(1500);
+        digitalWrite(MATERIAL_STATUS, LOW);
+      }
+      home_done = false;
+      Home_All();     
+      if (Appl_EmergencyHold_xdu == false or Appl_ButtonStopPress_xdu == false)
+      {
+        home_done = true;
+      }
+      Appl_SystemState_xdu8 = RECIEVE_AND_RUNNING_STATE;
+    }
+  }
+  else if (Appl_SystemState_xdu8 == STOP_BUTTON_PRESS_STATE)
+  {
+    info_receive = false;
+    Serial2.println("LOG --------------Turned to STOP STATE...--------------");
+    Appl_ButtonStopPress_xdu = false;
+    Appl_SystemState_xdu8 = false;
+    //Serial2.println(2);
+    STEPPER_MOVE.stop();
+    STEPPER_CUT.stop();
+    digitalWrite(BRUSHLESS_ENA_PIN, HIGH);
+    //Serial2.println(2);
+    bool info5 = false;
+    while (digitalRead(BUTTON_STOP_PIN) == 1)
+    {
+      if (info5 == false)
+      {
+        Serial2.println("LOG Wait button Stop release...");
+        info5 = true;
+      }
+    }
+    info5 = false;
+    delay(300);
+    while (digitalRead(BUTTON_STOP_PIN) == 0)
+    {
+      if (info5 == false)
+      {
+        Serial2.println("LOG Stop released. Wait press again...");
+        info5 = true;
+      }
+      Serial2.println(28);
+      delay(300);
+    }
+    info5 = false;
+    while (digitalRead(BUTTON_STOP_PIN) == 1)
+    {
+      if (info5 == false)
+      {
+        Serial2.println("LOG Wait button Stop release again...");
+        info5 = true;
+      }
+    }
+    info5 = false;
+    home_done = false;
+    Home_All();
+    if (Appl_EmergencyHold_xdu == false or Appl_ButtonStopPress_xdu == false)
+    {
+      home_done = true;
+      Serial2.println(7);
+      if (buzzer_needed == true)
+      {
+        Serial2.println("BZON");
+      }
+      else
+      {
+        Serial2.println("BZOF");
+      }
+    }
+    delay(20);
+    Appl_SystemState_xdu8 = RECIEVE_AND_RUNNING_STATE;
+  }
+  else if (Appl_SystemState_xdu8 == EMERGENCY_STATE)
+  {
+    info_receive = false;
+    Serial2.println("LOG --------------Turned to EMERGENCY STATE--------------");
+    while (digitalRead(BUTTON_EMERGENCY_PIN) == 1)
+    {
+      Serial2.println(5);
+      delay(300);
+    }
+    Appl_SystemState_xdu8 = INIT_STATE;
+  }
+  else
+  {
+    Serial2.println("LOG ENUM UNEXPECTED. TURNING TO INIT STATE....");
+    Appl_SystemState_xdu8 = INIT_STATE;
+  }
 }
 
-void Stop()
-{
-  Brushless_Off();
-  Cutter_Forward_Normal(); // Forward Cut
-  Appl_Second_xdu8 = 0;
-  Appl_CutterBackwardTrigger_xdu = false;
-  DATA_SEND_TO_PC(RES_COMMAND_STOP);
-}
-
-void Start()
-{
-  DATA_SEND_TO_PC(RES_COMMAND_START);
-}
-
-void Pause()
-{
-  DATA_SEND_TO_PC(RES_COMMAND_PAUSE);
-  Appl_SystemState_xdu8 = 1; //SYS_RECIEVE_AND_RUNNING_STATE
-}
-/**
- * @brief         Timer 1 interrupt
- * @param[in]     None
- * @attention     None
- * @return        None
- */
 ISR(TIMER1_COMPA_vect)
 {
- 
+  Appl_CutterBackwardTrigger_xdu = false;
+  if (Appl_CutterBackwardTrigger_xdu == true)
+  {
+    Appl_Second_xdu8++;
+    if (Appl_Second_xdu8 >= 8 and Appl_CutterBackwardTrigger_xdu == true)
+    {
+      Appl_SystemState_xdu8 = INIT_STATE;
+      Brushless_Off();
+      Serial2.println(12); // Send Error to PC
+      Serial2.println(2);  // Send Stop to PC
+      Serial2.println(6);  // Homing to PC
+      Appl_Second_xdu8 = 0;
+      Appl_CutterBackwardTrigger_xdu = false;
+    }
+  }
+  else
+  {
+    Appl_Second_xdu8 = 0;
+  }
 }
-
-/* End of file -------------------------------------------------------- */

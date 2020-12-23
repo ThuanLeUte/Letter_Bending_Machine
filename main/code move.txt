@@ -1,0 +1,280 @@
+void Execute_Forward(String Data_Input)
+{
+  //hole_index
+  static float leng_move;
+  static uint32_t holes;
+  static float Appl_DataLengthFloatRemainEnd_fdu32;
+  static unsigned long Step;
+  static unsigned long StepForSmallMove;
+  
+  leng_move = Data_Input.toFloat();
+  holes = leng_move/ delta;
+  
+  Appl_Forward_Trigger_xdu = true;
+  Appl_FisrtPulse_xdu8 = 0;
+  Appl_LastPulse_xdu8 = 0;
+  
+  NumHoles_AlreadyRun_xdu32 = 0;
+  du_sau = leng_move - 
+
+  Holes_HaveToRun_xdu32 = Appl_DataLengthFloat_fdu32 / 5.002;
+  Appl_DataLengthFloatRemainEnd_fdu32 = Appl_DataLengthFloat_fdu32 - Holes_HaveToRun_xdu32 * 5.002;
+
+  Step = (Appl_DataLengthFloatRemainEnd_fdu32 / 0.011090301);
+  StepForSmallMove = (Appl_DataLengthFloat_fdu32 / 0.011090301);
+  Serial2.print("Length to run : ");
+  Serial2.println(Appl_DataLengthFloat_fdu32);
+  Serial2.print("Holes HaveToRun : ");
+  Serial2.println(Holes_HaveToRun_xdu32);
+  Serial2.print("Remain end: ");
+  Serial2.println(Appl_DataLengthFloatRemainEnd_fdu32);
+  Serial2.print("NumHolesFromAToB_xdu8: ");
+  Serial2.println(Appl_NumHolesFromAToB_xdu8);
+
+  if (Appl_DataLengthFloat_fdu32 > 0)
+  {
+    if (Appl_DataLengthIsRemain_xdu or digitalRead(SS1_MOVE_HOME_A_PIN) == 1) // Sensor bị che=> lưng chừng
+    {
+      Serial2.println("Case move 1");
+      if (Appl_NumHolesFromAToB_xdu8 >= 43)
+      {
+        Serial2.println("Case move 1.1");
+        digitalWrite(SOL_CLAMPER_PIN, HIGH); //kẹp cắt
+        delay(1000);
+        digitalWrite(SOL_CLAMP_FEEDER_PIN, LOW); //nhả kẹp kéo
+        delay(500);
+        Home_Move_A();
+
+        Appl_NumHolesFromAToB_xdu8 = 0;
+        Forward_Move_First();
+        Appl_NumHolesFromAToB_xdu8++;
+
+        Serial2.println("Forward starting");
+        digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH); // Kep phoi
+        if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+        {
+          delay(500);
+        }
+        digitalWrite(SOL_CLAMPER_PIN, LOW); // Tha cat
+        if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+        {
+          delay(300);
+        }
+      }
+      else
+      {
+        Serial2.println("Case move 1.2");
+        if (Appl_DataLengthFloat_fdu32 > 0 and Appl_DataLengthFloat_fdu32 < 50 and 
+        (Appl_NumHolesFromAToB_xdu8 + Holes_HaveToRun_xdu32) < 43)
+        {
+          Serial2.print("Case move 1.2.1");
+          Appl_DataLengthIsRemain_xdu = true;
+          Serial2.println("Forward starting");
+          digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH); // Kep phoi
+          if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+          {
+            delay(500);
+          }
+          digitalWrite(SOL_CLAMPER_PIN, LOW); // Tha cat
+          if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+          {
+            delay(300);
+          }
+          Forward_Move(StepForSmallMove);
+          return;
+        }
+        else
+        {
+          Serial2.println("Case move 1.2.2");
+          digitalWrite(SOL_CLAMPER_PIN, HIGH); // Kep cat
+          if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+          {
+            delay(300);
+          }
+          digitalWrite(SOL_CLAMP_FEEDER_PIN, LOW); // Tha phoi
+          if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+          {
+            delay(500);
+          }
+          Forward_Move_1Step();
+          Appl_NumHolesFromAToB_xdu8++;
+          Serial2.println("Forward starting");
+          digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH); // Kep phoi
+          if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+          {
+            delay(500);
+          }
+          digitalWrite(SOL_CLAMPER_PIN, LOW); // Tha cat
+          if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+          {
+            delay(300);
+          }
+        }
+      }
+    }
+    else
+    {
+      Serial2.println("Case move 2");
+      //Appl_DataLengthFloatRemainEnd_fdu32 : chieu dai du con lai
+      //Appl_DataLengthFloat_fdu32 : chieu dai VB gui xuong
+      if (Appl_DataLengthFloat_fdu32 > 0 and Appl_DataLengthFloat_fdu32 < 50 and 
+      (Appl_NumHolesFromAToB_xdu8 + Holes_HaveToRun_xdu32) < 43)
+      {
+        Appl_DataLengthIsRemain_xdu = true;
+        Serial2.println("Forward starting");
+        digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH); // Kep phoi
+        if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+        {
+          delay(500);
+        }
+        digitalWrite(SOL_CLAMPER_PIN, LOW); // Tha cat
+        if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+        {
+          delay(300);
+        }
+        Forward_Move(StepForSmallMove);
+        return;
+      }
+      digitalWrite(SOL_CLAMPER_PIN, LOW); // Tha cat
+      if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+      {
+        delay(300);
+      }
+      
+    }
+
+    while (NumHoles_AlreadyRun_xdu32 < Holes_HaveToRun_xdu32 and Appl_ButtonStopPress_xdu == false
+    and (digitalRead(BUTTON_EMERGENCY_PIN) == 0))
+    {
+      if (Appl_NumHolesFromAToB_xdu8 >= 44 or digitalRead(SS2_MOVE_HOME_B_PIN) == 1)
+      {
+        delay(500);
+        digitalWrite(SOL_CLAMPER_PIN, HIGH); // Kep cat
+        delay(500);
+        digitalWrite(SOL_CLAMP_FEEDER_PIN, LOW); // Tha phoi
+        delay(300);
+        Home_Move_A();
+        delay(300);
+
+        Appl_NumHolesFromAToB_xdu8 = 0;
+        Forward_Move_First();
+        Appl_NumHolesFromAToB_xdu8++;
+        digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH); // Kep phoi
+
+        if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+        {
+          delay(500);
+        }
+        digitalWrite(SOL_CLAMPER_PIN, LOW); // Tha cat
+        if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+        {
+          delay(300);
+        }
+      }
+      else
+      {
+        if (NumHoles_AlreadyRun_xdu32 < Holes_HaveToRun_xdu32)
+        {
+          NumHoles_AlreadyRun_xdu32 += Forward_Move_Holes(Holes_HaveToRun_xdu32 - NumHoles_AlreadyRun_xdu32);
+          //        Serial2.print("Holes HaveToRun : ");
+          //        Serial2.println(Holes_HaveToRun_xdu32);
+          //        Serial2.print("NumHoles AlreadyRun : ");
+          //        Serial2.println(NumHoles_AlreadyRun_xdu32);
+        }
+        else
+        {
+          // Do notthing
+        }
+      }
+    }
+    Serial2.print("Holes HaveToRun : ");
+    Serial2.println(Holes_HaveToRun_xdu32);
+    Serial2.print("NumHoles AlreadyRun : ");
+    Serial2.println(NumHoles_AlreadyRun_xdu32);
+
+    if (Step != 0)
+    {
+      Appl_DataLengthIsRemain_xdu = true;
+    }
+    else
+    {
+      Appl_DataLengthIsRemain_xdu = false;
+    }
+    if (Appl_NumHolesFromAToB_xdu8 >= 45 or digitalRead(SS2_MOVE_HOME_B_PIN) == 1)
+    {
+      digitalWrite(SOL_CLAMPER_PIN, HIGH);
+      delay(1000);
+      digitalWrite(SOL_CLAMP_FEEDER_PIN, LOW);
+      delay(300);
+      Home_Move_A();
+      delay(300);
+      Appl_NumHolesFromAToB_xdu8 = 0;
+      Forward_Move_First();
+      Appl_NumHolesFromAToB_xdu8++;
+      delay(500);
+      digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH);
+      if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+      {
+        delay(500);
+      }
+      digitalWrite(SOL_CLAMPER_PIN, LOW);
+      if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+      {
+        delay(300);
+      }
+    }
+    Forward_Move(Step);
+    Serial2.println("Execute_Forward Done");
+    digitalWrite(SOL_CLAMPER_PIN, LOW);
+  }
+  else
+  {
+    static unsigned long Step_Remain;
+    static unsigned long Step;
+    Step = -float(Appl_DataLengthFloat_fdu32 / 0.011090301);
+    Serial2.println("Backward starting");
+    digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH);
+    if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+    {
+      delay(1000);
+    }
+    digitalWrite(SOL_CLAMPER_PIN, LOW);
+    if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+    {
+      delay(300);
+    }
+    Step_Remain = Backward_Move(Step);
+    Serial2.print("Xung con lai: ");
+    Serial2.println(Step_Remain);
+    if (Step_Remain == 0)
+    {
+      Serial2.println("Execute_Backward Done");
+      digitalWrite(SOL_CLAMPER_PIN, LOW);
+    }
+    else
+    {
+      while (Step_Remain != 0 and (digitalRead(BUTTON_EMERGENCY_PIN) == 0))
+      {
+        digitalWrite(SOL_CLAMP_FEEDER_PIN, LOW);
+        delay(1000);
+        Home_Move_B();
+        digitalWrite(SOL_CLAMPER_PIN, LOW);
+        digitalWrite(SOL_CLAMP_FEEDER_PIN, HIGH);
+        if (Appl_ButtonStopPress_xdu == false and digitalRead(BUTTON_EMERGENCY_PIN) == 0)
+        {
+          delay(1000);
+        }
+        Step_Remain = Backward_Move(Step_Remain);
+        Serial2.print("Xung con lai: ");
+        Serial2.println(Step_Remain);
+        if (digitalRead(BUTTON_EMERGENCY_PIN) == 1 or Appl_ButtonStopPress_xdu == true)
+        {
+          return;
+        }
+      }
+      Serial2.println("Execute_Backward Done");
+      digitalWrite(SOL_CLAMPER_PIN, LOW);
+    }
+  }
+  Appl_Forward_Trigger_xdu = false;
+}
